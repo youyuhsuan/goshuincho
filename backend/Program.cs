@@ -8,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text.Json;
 using System.Text;
 
+using Serilog;
+using Serilog.Events;
+
 using backend.Data;
 using backend.Middleware;
 using backend.Common;
@@ -15,10 +18,17 @@ using backend.Configuration;
 using backend.Services;
 using backend.Filters;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Builder setting
+// Configure Serilog logger by reading settings from configuration files (appsettings.json)
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+// Replace the default logging provider with Serilog
+builder.Host.UseSerilog();
+
 // Configure MVC controllers with JSON serialization options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -141,4 +151,17 @@ app.UseAuthorization();
 // Map Web API controller endpoints
 app.MapControllers();
 
-app.Run();
+try
+{
+    Log.Information("Application starting");
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application failed to start");
+}
+finally
+{
+    Log.Information("Application shutdown complete");
+    Log.CloseAndFlush();
+}
