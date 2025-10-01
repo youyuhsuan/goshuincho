@@ -9,6 +9,9 @@ import vueDevTools from "vite-plugin-vue-devtools";
 import Components from "unplugin-vue-components/vite";
 import { PrimeVueResolver } from "@primevue/auto-import-resolver";
 
+import tailwindcss from "@tailwindcss/vite";
+import svgLoader from "vite-svg-loader";
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -17,6 +20,11 @@ export default defineConfig({
     vueDevTools(),
     Components({
       resolvers: [PrimeVueResolver()],
+    }),
+    svgLoader({
+      svgoConfig: {
+        multipass: true,
+      },
     }),
   ],
   resolve: {
