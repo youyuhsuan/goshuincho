@@ -6,8 +6,8 @@
 
 <script setup lang="ts">
 import Button from "primevue/button";
-// Components
-import IconGoogle from "@/components/icons/IconGoogle.vue";
+// Icon
+import IconGoogle from "@/assets/icons/google.svg?component";
 // Composables
 import useOAUth from "@/composables/useOAuth";
 const { signInWithGoogle } = useOAUth();
