@@ -17,6 +17,7 @@ using backend.Common;
 using backend.Configuration;
 using backend.Services;
 using backend.Filters;
+using backend.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +38,9 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
+// Generate a new RSA key pair (for system initialization only)
+// RsaKeyHelper.SaveKeyPairToFiles("public_key.pem", "private_key.pem");
+
 // Configure JWT Bearer authentication scheme
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -49,7 +53,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+            // Load RSA public key for token validation
+            IssuerSigningKey = new RsaSecurityKey(
+                RsaKeyHelper.LoadPublicKey(builder.Configuration)
+            )
         };
     });
 

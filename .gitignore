@@ -225,3 +225,6 @@ vite.config.ts.timestamp-*
 **/*.VisualState.xml
 **/TestResult.xml
 **/nunit-*.xml
+
+# Key
+**/*.pem
