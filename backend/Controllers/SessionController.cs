@@ -38,7 +38,6 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<ActionResult<SessionDto>> CreateSession(CreateSessionRequest request)
         {
-
             var session = await _sessionService.CreateSessionAsync(request);
             return Ok(session);
         }

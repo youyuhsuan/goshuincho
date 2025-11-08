@@ -3,6 +3,7 @@ using backend.Data;
 using backend.Models;
 using backend.DTOs;
 using backend.Exceptions;
+using BCrypt.Net;
 
 
 namespace backend.Services
@@ -38,7 +39,7 @@ namespace backend.Services
             {
                 Name = request.Name,
                 Email = request.Email,
-                Password = request.Password
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
             };
 
             _context.Users.Add(user);

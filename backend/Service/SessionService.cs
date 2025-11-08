@@ -3,6 +3,7 @@ using backend.Data;
 using backend.Models;
 using backend.DTOs;
 using backend.Exceptions;
+using BCrypt.Net;
 
 namespace backend.Services
 {
@@ -94,8 +95,7 @@ namespace backend.Services
 
         private bool VerifyPassword(string inputPassword, string hashedPassword)
         {
-            return inputPassword == hashedPassword;
-            // return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
+            return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
         }
     }
 }
