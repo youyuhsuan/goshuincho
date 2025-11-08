@@ -18,6 +18,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools(),
+    tailwindcss(),
     Components({
       resolvers: [PrimeVueResolver()],
     }),

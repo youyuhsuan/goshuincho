@@ -3,7 +3,7 @@
     v-slot="$form"
     :initialValues="initialValues"
     :resolver="resolver"
-    class="flex flex-col gap-4 w-full"
+    class="flex flex-col gap-5 w-full"
     @submit="onFormSubmit"
   >
     <!-- Email -->
