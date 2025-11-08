@@ -26,7 +26,7 @@ import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
 // Composables
-import useOAuth from "@/composables/useOauth";
+import useOAuth from "@/composables/useOAuth";
 
 const router = useRouter();
 const route = useRoute();
