@@ -21,6 +21,7 @@ declare module 'vue' {
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
     InputText: typeof import('primevue/inputtext')['default']
     LoginForm: typeof import('./src/components/auth/LoginForm.vue')['default']
+    Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
     Password: typeof import('primevue/password')['default']
     RegisterForm: typeof import('./src/components/auth/RegisterForm.vue')['default']
@@ -28,5 +29,8 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
+  }
+  export interface GlobalDirectives {
+    Ripple: typeof import('primevue/ripple')['default']
   }
 }
