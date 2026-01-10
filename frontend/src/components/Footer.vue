@@ -26,9 +26,7 @@
 
     <!-- Copyright -->
     <div class="flex flex-wrap items-end justify-between gap-x-6">
-      <span class="text-gray-600 text-sm block mb-4">
-        ©2025 YOU YU-HSUAN
-      </span>
+      <span class="text-gray-600 text-sm block mb-4"> ©202 YOU YU-HSUAN </span>
     </div>
   </footer>
 </template>
