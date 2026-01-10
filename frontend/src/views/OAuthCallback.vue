@@ -25,16 +25,11 @@
 import { onMounted, ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
-// Composables
-import useOAuth from "@/composables/useOAuth";
-
 const router = useRouter();
 const route = useRoute();
 
 const isLoading = ref(true);
 const error = ref<string | null>(null);
-
-const { handleOAuthCallback } = useOAuth();
 
 const redirectToLogin = () => {
   router.push("/login");
@@ -57,9 +52,6 @@ onMounted(async () => {
     if (!code || !state) {
       throw new Error("Missing authorization code or state parameter");
     }
-
-    // Process the OAuth callback
-    await handleOAuthCallback();
   } catch (error: unknown) {
     console.error("OAuth callback error:", error);
   } finally {

@@ -4,7 +4,6 @@ import instance from "@/composables/api/useApi";
 
 const useApiAuth = () => {
   // https://developers.google.com/identity/protocols/oauth2/native-app#step1-code-verifier
-
   // Token management
   const exchangeCodeForToken = (
     authorizationCode: string,
@@ -13,7 +12,6 @@ const useApiAuth = () => {
     const data = new URLSearchParams({
       code: authorizationCode,
       client_id: import.meta.env.VITE_OAUTH_CLIENT_ID,
-      client_secret: import.meta.env.VITE_OAUTH_CLIENT_SECRET,
       code_verifier: codeVerifier,
       grant_type: "authorization_code",
       redirect_uri: import.meta.env.VITE_OAUTH_REDIRECT_URI,
