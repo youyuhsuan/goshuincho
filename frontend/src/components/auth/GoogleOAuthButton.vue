@@ -1,5 +1,9 @@
 <template>
-  <Button type="button" label="Continue with Google" @click="signInWithGoogle">
+  <Button
+    type="button"
+    label="Continue with Google"
+    @click="initiateGoogleLogin"
+  >
     <template #icon> <IconGoogle class="w-4 h-4" /> </template>
   </Button>
 </template>
@@ -10,5 +14,5 @@ import Button from "primevue/button";
 import IconGoogle from "@/assets/icons/google.svg?component";
 // Composables
 import useOAUth from "@/composables/useOAuth";
-const { signInWithGoogle } = useOAUth();
+const { initiateGoogleLogin } = useOAUth();
 </script>

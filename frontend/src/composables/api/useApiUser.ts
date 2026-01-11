@@ -26,11 +26,6 @@ const useApiUser = () => {
 
   const deleteSession = () => instance.delete(API_ENDPOINTS.SESSIONS); // Logout
 
-  const getGoogleOAuth = () =>
-    instance.post<string>(API_ENDPOINTS.OAUTH.AUTHORIZATIONS, {
-      provider: "google",
-    });
-
   return {
     // RESTful user operations
     registerUser: createUser,
@@ -42,8 +37,6 @@ const useApiUser = () => {
     loginUser: createSession,
     getSession,
     logoutUser: deleteSession,
-
-    getGoogleOAuth,
   };
 };
 
