@@ -30,6 +30,9 @@ Log.Logger = new LoggerConfiguration()
 // Replace the default logging provider with Serilog
 builder.Host.UseSerilog();
 
+// Configure http client
+builder.Services.AddHttpClient();
+
 // Configure MVC controllers with JSON serialization options
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -66,6 +69,7 @@ builder.Services.ConfigureApiValidation();
 // Register application services for dependency injection
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
+builder.Services.AddSingleton<IOAuthService, OAuthService>();
 
 // Configure Swagger API documentation generation
 builder.Services.AddSwaggerGen(c =>
@@ -111,7 +115,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080")
               .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 

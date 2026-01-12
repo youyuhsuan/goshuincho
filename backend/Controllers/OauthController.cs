@@ -1,103 +1,74 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
-
-public class AuthorizationRequest
-{
-    public required string Provider { get; set; }
-    public string[]? Scopes { get; set; }
-    public string? Prompt { get; set; }
-    public string? LoginHint { get; set; }
-}
+using backend.Services;
+using backend.Models.Requests;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/oauth")]
-    public class AuthController : ControllerBase
+    public class OAuthController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private static Dictionary<string, StateData> _stateStore = new();
+        private readonly IOAuthService _oauthService;
+        private readonly IWebHostEnvironment _environment;
 
-        public AuthController(IConfiguration configuration)
+        public OAuthController(
+            IOAuthService oauthService,
+            IWebHostEnvironment environment,
+            ILogger<OAuthController> logger)
         {
-            _configuration = configuration;
+            _oauthService = oauthService;
+            _environment = environment;
         }
 
+        // POST: api/oauth/authorizations
+        // Creates an OAuth authorization request and returns the authorization URL
         [HttpPost("authorizations")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public IActionResult CreateAuthorization([FromBody] AuthorizationRequest request)
         {
-            var state = GenerateRandomState();
-            _stateStore[state] = new StateData
-            {
-                Timestamp = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(10)
-            };
-
-            CleanupExpiredStates();
-
-            var authUrl = "";
-            switch (request.Provider)
-            {
-                case "google":
-                    authUrl = BuildGoogleAuthUrl(state);
-                    return Ok(authUrl);
-                default:
-                    return BadRequest(new { error = "Unsupported provider" });
-            }
-
+            var authUrl = _oauthService.GetAuthorizationUrl(request.Provider);
+            return Ok(authUrl);
         }
 
-
-
-        private string GenerateRandomState()
+        // POST: api/oauth/tokens
+        // Exchange an authorization code for access token
+        [HttpPost("tokens")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ExchangeToken([FromBody] TokenRequest request)
         {
-            var bytes = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(bytes);
-            }
-            return Convert.ToHexString(bytes).ToLower();
+            var (user, token) = await _oauthService.ExchangeCodeForTokenAsync(request.Provider, request.Code, request.State);
+            SetAuthCookies(token.access_token, token.refresh_token, token.expires_in);
+            Console.WriteLine("ExchangeToken AFTER token exchange");
+
+            return Ok(user);
         }
 
-        private string BuildGoogleAuthUrl(string state)
+        private void SetAuthCookies(string accessToken, string? refreshToken, int expiresIn)
         {
-            var clientId = _configuration["Google:ClientId"];
-            var redirectUri = _configuration["Google:RedirectUri"];
-
-            var queryParams = new Dictionary<string, string>
+            // Set the access token cookie
+            Response.Cookies.Append("access_token", accessToken, new CookieOptions
             {
-                { "client_id", clientId! },
-                { "response_type", "code" },
-                { "state", state },
-                { "scope", "openid email profile" },
-                { "redirect_uri", redirectUri! }
-            };
+                HttpOnly = true,                     // Cookie cannot be accessed via JavaScript (protects against XSS)
+                Secure = true,                       // Cookie will only be sent over HTTPS
+                SameSite = SameSiteMode.None,        // Cookie can be sent in cross-site requests (needed for cross-origin requests)
+                MaxAge = TimeSpan.FromSeconds(expiresIn), // Cookie expiration time in seconds
+                Path = "/",                          // Cookie is available to the entire site
+            });
 
-            var queryString = string.Join("&",
-                queryParams.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
-
-            return $"https://accounts.google.com/o/oauth2/v2/auth?{queryString}";
-        }
-
-        private void CleanupExpiredStates()
-        {
-            var now = DateTime.UtcNow;
-            var expiredKeys = _stateStore
-                .Where(kvp => kvp.Value.ExpiresAt < now)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var key in expiredKeys)
+            if (!string.IsNullOrEmpty(refreshToken))
             {
-                _stateStore.Remove(key);
+                // Set the refresh token cookie
+                Response.Cookies.Append("refresh_token", refreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromDays(30),
+                    Path = "/"
+                });
             }
         }
-    }
-
-    public class StateData
-    {
-        public DateTime Timestamp { get; set; }
-        public DateTime ExpiresAt { get; set; }
     }
 }
