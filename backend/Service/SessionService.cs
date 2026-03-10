@@ -16,21 +16,30 @@ namespace backend.Services
             _context = context;
         }
 
-        public async Task<SessionDto?> GetSessionByIdAsync(Guid sessionId)
+        // Retrieves an active session by its ID.
+        public async Task<SessionSummaryDto> GetSessionByIdAsync(Guid sessionId)
         {
             var session = await _context.Sessions
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.IsActive);
+                .Where(s => s.Id == sessionId && s.IsActive)
+                .Select(s => new SessionSummaryDto
+                {
+                    Id = s.Id,
+                    ExpiresAt = s.ExpiresAt,
+                    IsActive = s.IsActive
+                })
+                .FirstOrDefaultAsync();
             if (session == null)
             {
                 throw new NotFoundException($"Session with ID {sessionId} not found");
             }
 
-            return MapToDto(session);
+            return session;
         }
 
-        public async Task<SessionDto?> CreateSessionAsync(CreateSessionRequest request)
+        // Creates a new session for a user after validating credentials.
+        public async Task<SessionDto> CreateSessionAsync(CreateSessionRequest request)
         {
+            // Verify user exists and password is correct
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -39,60 +48,91 @@ namespace backend.Services
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
 
-            var existingSessions = await _context.Sessions
-                .Where(s => s.UserId == user.Id && s.IsActive)
-                .ToListAsync();
+            // Revoke all existing active sessions for this user
+            await RevokeExistingSessionsAsync(user.Id);
 
-            if (existingSessions.Any())
-            {
-                foreach (var existingSession in existingSessions)
-                {
-                    existingSession.IsActive = false;
-                    existingSession.RevokedAt = DateTime.UtcNow;
-                }
-            }
-            var session = new Session
-            {
-                Id = Guid.NewGuid(),
-                UserId = user.Id,
-                ExpiresAt = DateTime.UtcNow.AddHours(1),
-                CreatedAt = DateTime.UtcNow,
-                LastUsedAt = DateTime.UtcNow,
-                IsActive = true,
-            };
+            // Set expiry based on RememberMe flag
+            var expiry = request.RememberMe
+                ? DateTime.UtcNow.AddDays(30)
+                : DateTime.UtcNow.AddHours(1);
 
-            _context.Sessions.Add(session);
-            await _context.SaveChangesAsync();
+            var session = await CreateNewSessionAsync(user.Id, expiry);
 
-            return MapToDto(session);
-        }
-
-        public async Task DeleteSessionAsync(Guid sessionId, Guid userId)
-        {
-            var session = await _context.Sessions
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId && s.IsActive);
-            if (session == null)
-            {
-                throw new Exception("Session not found or inactive");
-            }
-            session.IsActive = false;
-
-            await _context.SaveChangesAsync();
-        }
-
-        private SessionDto MapToDto(Session session)
-        {
             return new SessionDto
             {
                 Id = session.Id,
                 UserId = session.UserId,
-                AccessToken = session.AccessTokenHash,
-                RefreshToken = session.RefreshTokenHash,
+                Name = user.Name,
+                ExpiresAt = session.ExpiresAt,
                 CreatedAt = session.CreatedAt,
                 IsActive = session.IsActive
             };
         }
 
+        // Creates a new session for a user authenticated via OAuth.
+        public async Task<Guid> CreateOAuthSessionAsync(string userId)
+        {
+            var userGuid = Guid.Parse(userId);
+
+            // Revoke all existing active sessions for this user
+            await RevokeExistingSessionsAsync(userGuid);
+
+            var session = await CreateNewSessionAsync(userGuid, DateTime.UtcNow.AddHours(1));
+            return session.Id;
+        }
+
+        // Revokes the current session on logout.
+        public async Task DeleteSessionAsync(Guid sessionId, Guid userId)
+        {
+            var session = await _context.Sessions
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId);
+
+            if (session == null)
+                throw new NotFoundException("Session not found");
+
+            if (!session.IsActive)
+                throw new ConflictException("Session already revoked");
+
+            // Mark session as revoked
+            session.IsActive = false;
+            session.RevokedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+        }
+
+        // Creates and persists a new session entity with the given user ID and expiry.
+        private async Task<Session> CreateNewSessionAsync(Guid userId, DateTime expiry)
+        {
+            var session = new Session
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                ExpiresAt = expiry,
+                CreatedAt = DateTime.UtcNow,
+                IsActive = true,
+            };
+
+            _context.Sessions.Add(session);
+            await _context.SaveChangesAsync();
+            return session;
+        }
+
+
+        // Revokes all active sessions for a given user.
+        private async Task RevokeExistingSessionsAsync(Guid userId)
+        {
+            var existingSessions = await _context.Sessions
+                .Where(s => s.UserId == userId && s.IsActive)
+                .ToListAsync();
+
+            foreach (var existingSession in existingSessions)
+            {
+                existingSession.IsActive = false;
+                existingSession.RevokedAt = DateTime.UtcNow;
+            }
+        }
+
+        // Verifies a plain text password against a BCrypt hashed password.
         private bool VerifyPassword(string inputPassword, string hashedPassword)
         {
             return BCrypt.Net.BCrypt.Verify(inputPassword, hashedPassword);
