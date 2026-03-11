@@ -11,6 +11,7 @@ namespace backend.Data
         // Database table mappings - Entity Framework will create corresponding tables
         public DbSet<User> Users => Set<User>();
         public DbSet<Session> Sessions => Set<Session>();
+        public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,26 +51,10 @@ namespace backend.Data
                 entity.Property(e => e.UserId)
                     .IsRequired();
 
-                entity.Property(e => e.AccessTokenHash)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
-                entity.Property(e => e.RefreshTokenHash)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
                 entity.Property(e => e.ExpiresAt)
                     .IsRequired();
 
                 entity.Property(e => e.CreatedAt)
-                    .IsRequired()
-                    .HasDefaultValueSql("GETUTCDATE()");
-
-                entity.Property(e => e.LastUsedAt)
-                    .IsRequired()
-                    .HasDefaultValueSql("GETUTCDATE()");
-
-                entity.Property(e => e.UpdatedAt)
                     .IsRequired()
                     .HasDefaultValueSql("GETUTCDATE()");
 
@@ -92,7 +77,6 @@ namespace backend.Data
 
             base.OnModelCreating(modelBuilder);
         }
-
 
         public override int SaveChanges()
         {
@@ -119,12 +103,9 @@ namespace backend.Data
                 if (entry.State == EntityState.Added)
                 {
                     session.CreatedAt = utcNow;
-                    session.LastUsedAt = utcNow;
-                    session.UpdatedAt = utcNow;
                 }
                 else if (entry.State == EntityState.Modified)
                 {
-                    session.UpdatedAt = utcNow;
                     entry.Property(nameof(Session.CreatedAt)).IsModified = false;
                 }
             }
