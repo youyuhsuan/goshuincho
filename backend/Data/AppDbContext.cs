@@ -75,6 +75,13 @@ namespace backend.Data
                 entity.HasIndex(e => e.ExpiresAt);
             });
 
+            modelBuilder.Entity<RevokedToken>(entity =>
+                 {
+                     entity.HasIndex(rt => rt.Jti).IsUnique();
+                     entity.HasIndex(rt => rt.UserId);
+                     entity.HasIndex(rt => rt.ExpiresAt);
+                 });
+
             base.OnModelCreating(modelBuilder);
         }
 
