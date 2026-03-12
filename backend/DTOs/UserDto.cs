@@ -10,16 +10,17 @@ namespace backend.DTOs
 
     public class CreateUserRequest
     {
-        [Required(ErrorMessage = "Name is required")]
+        [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(3)]
-        [MaxLength(8)]
+        [MinLength(6)]
+        [MaxLength(500)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$",
             ErrorMessage = "Password must contain at least one lowercase letter, one uppercase letter, and one number.")]
         public string Password { get; set; } = string.Empty;
@@ -28,9 +29,13 @@ namespace backend.DTOs
     public class UpdateUserRequest
     {
         [Required]
+        [MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [Required, EmailAddress]
+
+        [Required]
+        [EmailAddress]
         public string Email { get; set; } = string.Empty;
     }
+
 }
