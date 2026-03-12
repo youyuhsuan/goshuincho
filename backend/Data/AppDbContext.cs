@@ -24,6 +24,10 @@ namespace backend.Data
                     .HasDefaultValueSql("NEWID()")
                     .ValueGeneratedOnAdd();
 
+                entity.Property(e => e.GoogleId)
+                    .IsRequired(false)
+                    .HasMaxLength(100);
+
                 entity.Property(e => e.Email)
                     .IsRequired()
                     .HasMaxLength(255);
@@ -36,7 +40,18 @@ namespace backend.Data
                     .IsRequired()
                     .HasMaxLength(500);
 
+                entity.Property(e => e.Picture)
+                    .IsRequired(false)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.CreatedAt)
+                 .IsRequired()
+                 .HasDefaultValueSql("GETUTCDATE()");
+
                 entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.GoogleId)
+                    .IsUnique()
+                    .HasFilter("[GoogleId] IS NOT NULL");
             });
 
             modelBuilder.Entity<Session>(entity =>
