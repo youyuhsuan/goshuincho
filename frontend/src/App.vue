@@ -6,7 +6,10 @@ import Footer from "@/components/Footer.vue";
 </script>
 
 <template>
+  <Toast />
   <Menubar />
-  <RouterView />
-  <Footer />
+  <div class="min-h-screen flex flex-col">
+    <RouterView />
+    <Footer />
+  </div>
 </template>
