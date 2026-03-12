@@ -7,7 +7,7 @@ public class CookieService : ICookieService
         _environment = environment;
     }
 
-    public void SetAuthCookies(HttpResponse response, string accessToken, string? refreshToken = null, int expiresIn = 3600)
+    public void SetAuthCookies(HttpResponse response, string accessToken, string? refreshToken = null, DateTime? expiresAt = null)
     {
         var isDevelopment = _environment.IsDevelopment();
 
@@ -16,7 +16,7 @@ public class CookieService : ICookieService
             HttpOnly = true,
             Secure = !isDevelopment,
             SameSite = SameSiteMode.Lax,
-            MaxAge = TimeSpan.FromSeconds(expiresIn),
+            Expires = DateTime.UtcNow.AddMinutes(15),
             Path = "/",
             Domain = isDevelopment ? "localhost" : null
         };
@@ -30,7 +30,7 @@ public class CookieService : ICookieService
                 HttpOnly = true,
                 Secure = !isDevelopment,
                 SameSite = SameSiteMode.Lax,
-                MaxAge = TimeSpan.FromDays(30),
+                Expires = expiresAt,
                 Path = "/",
                 Domain = isDevelopment ? "localhost" : null
             });
