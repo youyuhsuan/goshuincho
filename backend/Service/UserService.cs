@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+
 using backend.Data;
 using backend.Models;
 using backend.DTOs;
 using backend.Exceptions;
+using backend.Models.Responses;
+
 using BCrypt.Net;
 
 
@@ -25,10 +28,14 @@ namespace backend.Services
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-            return MapToDto(user);
+            return new UserDto
+            {
+                Name = user.Name,
+                Email = user.Email
+            };
         }
 
-        public async Task<Guid> CreateUserAsync(CreateUserRequest request)
+        public async Task CreateUserAsync(CreateUserRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -39,7 +46,27 @@ namespace backend.Services
             {
                 Name = request.Name,
                 Email = request.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(request.Password)
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Guid> GetOrCreateByGoogleIdAsync(UserInfo googleUser)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleId == googleUser.Id);
+
+            if (user != null) return user.Id;
+            user = new User
+            {
+                Id = Guid.NewGuid(),
+                GoogleId = googleUser.Id,
+                Email = googleUser.Email,
+                Name = googleUser.Name,
+                Picture = googleUser.Picture,
+                CreatedAt = DateTime.UtcNow
             };
 
             _context.Users.Add(user);
@@ -78,15 +105,6 @@ namespace backend.Services
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
-        }
-
-        private static UserDto MapToDto(User user)
-        {
-            return new UserDto
-            {
-                Name = user.Name,
-                Email = user.Email
-            };
         }
     }
 }

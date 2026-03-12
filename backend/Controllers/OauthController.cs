@@ -13,6 +13,7 @@ namespace backend.Controllers
         private readonly IJwtTokenGenerator _jwtGenerator;
         private readonly ICookieService _cookieService;
         private readonly ISessionService _sessionService;
+        private readonly IUserService _userService;
         private readonly IOAuthService _oauthService;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<OAuthController> _logger;
@@ -20,12 +21,14 @@ namespace backend.Controllers
         public OAuthController(
             IJwtTokenGenerator jwtGenerator,
             ICookieService cookieService,
+            IUserService userService,
             IOAuthService oauthService,
             ISessionService sessionService,
             IWebHostEnvironment environment,
             ILogger<OAuthController> logger)
         {
             _jwtGenerator = jwtGenerator;
+            _userService = userService;
             _cookieService = cookieService;
             _oauthService = oauthService;
             _sessionService = sessionService;
@@ -35,18 +38,13 @@ namespace backend.Controllers
 
         /// POST: api/oauth/authorizations
         /// <summary>
-        /// Creates an OAuth authorization request and returns the authorization URL
+        /// Creates an OAuth authorization request.
         /// </summary>
         /// <response code="200">Returns the authorization URL</response>
-        /// <response code="400">
-        /// Validation failed
-        /// {
-        ///   "Provider": ["Provider is required"],
-        /// }
-        /// </response>
-        [HttpPost("authorizations")]
+        /// <response code="400">Validation failed</response>
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [HttpPost("authorizations")]
         public IActionResult CreateAuthorization([FromBody] AuthorizationRequest request)
         {
             var authUrl = _oauthService.GetAuthorizationUrl(request.Provider);
@@ -55,36 +53,32 @@ namespace backend.Controllers
 
         /// POST: api/oauth/tokens
         /// <summary>
-        /// Exchange an authorization code for access token
+        /// Exchange an authorization code for access token.
         /// </summary>
-        /// <response code="200">Authentication successful, tokens set in HttpOnly cookies</response>
-        /// <response code="400">
-        /// Validation failed
-        /// {
-        ///   "Provider": ["Provider is required"],
-        ///   "Code": ["Code is required"],
-        ///   "State": ["State is required"]
-        /// }
-        /// </response>
+        /// <response code="200"></response>
+        /// <response code="400">Validation failed</response>
         /// <response code="422">Invalid or expired state parameter</response>
-        [HttpPost("tokens")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpPost("tokens")]
         public async Task<IActionResult> ExchangeToken([FromBody] TokenRequest request)
         {
             var (userInfo, token) = await _oauthService.ExchangeCodeForTokenAsync(
                 request.Provider, request.Code, request.State);
             _logger.LogInformation("userInfo: {@UserInfo}", userInfo);
-            var session = await _sessionService.CreateOAuthSessionAsync(userInfo.Id);
 
-            var jwtToken = _jwtGenerator.GenerateToken(
-                sessionId: session.ToString(),
-                userId: userInfo.Id,
-                email: userInfo.Email,
-                name: userInfo.Name,
-                expiresAt: DateTime.UtcNow.AddHours(1)
+            var userId = await _userService.GetOrCreateByGoogleIdAsync(userInfo);
+
+            var sessionId = await _sessionService.CreateOAuthSessionAsync(userId);
+
+            var jwtToken = _jwtGenerator.GenerateAccessToken(
+                    sessionId: sessionId.ToString(),
+                    userId: userInfo.Id,
+                    email: userInfo.Email,
+                    name: userInfo.Name
                 );
-            _cookieService.SetAuthCookies(Response, jwtToken, token.refresh_token, token.expires_in);
+
+            _cookieService.SetAuthCookies(Response, jwtToken, token.refresh_token, null);
 
             // Return token in response body as per RFC 6749 Section 5.1.
             // The OAuth 2.0 specification requires token endpoint to respond with 

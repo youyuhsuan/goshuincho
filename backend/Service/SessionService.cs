@@ -1,8 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+
 using backend.Data;
 using backend.Models;
 using backend.DTOs;
 using backend.Exceptions;
+
 using BCrypt.Net;
 
 namespace backend.Services
@@ -10,6 +12,7 @@ namespace backend.Services
     public class SessionService : ISessionService
     {
         private readonly AppDbContext _context;
+
 
         public SessionService(AppDbContext context)
         {
@@ -43,10 +46,14 @@ namespace backend.Services
             var user = await _context.Users
                 .FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null || !VerifyPassword(request.Password, user.Password))
-            {
-                throw new UnauthorizedAccessException("Invalid credentials");
-            }
+            if (user == null)
+                throw new UnprocessableContent("Invalid email or password");
+
+            if (string.IsNullOrEmpty(user.Password))
+                throw new UnprocessableContent("This account uses Google login, please sign in with Google");
+
+            if (!VerifyPassword(request.Password, user.Password))
+                throw new UnprocessableContent("Invalid email or password");
 
             // Revoke all existing active sessions for this user
             await RevokeExistingSessionsAsync(user.Id);
@@ -54,7 +61,7 @@ namespace backend.Services
             // Set expiry based on RememberMe flag
             var expiry = request.RememberMe
                 ? DateTime.UtcNow.AddDays(30)
-                : DateTime.UtcNow.AddHours(1);
+                : DateTime.UtcNow.AddDays(7);
 
             var session = await CreateNewSessionAsync(user.Id, expiry);
 
@@ -70,14 +77,12 @@ namespace backend.Services
         }
 
         // Creates a new session for a user authenticated via OAuth.
-        public async Task<Guid> CreateOAuthSessionAsync(string userId)
+        public async Task<Guid> CreateOAuthSessionAsync(Guid userId)
         {
-            var userGuid = Guid.Parse(userId);
-
             // Revoke all existing active sessions for this user
-            await RevokeExistingSessionsAsync(userGuid);
+            await RevokeExistingSessionsAsync(userId);
 
-            var session = await CreateNewSessionAsync(userGuid, DateTime.UtcNow.AddHours(1));
+            var session = await CreateNewSessionAsync(userId, DateTime.UtcNow.AddHours(1));
             return session.Id;
         }
 

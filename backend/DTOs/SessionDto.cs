@@ -27,8 +27,8 @@ namespace backend.DTOs
         public string Email { get; set; } = string.Empty;
 
         [Required]
-        [MinLength(3)]
-        [MaxLength(8)]
+        [MinLength(6)]
+        [MaxLength(500)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$",
             ErrorMessage = "Password must contain at least one lowercase letter, one uppercase letter, and one number.")]
         public string Password { get; set; } = string.Empty;
