@@ -7,13 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 
 using System.Text.Json;
 using System.Text;
+using System.Reflection;
 
 using Serilog;
 using Serilog.Events;
 
 using backend.Data;
 using backend.Middleware;
-using backend.Common;
 using backend.Configuration;
 using backend.Services;
 using backend.Filters;
@@ -61,6 +61,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 RsaKeyHelper.LoadPublicKey(builder.Configuration)
             )
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                context.Token = context.Request.Cookies["access_token"];
+                return Task.CompletedTask;
+            }
+        };
     });
 
 // Configure global validation error handling for API controllers
@@ -68,6 +77,9 @@ builder.Services.ConfigureApiValidation();
 
 // Register application services for dependency injection
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<ISessionService, SessionService>();
 builder.Services.AddSingleton<IOAuthService, OAuthService>();
 
@@ -106,14 +118,18 @@ builder.Services.AddSwaggerGen(c =>
 
     // Add custom operation filter to handle authorization requirements in Swagger UI
     c.OperationFilter<AuthorizeCheckOperationFilter>();
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
 });
 
 // Configure CORS policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowVue", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:5286")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -154,7 +170,7 @@ else
 app.UseHttpsRedirection();
 
 // Apply CORS policy to allow cross-origin requests from frontend
-app.UseCors("AllowVue");
+app.UseCors("AllowFrontend");
 
 // Enable authentication and authorization middleware
 app.UseAuthentication();
