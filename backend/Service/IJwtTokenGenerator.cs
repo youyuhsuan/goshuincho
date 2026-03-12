@@ -1,4 +1,6 @@
 public interface IJwtTokenGenerator
 {
-    string GenerateToken(string sessionId, string userId, string email, string name, DateTime? expiresAt);
+    string GenerateAccessToken(string sessionId, string userId, string email, string name);
+    string GenerateRefreshToken(string sessionId, string userId, DateTime? expiresAt);
+
 }

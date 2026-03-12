@@ -15,7 +15,7 @@ namespace backend.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(string sessionId, string userId, string email, string name, DateTime? expiresAt)
+        public string GenerateAccessToken(string sessionId, string userId, string email, string name)
         {
             var claims = new[]
             {
@@ -23,6 +23,34 @@ namespace backend.Services
                 new Claim(JwtRegisteredClaimNames.Sub, userId),      // Subject: user ID
                 new Claim(JwtRegisteredClaimNames.Email, email),     // User email
                 new Claim(JwtRegisteredClaimNames.Name, name),       // User display name
+                new Claim(JwtRegisteredClaimNames.Iat,               // Issued at timestamp
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
+        };
+            // Load RSA private key and create signing credentials
+            var rsa = RsaKeyHelper.LoadPrivateKey(_configuration);
+            var credentials = new SigningCredentials(
+                new RsaSecurityKey(rsa),
+                SecurityAlgorithms.RsaSha256
+            );
+
+            // Build the JWT token
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(15),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateRefreshToken(string sessionId, string userId, DateTime? expiresAt)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Jti, sessionId),  // Unique token ID, used for blacklisting
+                new Claim(JwtRegisteredClaimNames.Sub, userId),      // Subject: user ID
                 new Claim(JwtRegisteredClaimNames.Iat,               // Issued at timestamp
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };
