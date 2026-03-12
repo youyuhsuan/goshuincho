@@ -38,4 +38,11 @@ namespace backend.Exceptions
     {
         public ConflictException(string message) : base(message) { }
     }
+
+    // Custom exception for handling resource conflict scenarios
+    // Thrown when an operation conflicts with the current state of a resource (HTTP 409)
+    public class UnprocessableContent : Exception
+    {
+        public UnprocessableContent(string message) : base(message) { }
+    }
 }
