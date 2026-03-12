@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using backend.Common;
 
 namespace backend.Configuration
 {
@@ -31,14 +30,7 @@ namespace backend.Configuration
                 }
             }
 
-            var response = new ValidationErrorResponse
-            {
-                Message = "Validation failed",
-                Errors = errors,
-                Timestamp = DateTime.UtcNow
-            };
-
-            return new BadRequestObjectResult(response);
+            return new BadRequestObjectResult(errors);
         }
     }
 }

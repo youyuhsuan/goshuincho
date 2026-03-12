@@ -2,7 +2,6 @@ using System.Text.Json;
 
 using backend.Exceptions;
 using backend.Models;
-using backend.Common;
 
 
 namespace backend.Middleware
@@ -42,30 +41,22 @@ namespace backend.Middleware
 
             context.Response.ContentType = "application/json";
 
-            var (statusCode, message, error) = exception switch
+            var (statusCode, message) = exception switch
             {
-                ValidationException validationEx => (400, "Validation failed", validationEx.Errors),
-                UnauthorizedAccessException unauthorizedAccessEx => (401, unauthorizedAccessEx.Message, (object?)null),
-                NotFoundException notFoundEx => (404, notFoundEx.Message, (object?)null),
-                ForbiddenException forbiddenEx => (403, forbiddenEx.Message, (object?)null),
-                ConflictException conflictEx => (409, conflictEx.Message, (object?)null),
-                _ => (500, "Internal server error", (object?)null)
-            };
-
-            // Create standardized API response object
-            var response = new ApiResponse<object>
-            {
-                TraceId = context.TraceIdentifier,
-                Message = message,
-                Errors = error,
-                Timestamp = DateTime.UtcNow
+                ValidationException validationEx => (400, (object)validationEx.Errors),
+                UnauthorizedAccessException unauthorizedAccessEx => (401, (object)unauthorizedAccessEx.Message),
+                NotFoundException notFoundEx => (404, (object)notFoundEx.Message),
+                ForbiddenException forbiddenEx => (403, (object)forbiddenEx.Message),
+                ConflictException conflictEx => (409, (object)conflictEx.Message),
+                UnprocessableContent unprocessableContentEx => (422, (object)unprocessableContentEx.Message),
+                _ => (500, (object)"Internal server error")
             };
 
             // Set the HTTP status code
             context.Response.StatusCode = statusCode;
 
             // Serialize and write the JSON response with camelCase property naming
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, new JsonSerializerOptions
+            await context.Response.WriteAsync(JsonSerializer.Serialize(message, new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             }));
