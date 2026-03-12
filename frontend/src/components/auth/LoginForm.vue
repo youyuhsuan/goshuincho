@@ -3,7 +3,7 @@
     v-slot="$form"
     :initialValues="initialValues"
     :resolver="resolver"
-    class="flex flex-col gap-5 w-full"
+    class="flex flex-col gap-6.5 w-full"
     @submit="onFormSubmit"
   >
     <!-- Email -->
@@ -65,17 +65,38 @@
     </div>
 
     <!-- Remember me -->
-    <div class="mb-5">
-      <Checkbox v-model="checked" :inputId="fieldIds.checked" binary />
-      <label :for="fieldIds.checked"> Remember Me</label>
+    <div class="flex mb-5 text-xs">
+      <div class="flex items-center gap-x-1">
+        <Checkbox
+          v-model="checked"
+          :inputId="fieldIds.checked"
+          size="small"
+          binary
+        />
+        <label :for="fieldIds.checked" class="text-gray-600">
+          Remember Me
+        </label>
+      </div>
+      <div class="ml-auto">
+        <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline">
+          Forgot password?
+        </a>
+      </div>
     </div>
 
-    <Button type="submit" severity="secondary" label="Sign in" />
+    <Button
+      type="submit"
+      severity="secondary"
+      label="Sign in"
+      :loading="isLoading"
+      :disabled="$form.valid === false"
+    />
   </Form>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 // Primevue
 import FloatLabel from "primevue/floatlabel";
 import Checkbox from "primevue/checkbox";
@@ -83,29 +104,28 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import type { FormSubmitEvent } from "@primevue/forms";
 import { z } from "zod";
 // Composables
-import useApiUser from "@/composables/api/useApiUser";
 import useMessage from "@/composables/useMessage";
-import useApiErrorHandler from "@/composables/api/useApiErrorHandler";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
 import type { LoginRequest } from "@/types/userType";
+// Stores
+import useAuthStore from "@/stores/auth.store";
 
 const isLoading = ref<boolean>(false);
-// TODO:
 // Remenber check
 const checked = ref<boolean>(false);
 
 const fieldIds = ref<FieldIds>(
-  generateFieldIds(["email", "password", "checked"])
+  generateFieldIds(["email", "password", "checked"]),
 );
 const initialValues = ref<LoginRequest>({
   email: "",
   password: "",
 });
 
-const { loginUser } = useApiUser();
-const { handleAndShowError } = useApiErrorHandler();
-const { showSuccess } = useMessage();
+const { showWarning } = useMessage();
+const { login } = useAuthStore();
+const router = useRouter();
 
 const resolver = zodResolver(
   z.object({
@@ -115,8 +135,8 @@ const resolver = zodResolver(
       .max(320, { message: "Maximum 320 characters." }),
     password: z
       .string()
-      .min(3, { message: "Minimum 3 characters." })
-      .max(8, { message: "Maximum 8 characters." })
+      .min(6, { message: "Minimum 6 characters." })
+      .max(500, { message: "Maximum 500 characters." })
       .refine((value) => /[a-z]/.test(value), {
         message: "Must have a lowercase letter.",
       })
@@ -126,7 +146,7 @@ const resolver = zodResolver(
       .refine((value) => /\d/.test(value), {
         message: "Must have a number.",
       }),
-  })
+  }),
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
@@ -137,15 +157,15 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   // Check if all form fields have passed validation
   if (e.valid) {
     try {
-      // Extract form values and submit to the login API
-      await loginUser(e.values as LoginRequest);
+      // Extract form values and submit to the login store
+      await login(e.values as LoginRequest);
       // Reset all form fields to their initial state
       e.reset();
-
-      // Notify user of successful login
-      showSuccess("Login successful");
+      router.push("/");
     } catch (error: unknown) {
-      handleAndShowError(error, "Login");
+      if (typeof error === "string") {
+        showWarning(error);
+      }
     } finally {
       isLoading.value = false;
     }

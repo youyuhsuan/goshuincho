@@ -3,7 +3,7 @@
     v-slot="$form"
     :initialValues="initialValues"
     :resolver="resolver"
-    class="flex flex-col gap-5 w-full"
+    class="flex flex-col gap-6.5 w-full"
     @submit="onFormSubmit"
   >
     <!-- Email -->
@@ -24,6 +24,7 @@
         severity="error"
         size="small"
         variant="simple"
+        class="text-xs"
       >
         {{ $form.email.error.message }}
       </Message>
@@ -47,6 +48,7 @@
         severity="error"
         size="small"
         variant="simple"
+        class="text-xs"
       >
         {{ $form.name.error.message }}
       </Message>
@@ -104,7 +106,13 @@
       </Message>
     </div>
 
-    <Button type="submit" severity="secondary" label="Sign up" />
+    <Button
+      type="submit"
+      severity="secondary"
+      label="Sign up"
+      :loading="isLoading"
+      :disabled="$form.valid === false"
+    />
   </Form>
 </template>
 
@@ -116,7 +124,6 @@ import type { FormSubmitEvent } from "@primevue/forms";
 import { z } from "zod";
 // Composables
 import useApiUser from "@/composables/api/useApiUser";
-import useApiErrorHandler from "@/composables/api/useApiErrorHandler";
 import useMessage from "@/composables/useMessage";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
@@ -125,18 +132,21 @@ import type { RegisterFormData, RegisterRequest } from "@/types/userType";
 
 const isLoading = ref<boolean>(false);
 const fieldIds = ref<FieldIds>(
-  generateFieldIds(["name", "password", "confirmPassword"])
+  generateFieldIds(["name", "password", "confirmPassword"]),
 );
-const initialValues = ref({
+const initialValues = ref<RegisterFormData>({
   email: "",
   name: "",
   password: "",
   confirmPassword: "",
 });
 
+const isLogin = defineModel<boolean>("isLogin", {
+  required: true,
+});
+
 const { registerUser } = useApiUser();
-const { handleAndShowError } = useApiErrorHandler();
-const { showSuccess } = useMessage();
+const { showWarning } = useMessage();
 
 const resolver = zodResolver(
   z
@@ -152,8 +162,8 @@ const resolver = zodResolver(
         .max(320, { message: "Maximum 320 characters." }),
       password: z
         .string()
-        .min(3, { message: "Minimum 3 characters." })
-        .max(8, { message: "Maximum 8 characters." })
+        .min(6, { message: "Minimum 6 characters." })
+        .max(500, { message: "Maximum 500 characters." })
         .refine((value) => /[a-z]/.test(value), {
           message: "Must have a lowercase letter.",
         })
@@ -168,7 +178,7 @@ const resolver = zodResolver(
     .refine((data) => data.password === data.confirmPassword, {
       message: "Passwords do not match.",
       path: ["confirmPassword"],
-    })
+    }),
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
@@ -180,16 +190,20 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   if (e.valid) {
     try {
       // Extract form values and submit to the login API
-      const { confirmPassword, ...registerData } = e.values as RegisterFormData;
+      const { confirmPassword: _, ...registerData } =
+        e.values as RegisterFormData;
       await registerUser(registerData as RegisterRequest);
 
       // Reset all form fields to their initial state
       e.reset();
 
-      // Notify user of successful login
-      showSuccess("Register successful");
+      // Switch to login mode after successful registration
+      isLogin.value = true;
     } catch (error: unknown) {
-      handleAndShowError(error, "Register");
+      console.error("Registration error:", error);
+      if (typeof error === "string") {
+        showWarning(error);
+      }
     } finally {
       isLoading.value = false;
     }
