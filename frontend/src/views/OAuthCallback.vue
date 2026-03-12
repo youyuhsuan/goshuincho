@@ -1,29 +1,41 @@
 <template>
   <div class="oauth-callback">
-    <div class="loading-container">
-      <div v-if="isLoading" class="loading-spinner">
-        <div class="spinner"></div>
-        <h2>Processing Login...</h2>
-        <p>Please wait while we complete your authentication</p>
-      </div>
+    <div v-if="isLoading" class="loading-spinner">
+      <div class="spinner"></div>
+      <h2>Processing Login...</h2>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useRouter } from "vue-router";
-import useOAUth from "@/composables/useOAuth";
+import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
+// Stores
+import useAuthStore from "@/stores/auth.store";
+
+const isLoading = ref<boolean>(true);
 
 const router = useRouter();
-const { processGoogleCallback, isLoading } = useOAUth();
+const route = useRoute();
 
-const redirectToLogin = () => {
-  router.push("/login");
-};
+const { google } = useAuthStore();
 
 onMounted(async () => {
-  await processGoogleCallback();
-  redirectToLogin();
+  const code: string = route.query.code as string;
+  const state: string = route.query.state as string;
+  const errorParam: string = route.query.error as string;
+
+  try {
+    if (errorParam) throw new Error(`OAuth Error: ${errorParam}`);
+    if (!code || !state) throw new Error("Missing code or state");
+
+    await google.processGoogleCallback(code, state);
+    router.push("/");
+  } catch (error) {
+    console.error(error);
+    router.push("/login?error=oauth_failed");
+  } finally {
+    isLoading.value = false;
+  }
 });
 </script>

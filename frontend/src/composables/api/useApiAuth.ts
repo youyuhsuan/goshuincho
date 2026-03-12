@@ -13,6 +13,7 @@ const useApiAuth = () => {
     instance.post(API_ENDPOINTS.OAUTH.TOKENS, {
       code,
       state,
+      provider: "google",
     });
 
   return {
