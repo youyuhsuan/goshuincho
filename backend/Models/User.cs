@@ -27,6 +27,5 @@ namespace backend.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public ICollection<Session> Sessions { get; set; } = new List<Session>();
     }
 }
