@@ -12,7 +12,6 @@ namespace backend.Controllers
 
         private readonly IJwtTokenGenerator _jwtGenerator;
         private readonly ICookieService _cookieService;
-        private readonly ISessionService _sessionService;
         private readonly IUserService _userService;
         private readonly IOAuthService _oauthService;
         private readonly IWebHostEnvironment _environment;
@@ -23,7 +22,6 @@ namespace backend.Controllers
             ICookieService cookieService,
             IUserService userService,
             IOAuthService oauthService,
-            ISessionService sessionService,
             IWebHostEnvironment environment,
             ILogger<OAuthController> logger)
         {
@@ -31,7 +29,6 @@ namespace backend.Controllers
             _userService = userService;
             _cookieService = cookieService;
             _oauthService = oauthService;
-            _sessionService = sessionService;
             _environment = environment;
             _logger = logger;
         }
@@ -69,11 +66,8 @@ namespace backend.Controllers
 
             var userId = await _userService.GetOrCreateByGoogleIdAsync(userInfo);
 
-            var sessionId = await _sessionService.CreateOAuthSessionAsync(userId);
-
             var jwtToken = _jwtGenerator.GenerateAccessToken(
-                    sessionId: sessionId.ToString(),
-                    userId: userInfo.Id,
+                    userId: userId.ToString(),
                     email: userInfo.Email,
                     name: userInfo.Name
                 );

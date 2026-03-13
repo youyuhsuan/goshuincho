@@ -10,7 +10,6 @@ namespace backend.Data
     {
         // Database table mappings - Entity Framework will create corresponding tables
         public DbSet<User> Users => Set<User>();
-        public DbSet<Session> Sessions => Set<Session>();
         public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -54,41 +53,6 @@ namespace backend.Data
                     .HasFilter("[GoogleId] IS NOT NULL");
             });
 
-            modelBuilder.Entity<Session>(entity =>
-            {
-                entity.ToTable("Sessions");
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Id)
-                    .HasDefaultValueSql("NEWID()")
-                    .ValueGeneratedOnAdd();
-
-                entity.Property(e => e.UserId)
-                    .IsRequired();
-
-                entity.Property(e => e.ExpiresAt)
-                    .IsRequired();
-
-                entity.Property(e => e.CreatedAt)
-                    .IsRequired()
-                    .HasDefaultValueSql("GETUTCDATE()");
-
-                entity.Property(e => e.RevokedAt)
-                    .IsRequired(false);
-
-                entity.Property(e => e.IsActive)
-                    .IsRequired()
-                    .HasDefaultValue(true);
-
-                entity.HasOne(s => s.User)
-                    .WithMany(u => u.Sessions)
-                    .HasForeignKey(s => s.UserId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(e => e.UserId);
-                entity.HasIndex(e => new { e.UserId, e.IsActive });
-                entity.HasIndex(e => e.ExpiresAt);
-            });
 
             modelBuilder.Entity<RevokedToken>(entity =>
                  {
@@ -98,39 +62,6 @@ namespace backend.Data
                  });
 
             base.OnModelCreating(modelBuilder);
-        }
-
-        public override int SaveChanges()
-        {
-            UpdateTimestamps();
-            return base.SaveChanges();
-        }
-
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            UpdateTimestamps();
-            return await base.SaveChangesAsync(cancellationToken);
-        }
-
-        private void UpdateTimestamps()
-        {
-            var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is Session && (e.State == EntityState.Added || e.State == EntityState.Modified));
-
-            foreach (var entry in entries)
-            {
-                var session = (Session)entry.Entity;
-                var utcNow = DateTime.UtcNow;
-
-                if (entry.State == EntityState.Added)
-                {
-                    session.CreatedAt = utcNow;
-                }
-                else if (entry.State == EntityState.Modified)
-                {
-                    entry.Property(nameof(Session.CreatedAt)).IsModified = false;
-                }
-            }
         }
     }
 }
