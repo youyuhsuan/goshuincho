@@ -52,7 +52,6 @@ namespace backend.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
         [HttpPost]
-        [Authorize]
         public async Task<ActionResult> CreateUser(CreateUserRequest request)
         {
             await _userService.CreateUserAsync(request);

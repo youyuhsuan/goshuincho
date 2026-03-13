@@ -1,6 +1,8 @@
+using System.Security.Claims;
+
 public interface IJwtTokenGenerator
 {
-    string GenerateAccessToken(string sessionId, string userId, string email, string name);
-    string GenerateRefreshToken(string sessionId, string userId, DateTime? expiresAt);
-
+    string GenerateAccessToken(string userId, string email, string name);
+    ClaimsPrincipal? ValidateRefreshToken(string refreshToken);
+    string GenerateRefreshToken(string userId, DateTime? expiresAt);
 }

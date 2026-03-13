@@ -15,7 +15,7 @@ namespace backend.Controllers
     {
         private readonly IJwtTokenGenerator _jwtGenerator;
         private readonly ITokenBlacklistService _blacklistService;
-        private readonly ISessionService _sessionService;
+        private readonly IUserService _userService;
         private readonly ICookieService _cookieService;
         private readonly ILogger<SessionsController> _logger;
 
@@ -23,13 +23,13 @@ namespace backend.Controllers
         public SessionsController(
             IJwtTokenGenerator jwtGenerator,
             ITokenBlacklistService blacklistService,
-            ISessionService sessionService,
+            IUserService userService,
             ICookieService cookieService,
             ILogger<SessionsController> logger)
         {
             _jwtGenerator = jwtGenerator;
+            _userService = userService;
             _blacklistService = blacklistService;
-            _sessionService = sessionService;
             _cookieService = cookieService;
             _logger = logger;
         }
@@ -45,25 +45,25 @@ namespace backend.Controllers
         [Authorize]
         public async Task<ActionResult<SessionSummaryDto>> GetCurrentSession()
         {
-            // Extract session ID from JWT jti claim
-            var sessionId = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(sessionId))
+            if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
             {
-                _logger.LogWarning("GetCurrentSession: jti claim missing");
+                _logger.LogWarning("GetCurrentSession: Missing claims");
                 return Unauthorized();
             }
+
 
             // Reject request if token has been blacklisted
-            var isRevoked = await _blacklistService.IsTokenRevokedAsync(sessionId);
-            if (isRevoked)
+            if (await _blacklistService.IsTokenRevokedAsync(jti))
             {
-                _logger.LogWarning("GetCurrentSession: Token {SessionId} has been revoked", sessionId);
+                _logger.LogWarning("GetCurrentSession: Token {UserId} has been revoked", userId);
                 return Unauthorized();
             }
 
-            var session = await _sessionService.GetSessionByIdAsync(Guid.Parse(sessionId));
-            return Ok(session);
+            var user = await _userService.GetUserByIdAsync(Guid.Parse(userId));
+            return Ok(user);
         }
 
         /// POST: api/sessions
@@ -79,26 +79,29 @@ namespace backend.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateSession(CreateSessionRequest request)
         {
-            // Validate credentials and create session record in database
-            var session = await _sessionService.CreateSessionAsync(request);
+            var user = await _userService.ValidateCredentialsAsync(request);
 
-            // Generate JWT token using session ID as jti claim
+            // Generate JWT token using user ID as jti claim
             var accessToken = _jwtGenerator.GenerateAccessToken(
-                sessionId: session.Id.ToString(),
-                userId: session.UserId.ToString(),
-                email: request.Email,
-                name: session.Name
+                userId: user.Id.ToString(),
+                email: user.Email,
+                name: user.Name
             );
 
+            // Set refresh token expiry based on "Remember Me" option
+            var refreshExpiry = request.RememberMe
+                ? DateTime.UtcNow.AddDays(30)
+                : DateTime.UtcNow.AddDays(7);
+
+            // Generate refresh token with same user ID for easy revocation
             var refreshToken = _jwtGenerator.GenerateRefreshToken(
-               sessionId: session.Id.ToString(),
-               userId: session.UserId.ToString(),
-               expiresAt: session.ExpiresAt
+                userId: user.Id.ToString(),
+                expiresAt: refreshExpiry
            );
 
             // Store token in HttpOnly cookie to prevent XSS attacks
-            _cookieService.SetAuthCookies(Response, accessToken, refreshToken, session.ExpiresAt);
-            _logger.LogInformation("CreateSession: User {UserId} logged in", session.UserId);
+            _cookieService.SetAuthCookies(Response, accessToken, refreshToken, refreshExpiry);
+            _logger.LogInformation("CreateSession: User {UserId} logged in", user.Id);
 
             return Created();
         }
@@ -115,12 +118,11 @@ namespace backend.Controllers
         public async Task<IActionResult> DeleteCurrentSession()
         {
             // Extract required claims from JWT token
-            var sessionId = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
             var expiresClaim = User.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
 
-
-            if (string.IsNullOrEmpty(sessionId) || string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiresClaim))
+            if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiresClaim))
             {
                 _logger.LogWarning("DeleteCurrentSession: Missing claims");
                 return Unauthorized();
@@ -128,16 +130,54 @@ namespace backend.Controllers
 
             // Blacklist the token first to prevent any in-flight requests from passing
             var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim!)).UtcDateTime;
-            await _blacklistService.RevokeTokenAsync(sessionId, userId, expiresAt);
-
-            // Remove session record from database
-            await _sessionService.DeleteSessionAsync(Guid.Parse(sessionId), Guid.Parse(userId));
+            await _blacklistService.RevokeTokenAsync(jti, userId, expiresAt);
 
             // Clear authentication cookies
             _cookieService.ClearAuthCookies(Response);
-            _logger.LogInformation("DeleteCurrentSession: User {UserId} logged out", userId);
+            _logger.LogInformation("DeleteCurrentSession: User logged out, token {Jti} revoked", jti);
 
             return NoContent();
+        }
+
+
+        [HttpPost("refresh")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RefreshSession()
+        {
+            var refreshToken = Request.Cookies["refresh_token"];
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized();
+
+
+            var principal = _jwtGenerator.ValidateRefreshToken(refreshToken);
+            if (principal == null)
+                return Unauthorized();
+
+            var jti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+            var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("RefreshSession: Missing claims in refresh token");
+                return Unauthorized();
+            }
+
+            if (await _blacklistService.IsTokenRevokedAsync(jti))
+                return Unauthorized();
+
+            var user = await _userService.GetUserByIdAsync(Guid.Parse(userId));
+            var newAccessToken = _jwtGenerator.GenerateAccessToken(
+                userId: userId,
+                email: user.Email,
+                name: user.Name
+            );
+
+            _logger.LogInformation("RefreshSession: newAccessToken={Token}", newAccessToken);
+
+            // Store token in HttpOnly cookie to prevent XSS attacks
+            _cookieService.SetAuthCookies(Response, newAccessToken);
+            return Ok();
         }
     }
 }

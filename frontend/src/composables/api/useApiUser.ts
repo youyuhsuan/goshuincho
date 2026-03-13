@@ -9,7 +9,7 @@ const useApiUser = () => {
 
   const getUser = (userId?: string) =>
     instance.get(
-      userId ? `${API_ENDPOINTS.USERS}/${userId}` : API_ENDPOINTS.USERS
+      userId ? `${API_ENDPOINTS.USERS}/${userId}` : API_ENDPOINTS.USERS,
     );
 
   const updateUser = (userId: string, payload: Partial<RegisterRequest>) =>
@@ -19,24 +19,32 @@ const useApiUser = () => {
     instance.delete(`${API_ENDPOINTS.USERS}/${userId}`);
 
   // Session management
+  // Login
   const createSession = (payload: LoginRequest) =>
-    instance.post(API_ENDPOINTS.SESSIONS, payload); // Login
+    instance.post(API_ENDPOINTS.SESSIONS, payload);
 
-  const getSession = () => instance.get(API_ENDPOINTS.SESSIONS); // Get current session info
+  // Get current session info
+  const getSession = () => instance.get(API_ENDPOINTS.SESSIONS);
 
-  const deleteSession = () => instance.delete(API_ENDPOINTS.SESSIONS); // Logout
+  // Logout
+  const deleteSession = () => instance.delete(API_ENDPOINTS.SESSIONS);
+
+  // Refresh access token
+  const refreshSession = () =>
+    instance.post(`${API_ENDPOINTS.SESSIONS}/refresh`);
 
   return {
-    // RESTful user operations
+    // user operations
     registerUser: createUser,
     getUser,
     updateUser,
     deleteUser,
 
-    // RESTful session operations
+    // session operations
     loginUser: createSession,
     getSession,
     logoutUser: deleteSession,
+    refreshSession,
   };
 };
 

@@ -117,13 +117,13 @@ namespace backend.Services
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
             if (user == null)
-                throw new UnauthorizedException("Invalid email or password");
+                throw new ValidationException("Invalid email or password");
 
             if (string.IsNullOrEmpty(user.Password))
-                throw new UnauthorizedException("This account uses Google login, please sign in with Google");
+                throw new ValidationException("This account uses Google login, please sign in with Google");
 
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                throw new UnauthorizedException("Invalid email or password");
+                throw new ValidationException("Invalid email or password");
 
             return new UserDto
             {

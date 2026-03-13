@@ -16,9 +16,13 @@ declare module 'vue' {
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
+    IconField: typeof import('primevue/iconfield')['default']
     IconGoogle: typeof import('./src/components/icons/IconGoogle.vue')['default']
     IconSupport: typeof import('./src/components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./src/components/icons/IconTooling.vue')['default']
+    Image: typeof import('primevue/image')['default']
+    InputGroup: typeof import('primevue/inputgroup')['default']
+    InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     LoginForm: typeof import('./src/components/auth/LoginForm.vue')['default']
     Menubar: typeof import('primevue/menubar')['default']
@@ -28,6 +32,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
+    Toast: typeof import('primevue/toast')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
   export interface GlobalDirectives {

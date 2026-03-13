@@ -66,13 +66,19 @@ namespace backend.Controllers
 
             var userId = await _userService.GetOrCreateByGoogleIdAsync(userInfo);
 
-            var jwtToken = _jwtGenerator.GenerateAccessToken(
+            // Generate JWT tokens
+            var accessToken = _jwtGenerator.GenerateAccessToken(
                     userId: userId.ToString(),
                     email: userInfo.Email,
                     name: userInfo.Name
                 );
 
-            _cookieService.SetAuthCookies(Response, jwtToken, token.refresh_token, null);
+            var refreshToken = _jwtGenerator.GenerateRefreshToken(
+                userId: userId.ToString(),
+                expiresAt: DateTime.UtcNow.AddDays(7)
+           );
+
+            _cookieService.SetAuthCookies(Response, accessToken, refreshToken, null);
 
             // Return token in response body as per RFC 6749 Section 5.1.
             // The OAuth 2.0 specification requires token endpoint to respond with 

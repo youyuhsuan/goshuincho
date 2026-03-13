@@ -1,5 +1,5 @@
 <template>
-  <footer class="mx-auto max-w-7xl px-6 lg:px-8 mt-2 w-full sm:mt-32 lg:mt-40">
+  <footer class="mx-auto max-w-7xl px-6 lg:px-8 w-full sm:mt-32 lg:mt-40">
     <!-- Social media links -->
     <div class="flex justify-end space-x-6">
       <a
@@ -26,7 +26,8 @@
 
     <!-- Copyright -->
     <div class="flex flex-wrap items-end justify-between gap-x-6">
-      <span class="text-gray-600 text-sm block mb-4"> ©202 YOU YU-HSUAN </span>
+      <span class="text-gray-600 text-sm block"> ©2026 YOU YU-HSUAN </span>
+      <span class="text-gray-600 text-sm block"> All rights reserved. </span>
     </div>
   </footer>
 </template>

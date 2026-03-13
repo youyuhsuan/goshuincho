@@ -15,11 +15,11 @@ namespace backend.Services
             _configuration = configuration;
         }
 
-        public string GenerateAccessToken(string sessionId, string userId, string email, string name)
+        public string GenerateAccessToken(string userId, string email, string name)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Jti, sessionId),  // Unique token ID, used for blacklisting
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),   // Unique user ID, used for blacklisting
                 new Claim(JwtRegisteredClaimNames.Sub, userId),      // Subject: user ID
                 new Claim(JwtRegisteredClaimNames.Email, email),     // User email
                 new Claim(JwtRegisteredClaimNames.Name, name),       // User display name
@@ -45,11 +45,32 @@ namespace backend.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateRefreshToken(string sessionId, string userId, DateTime? expiresAt)
+        public ClaimsPrincipal? ValidateRefreshToken(string refreshToken)
+        {
+            var rsa = RsaKeyHelper.LoadPublicKey(_configuration);
+            var key = new RsaSecurityKey(rsa);
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(refreshToken, new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = key,
+                ValidateIssuer = true,
+                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidateAudience = true,
+                ValidAudience = _configuration["Jwt:Audience"],
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            }, out _);
+
+            return principal;
+        }
+
+        public string GenerateRefreshToken(string userId, DateTime? expiresAt)
         {
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Jti, sessionId),  // Unique token ID, used for blacklisting
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),   // Unique user ID, used for blacklisting
                 new Claim(JwtRegisteredClaimNames.Sub, userId),      // Subject: user ID
                 new Claim(JwtRegisteredClaimNames.Iat,               // Issued at timestamp
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())

@@ -2,7 +2,6 @@
   <div class="oauth-callback">
     <div v-if="isLoading" class="loading-spinner">
       <div class="spinner"></div>
-      <h2>Processing Login...</h2>
     </div>
   </div>
 </template>

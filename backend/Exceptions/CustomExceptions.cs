@@ -11,13 +11,6 @@ namespace backend.Exceptions
         }
     }
 
-    // Custom exception for handling unauthorized access scenarios
-    // Thrown when authentication fails or credentials are invalid (HTTP 401)
-    public class UnauthorizedException : Exception
-    {
-        public UnauthorizedException(string message = "Unauthorized access") : base(message) { }
-    }
-
     // Custom exception for handling resource not found scenarios
     // Thrown when a requested resource doesn't exist (HTTP 404)
     public class NotFoundException : Exception
@@ -40,7 +33,7 @@ namespace backend.Exceptions
     }
 
     // Custom exception for handling resource conflict scenarios
-    // Thrown when an operation conflicts with the current state of a resource (HTTP 409)
+    // Thrown when an operation conflicts with the current state of a resource (HTTP 422)
     public class UnprocessableContent : Exception
     {
         public UnprocessableContent(string message) : base(message) { }

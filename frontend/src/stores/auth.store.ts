@@ -12,19 +12,42 @@ import type { LoginRequest, User } from "@/types/userType";
 const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
   const isAuthenticated = ref<boolean>(false);
-  const route = useRoute();
 
-  const { loginUser, getSession, logoutUser } = useApiUser();
+  const { loginUser, getSession, logoutUser, refreshSession } = useApiUser();
   const { createGoogleAuthorization, createGoogleToken } = useApiAuth();
+
+  let refreshInterval: ReturnType<typeof setInterval> | null = null;
+  const ACCESS_TOKEN_EXPITY = 4.5 * 60 * 1000; // 4.5 minutes
+
+  // Check session on app startup
+  const startInactivityTimer = () => {
+    refreshInterval = setInterval(async () => {
+      try {
+        await refreshSession();
+      } catch {
+        await logout();
+      }
+    }, ACCESS_TOKEN_EXPITY);
+  };
+
+  // Stop the timer when user logs out or when the component is unmounted
+  const stopInactivityTimer = () => {
+    if (refreshInterval) {
+      clearInterval(refreshInterval);
+      refreshInterval = null;
+    }
+  };
 
   const login = async (values: LoginRequest) => {
     await loginUser(values);
     isAuthenticated.value = true;
+    startInactivityTimer();
   };
 
   const logout = async () => {
     await logoutUser();
     isAuthenticated.value = false;
+    stopInactivityTimer();
     router.push("/");
   };
 
