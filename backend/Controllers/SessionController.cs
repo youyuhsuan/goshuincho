@@ -113,14 +113,13 @@ namespace backend.Controllers
         /// <response code="204">Session deleted successfully</response>
         /// <response code="401">Token is missing or has been revoked</response>
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [HttpDelete()]
         [Authorize]
+        [HttpDelete()]
         public async Task<IActionResult> DeleteCurrentSession()
         {
-            // Extract required claims from JWT token
             var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
-            var userId = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
-            var expiresClaim = User.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var expiresClaim = User.FindFirst("exp")?.Value;
 
             if (string.IsNullOrEmpty(jti) || string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(expiresClaim))
             {
@@ -128,13 +127,32 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            // Blacklist the token first to prevent any in-flight requests from passing
-            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim!)).UtcDateTime;
+            var expiresAt = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiresClaim)).UtcDateTime;
             await _blacklistService.RevokeTokenAsync(jti, userId, expiresAt);
 
-            // Clear authentication cookies
+            // Also revoke refresh token if it exists
+            var refreshToken = Request.Cookies["refresh_token"];
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                var principal = _jwtGenerator.ValidateRefreshToken(refreshToken);
+                if (principal != null)
+                {
+                    var refreshJti = principal.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
+                    var refreshExp = principal.FindFirst(JwtRegisteredClaimNames.Exp)?.Value;
+
+                    if (!string.IsNullOrEmpty(refreshJti) && !string.IsNullOrEmpty(refreshExp))
+                    {
+                        var refreshExpiresAt = DateTimeOffset
+                            .FromUnixTimeSeconds(long.Parse(refreshExp)).UtcDateTime;
+                        await _blacklistService.RevokeTokenAsync(refreshJti, userId, refreshExpiresAt);
+                        _logger.LogInformation("DeleteCurrentSession: refresh_token {Jti} revoked", refreshJti);
+                    }
+                }
+            }
+
+            // Clear cookies on client side
             _cookieService.ClearAuthCookies(Response);
-            _logger.LogInformation("DeleteCurrentSession: User logged out, token {Jti} revoked", jti);
+            _logger.LogInformation("DeleteCurrentSession: User {UserId} logged out", userId);
 
             return NoContent();
         }
