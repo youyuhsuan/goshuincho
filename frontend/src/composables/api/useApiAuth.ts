@@ -1,5 +1,5 @@
 // Composables
-import instance from "@/composables/api/useApi";
+import { instance, authInstance } from "@/composables/api/useApi";
 // Config
 import { API_ENDPOINTS } from "@/config/apiConfig";
 
@@ -10,7 +10,7 @@ const useApiAuth = () => {
     });
 
   const createGoogleToken = (code: string, state: string) =>
-    instance.post(API_ENDPOINTS.OAUTH.TOKENS, {
+    authInstance.post(API_ENDPOINTS.OAUTH.TOKENS, {
       code,
       state,
       provider: "google",

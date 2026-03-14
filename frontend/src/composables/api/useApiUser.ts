@@ -1,4 +1,4 @@
-import instance from "@/composables/api/useApi";
+import { instance, authInstance } from "@/composables/api/useApi";
 import { API_ENDPOINTS } from "@/config/apiConfig";
 import type { LoginRequest, RegisterRequest } from "@/types/userType";
 
@@ -8,30 +8,32 @@ const useApiUser = () => {
     instance.post(API_ENDPOINTS.USERS, payload);
 
   const getUser = (userId?: string) =>
-    instance.get(
+    authInstance.get(
       userId ? `${API_ENDPOINTS.USERS}/${userId}` : API_ENDPOINTS.USERS,
     );
 
   const updateUser = (userId: string, payload: Partial<RegisterRequest>) =>
-    instance.put(`${API_ENDPOINTS.USERS}/${userId}`, payload);
+    authInstance.put(`${API_ENDPOINTS.USERS}/${userId}`, payload);
 
   const deleteUser = (userId: string) =>
-    instance.delete(`${API_ENDPOINTS.USERS}/${userId}`);
+    authInstance.delete(`${API_ENDPOINTS.USERS}/${userId}`);
 
   // Session management
   // Login
   const createSession = (payload: LoginRequest) =>
-    instance.post(API_ENDPOINTS.SESSIONS, payload);
+    instance.post(API_ENDPOINTS.SESSIONS, payload, {
+      withCredentials: true,
+    });
 
   // Get current session info
-  const getSession = () => instance.get(API_ENDPOINTS.SESSIONS);
+  const getSession = () => authInstance.get(API_ENDPOINTS.SESSIONS);
 
   // Logout
-  const deleteSession = () => instance.delete(API_ENDPOINTS.SESSIONS);
+  const deleteSession = () => authInstance.delete(API_ENDPOINTS.SESSIONS);
 
   // Refresh access token
   const refreshSession = () =>
-    instance.post(`${API_ENDPOINTS.SESSIONS}/refresh`);
+    authInstance.post(`${API_ENDPOINTS.SESSIONS}/refresh`);
 
   return {
     // user operations
