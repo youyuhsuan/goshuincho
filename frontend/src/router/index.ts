@@ -29,8 +29,7 @@ const router = createRouter({
       name: "oAuthCallback",
       component: OAuthCallback,
       meta: {
-        requiresAuth: false,
-        hidden: true,
+        fullscreen: true,
       },
     },
   ],

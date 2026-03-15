@@ -1,14 +1,14 @@
 <template>
-  <div class="oauth-callback">
-    <div v-if="isLoading" class="loading-spinner">
-      <div class="spinner"></div>
-    </div>
-  </div>
+  <main class="flex items-center justify-center h-screen">
+    <ProgressSpinner aria-label="Loading" />
+  </main>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+// Primevue
+import ProgressSpinner from "primevue/progressspinner";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 
