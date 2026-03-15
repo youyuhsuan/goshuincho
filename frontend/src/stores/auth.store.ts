@@ -30,12 +30,19 @@ const useAuthStore = defineStore("auth", () => {
     }, ACCESS_TOKEN_EXPITY);
   };
 
-  // Stop the timer when user logs out or when the component is unmounted
+  // Stop the timer when user logs out or when the component is onBeforeUnmount
   const stopInactivityTimer = () => {
     if (refreshInterval) {
       clearInterval(refreshInterval);
       refreshInterval = null;
     }
+  };
+
+  // Check session on app startup
+  const checkSession = async () => {
+    user.value = (await getSession()).data;
+    isAuthenticated.value = true;
+    startInactivityTimer();
   };
 
   const login = async (values: LoginRequest) => {
@@ -64,6 +71,8 @@ const useAuthStore = defineStore("auth", () => {
     isAuthenticated: readonly(isAuthenticated),
     login,
     logout,
+    checkSession,
+    stopInactivityTimer,
     google: {
       initiateGoogleLogin,
       processGoogleCallback,

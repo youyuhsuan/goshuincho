@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onBeforeUnmount } from "vue";
 import { RouterView, useRoute } from "vue-router";
 // Components
 import Menubar from "@/components/Menubar.vue";
@@ -14,6 +14,10 @@ const isFullscreen = computed(() => route.meta.fullscreen === true);
 
 onMounted(() => {
   authStore.checkSession();
+});
+
+onBeforeUnmount(() => {
+  authStore.stopInactivityTimer();
 });
 </script>
 
