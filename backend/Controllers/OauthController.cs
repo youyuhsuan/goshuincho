@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
-using backend.Models.Requests;
+using backend.DTOs.Requests;
 
 namespace backend.Controllers
 {
@@ -58,7 +58,7 @@ namespace backend.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("tokens")]
-        public async Task<IActionResult> ExchangeToken([FromBody] TokenRequest request)
+        public async Task<IActionResult> ExchangeToken([FromBody] OAuthRequest request)
         {
             var (userInfo, token) = await _oauthService.ExchangeCodeForTokenAsync(
                 request.Provider, request.Code, request.State);

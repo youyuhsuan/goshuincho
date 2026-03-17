@@ -63,7 +63,7 @@ namespace backend.Helpers
 
             Console.WriteLine($"Public key saved to: {publicKeyPath}");
             Console.WriteLine($"Private key saved to: {privateKeyPath}");
-            Console.WriteLine("⚠️ Keep the private key secure and set appropriate file permissions!");
+            Console.WriteLine("Keep the private key secure and set appropriate file permissions!");
         }
     }
 }

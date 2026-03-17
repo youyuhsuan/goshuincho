@@ -22,7 +22,7 @@ namespace backend.Services
         public async Task<bool> IsTokenRevokedAsync(string jti)
         {
             // Check if the token exists in the blacklist and has not yet expired
-            var isRevoked = await _context.RevokedTokens
+            var isRevoked = await _context.TokenBlacklists
                 .AnyAsync(rt => rt.Jti == jti && rt.ExpiresAt > DateTime.UtcNow);
 
             return isRevoked;
@@ -36,7 +36,7 @@ namespace backend.Services
         public async Task RevokeTokenAsync(string jti, string userId, DateTime expiresAt, string reason = "logout")
         {
             // Check if the token is already in the blacklist
-            var existing = await _context.RevokedTokens
+            var existing = await _context.TokenBlacklists
                 .FirstOrDefaultAsync(rt => rt.Jti == jti);
 
             if (existing != null)
@@ -46,17 +46,15 @@ namespace backend.Services
             }
 
             // Build the revoked token record and persist it to the database
-            var revokedToken = new RevokedToken
+            var TokenBlacklist = new TokenBlacklist
             {
                 Id = Guid.NewGuid(),
                 Jti = jti,
-                UserId = userId,
-                RevokedAt = DateTime.UtcNow,
-                ExpiresAt = expiresAt,  // Retain the original expiry so the blacklist entry can be cleaned up later
-                Reason = reason
+                UserId = Guid.Parse(userId),
+                ExpiresAt = expiresAt,
             };
 
-            _context.RevokedTokens.Add(revokedToken);
+            _context.TokenBlacklists.Add(TokenBlacklist);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation(

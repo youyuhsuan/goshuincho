@@ -3,7 +3,6 @@ using System.Text.Json;
 using backend.Exceptions;
 using backend.Models;
 
-
 namespace backend.Middleware
 {
     // Global middleware for handling unhandled exceptions throughout the application

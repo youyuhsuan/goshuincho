@@ -2,7 +2,8 @@ using System.Security.Cryptography;
 using System.Net.Http.Json;
 using backend.Services;
 using backend.Models.Entities;
-using backend.Models.Responses;
+using backend.DTOs;
+using backend.DTOs.Responses;
 
 namespace backend.Services
 {
@@ -36,7 +37,7 @@ namespace backend.Services
         }
 
         // Exchanges an authorization code for tokens and fetches user info
-        public async Task<(UserInfo user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code, string state)
+        public async Task<(UserDto user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code, string state)
         {
             if (!ValidateAndConsumeState(state))
             {
@@ -56,9 +57,9 @@ namespace backend.Services
                     }
 
 
-                    var userInfo = new UserInfo
+                    var userInfo = new UserDto
                     {
-                        Id = googleUserInfo.id,
+                        GoogleId = googleUserInfo.id,
                         Email = googleUserInfo.email,
                         Name = googleUserInfo.name,
                         Picture = googleUserInfo.picture
@@ -147,7 +148,7 @@ namespace backend.Services
             var clientSecret = _configuration["Google:ClientSecret"];
             var redirectUri = _configuration["Google:RedirectUri"];
 
-            var tokenRequest = new Dictionary<string, string>
+            var oauthRequest = new Dictionary<string, string>
             {
                 { "code", code },
                 { "client_id", clientId! },
@@ -158,7 +159,7 @@ namespace backend.Services
 
             var response = await _httpClient.PostAsync(
                 "https://oauth2.googleapis.com/token",
-                new FormUrlEncodedContent(tokenRequest)
+                new FormUrlEncodedContent(oauthRequest)
             );
 
             response.EnsureSuccessStatusCode();

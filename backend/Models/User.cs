@@ -20,12 +20,14 @@ namespace backend.Models
 
         [MinLength(6)]
         [MaxLength(500)]
-        public string? Password { get; set; } = string.Empty;
+        public string? Password { get; set; }
 
         [MaxLength(500)]
-        public string Picture { get; set; } = string.Empty;
+        public string? Picture { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
+        // Navigation property
+        public ICollection<RefreshToken> RefreshTokens { get; set; } = [];
     }
 }

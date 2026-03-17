@@ -1,13 +1,5 @@
-namespace backend.Models.Responses
+namespace backend.DTOs.Responses
 {
-    public class UserInfo
-    {
-        public required string Id { get; set; }
-        public required string Email { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Picture { get; set; } = string.Empty;
-    }
-
     public class GoogleUserInfo
     {
         public required string id { get; set; }

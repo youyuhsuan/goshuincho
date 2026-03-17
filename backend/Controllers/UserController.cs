@@ -1,23 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using backend.DTOs;
+using backend.DTOs.Requests;
 using backend.Services;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly ICookieService _cookieService;
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UserController> _logger;
 
 
-        public UsersController(
+        public UserController(
             IUserService userService,
             ICookieService cookieService,
-            ILogger<UsersController> logger)
+            ILogger<UserController> logger)
         {
             _userService = userService;
             _cookieService = cookieService;
@@ -26,7 +27,7 @@ namespace backend.Controllers
 
         /// GET: api/users/{id}
         /// <summary>
-        /// Gets a user by ID.
+        /// Gets a user by ID
         /// </summary>
         /// <response code="200">Returns user information</response>
         /// <response code="404">User not found</response>
@@ -40,28 +41,10 @@ namespace backend.Controllers
             return Ok(user);
         }
 
-        /// POST: api/users
-        /// <summary>
-        /// Creates a new user with the provided information. 
-        /// </summary>
-        /// <param name="request"></param>
-        /// <response code="201">User created successfully</response>
-        /// <response code="400">Validation failed</response>
-        /// <response code="409">Email already exists</response>
-        [ProducesResponseType(typeof(string), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status409Conflict)]
-        [HttpPost]
-        public async Task<ActionResult> CreateUser(CreateUserRequest request)
-        {
-            await _userService.CreateUserAsync(request);
-            return Created();
-        }
-
         /// PUT: api/users/{id}
         /// <summary>
         /// Updates a user's information.
-        /// If the updated user is the current user, also updates the JWT cookie with new claims.
+        /// If the updated user is the current user
         /// </summary>
         /// <param name="id"></param>
         /// <param name="request"></param>
@@ -79,7 +62,7 @@ namespace backend.Controllers
 
         /// DELETE: api/users/{id}
         /// <summary>
-        /// Deletes a user by ID. If the deleted user is the current user, also clears authentication cookies.
+        /// Deletes a user by ID. If the deleted user is the current user, also clears authentication cookies
         /// </summary>
         /// <param name="id"></param>
         /// <response code="204">User deleted successfully</response>
@@ -91,9 +74,6 @@ namespace backend.Controllers
         public async Task<ActionResult> DeleteUser(Guid id)
         {
             await _userService.DeleteUserAsync(id);
-
-            // Clear auth cookies if the deleted user is the current user
-            _cookieService.ClearAuthCookies(Response);
             return NoContent();
         }
     }

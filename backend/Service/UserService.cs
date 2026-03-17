@@ -2,9 +2,10 @@ using Microsoft.EntityFrameworkCore;
 
 using backend.Data;
 using backend.Models;
-using backend.DTOs;
 using backend.Exceptions;
-using backend.Models.Responses;
+using backend.DTOs;
+using backend.DTOs.Requests;
+using backend.DTOs.Responses;
 
 using BCrypt.Net;
 
@@ -37,7 +38,7 @@ namespace backend.Services
         }
 
         // Create new user with email/password
-        public async Task CreateUserAsync(CreateUserRequest request)
+        public async Task CreateUserAsync(RegisterRequest request)
         {
             if (await _context.Users.AnyAsync(u => u.Email == request.Email))
             {
@@ -57,15 +58,15 @@ namespace backend.Services
         }
 
         // Get or create user by Google ID
-        public async Task<Guid> GetOrCreateByGoogleIdAsync(UserInfo googleUser)
+        public async Task<Guid> GetOrCreateByGoogleIdAsync(UserDto googleUser)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleId == googleUser.Id);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleId == googleUser.GoogleId);
 
             if (user != null) return user.Id;
             user = new User
             {
                 Id = Guid.NewGuid(),
-                GoogleId = googleUser.Id,
+                GoogleId = googleUser.GoogleId,
                 Email = googleUser.Email,
                 Name = googleUser.Name,
                 Picture = googleUser.Picture,
@@ -99,6 +100,7 @@ namespace backend.Services
             await _context.SaveChangesAsync();
         }
 
+        // Delete user by Id
         public async Task DeleteUserAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -112,18 +114,15 @@ namespace backend.Services
         }
 
         // Validate user credentials for login
-        public async Task<UserDto> ValidateCredentialsAsync(CreateSessionRequest request)
+        public async Task<UserDto> ValidateCredentialsAsync(LoginRequest request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
 
-            if (user == null)
-                throw new ValidationException("Invalid email or password");
-
-            if (string.IsNullOrEmpty(user.Password))
-                throw new ValidationException("This account uses Google login, please sign in with Google");
+            if (user == null || string.IsNullOrEmpty(user.Password))
+                throw new UnprocessableContent("Invalid email or password");
 
             if (!BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
-                throw new ValidationException("Invalid email or password");
+                throw new UnprocessableContent("Invalid email or password");
 
             return new UserDto
             {

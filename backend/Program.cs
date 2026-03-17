@@ -79,8 +79,9 @@ builder.Services.ConfigureApiValidation();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
-builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddSingleton<IOAuthService, OAuthService>();
+builder.Services.AddScoped<ICookieService, CookieService>();
 
 // Configure Swagger API documentation generation
 builder.Services.AddSwaggerGen(c =>
