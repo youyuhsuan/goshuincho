@@ -1,83 +1,132 @@
+import { ref, readonly, computed } from "vue";
+// Pinia
 import { defineStore } from "pinia";
-import { ref, readonly } from "vue";
-import { useRoute } from "vue-router";
 // Router
 import router from "@/router";
 // Composables
-import useApiUser from "@/composables/api/useApiUser";
 import useApiAuth from "@/composables/api/useApiAuth";
+import useApiOAuth from "@/composables/api/useApiOAuth";
 // Type
-import type { LoginRequest, User } from "@/types/userType";
+import type { User } from "@/types/userType";
+import type { LoginRequest, TokenResponse } from "@/types/authType";
 
-const useAuthStore = defineStore("auth", () => {
-  const user = ref<User | null>(null);
-  const isAuthenticated = ref<boolean>(false);
+const useAuthStore = defineStore(
+  "auth",
+  () => {
+    const user = ref<User | null>(null);
+    const isAuthenticated = ref<boolean>(false);
+    const accessToken = ref<string | null>(null);
+    const refreshToken = ref<string | null>(null);
 
-  const { loginUser, getSession, logoutUser, refreshSession } = useApiUser();
-  const { createGoogleAuthorization, createGoogleToken } = useApiAuth();
+    const {
+      getCurrentAuth,
+      loginUser,
+      logoutUser,
+      refreshAccessToken: refreshAccessTokenApi,
+    } = useApiAuth();
+    const { createGoogleAuthorization, createGoogleToken } = useApiOAuth();
 
-  let refreshInterval: ReturnType<typeof setInterval> | null = null;
-  const ACCESS_TOKEN_EXPITY = 4.5 * 60 * 1000; // 4.5 minutes
+    let refreshInterval: ReturnType<typeof setInterval> | null = null;
+    const ACCESS_TOKEN_EXPITY = 4.5 * 60 * 1000; // 4.5 minutes
 
-  // Check session on app startup
-  const startInactivityTimer = () => {
-    refreshInterval = setInterval(async () => {
-      try {
-        await refreshSession();
-      } catch {
-        await logout();
+    // Check session on app startup
+    const startInactivityTimer = () => {
+      refreshInterval = setInterval(async () => {
+        try {
+          await refreshAccessToken();
+        } catch {
+          await logout();
+        }
+      }, ACCESS_TOKEN_EXPITY);
+    };
+
+    // Stop the timer when user logs out or when the component is onBeforeUnmount
+    const stopInactivityTimer = () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
       }
-    }, ACCESS_TOKEN_EXPITY);
-  };
+    };
 
-  // Stop the timer when user logs out or when the component is onBeforeUnmount
-  const stopInactivityTimer = () => {
-    if (refreshInterval) {
-      clearInterval(refreshInterval);
-      refreshInterval = null;
-    }
-  };
+    // Authenticated user with email, password and remenberMe
+    const login = async (values: LoginRequest) => {
+      const {
+        accessToken: accessTokenData,
+        refreshToken: refreshTokenData,
+      }: TokenResponse = (await loginUser(values)).data;
 
-  // Check session on app startup
-  const checkSession = async () => {
-    user.value = (await getSession()).data;
-    isAuthenticated.value = true;
-    startInactivityTimer();
-  };
+      // Store token in localStorage on success
+      accessToken.value = accessTokenData;
+      refreshToken.value = refreshTokenData;
 
-  const login = async (values: LoginRequest) => {
-    await loginUser(values);
-    isAuthenticated.value = true;
-    startInactivityTimer();
-  };
+      user.value = (await getCurrentAuth()).data;
+      isAuthenticated.value = true;
+    };
 
-  const logout = async () => {
-    await logoutUser();
-    isAuthenticated.value = false;
-    stopInactivityTimer();
-    router.push("/");
-  };
+    // Revoke token on the server
+    const logout = async () => {
+      await logoutUser();
 
-  const initiateGoogleLogin = async () =>
-    (window.location.href = (await createGoogleAuthorization()).data);
+      // Reset all auth state
+      isAuthenticated.value = false;
+      accessToken.value = null;
+      refreshToken.value = null;
+      user.value = null;
 
-  const processGoogleCallback = async (code: string, state: string) => {
-    await createGoogleToken(code, state);
-    isAuthenticated.value = true;
-  };
+      stopInactivityTimer();
+      router.push("/");
+    };
 
-  return {
-    user,
-    isAuthenticated: readonly(isAuthenticated),
-    login,
-    logout,
-    checkSession,
-    stopInactivityTimer,
-    google: {
-      initiateGoogleLogin,
-      processGoogleCallback,
+    // Restore authenticated store in initialize amount
+    const initialize = async () => {
+      if (!accessToken.value || !refreshToken.value) return;
+
+      user.value = (await getCurrentAuth()).data;
+      isAuthenticated.value = true;
+    };
+
+    const refreshAccessToken = async () => {
+      const {
+        accessToken: accessTokenData,
+        refreshToken: refreshTokenData,
+      }: TokenResponse = (await refreshAccessTokenApi()).data;
+
+      // Store token in localStorage on success
+      accessToken.value = accessTokenData;
+      refreshToken.value = refreshTokenData;
+    };
+
+    // OAuth
+    const initiateGoogleLogin = async () =>
+      (window.location.href = (await createGoogleAuthorization()).data);
+
+    const processGoogleCallback = async (code: string, state: string) => {
+      await createGoogleToken(code, state);
+      isAuthenticated.value = true;
+    };
+
+    return {
+      user,
+      isAuthenticated: readonly(isAuthenticated),
+      accessToken,
+      refreshToken,
+      refreshAccessToken,
+      login,
+      logout,
+      initialize,
+      stopInactivityTimer,
+      google: {
+        initiateGoogleLogin,
+        processGoogleCallback,
+      },
+    };
+  },
+  {
+    persist: {
+      key: "auth",
+      pick: ["accessToken", "refreshToken"],
     },
-  };
-});
+  },
+);
 
 export default useAuthStore;

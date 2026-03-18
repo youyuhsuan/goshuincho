@@ -1,25 +1,43 @@
-// Composables
+// composables
 import { instance, authInstance } from "@/composables/api/useApi";
 // Config
 import { API_ENDPOINTS } from "@/config/apiConfig";
+// Stores
+import useAuthStore from "@/stores/auth.store";
+// Types
+import type {
+  LoginRequest,
+  RegisterRequest,
+  TokenResponse,
+} from "@/types/authType";
 
 const useApiAuth = () => {
-  const createGoogleAuthorization = () =>
-    instance.post<string>(API_ENDPOINTS.OAUTH.AUTHORIZATIONS, {
-      provider: "google",
-    });
+  // Get current authenticated user info
+  const getCurrentAuth = () => authInstance.get(API_ENDPOINTS.AUTH.ME);
 
-  const createGoogleToken = (code: string, state: string) =>
-    authInstance.post(API_ENDPOINTS.OAUTH.TOKENS, {
-      code,
-      state,
-      provider: "google",
+  // Authenticate user and issue tokens
+  const loginUser = (payload: LoginRequest) =>
+    instance.post<TokenResponse>(API_ENDPOINTS.AUTH.LOGIN, payload);
+
+  // Authenticate user and issue tokens
+  const registerUser = (payload: RegisterRequest) =>
+    instance.post(API_ENDPOINTS.AUTH.REGISTER, payload);
+
+  // Logout current user
+  const logoutUser = () => authInstance.post(API_ENDPOINTS.AUTH.LOGOUT);
+
+  // Issue a new Access Token using a valid Refresh Token
+  const refreshAccessToken = () =>
+    instance.post<TokenResponse>(API_ENDPOINTS.AUTH.REFRESH, {
+      refreshToken: useAuthStore().refreshToken,
     });
 
   return {
-    // Token management
-    createGoogleAuthorization,
-    createGoogleToken,
+    getCurrentAuth,
+    loginUser,
+    registerUser,
+    logoutUser,
+    refreshAccessToken,
   };
 };
 

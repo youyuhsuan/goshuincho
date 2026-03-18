@@ -3,6 +3,8 @@ import axios from "axios";
 import { API_CONFIG, API_ENDPOINTS } from "@/config/apiConfig";
 // Utils
 import handleError from "@/utils/errorHandler";
+// Store
+import useAuthStore from "@/stores/auth.store";
 
 export const instance = axios.create({
   baseURL: API_CONFIG.BASE_URL,
@@ -22,6 +24,11 @@ instance.interceptors.response.use(
   },
 );
 
+authInstance.interceptors.request.use(async (config) => {
+  config.headers.Authorization = `Bearer ${useAuthStore().accessToken}`;
+  return config;
+});
+
 let isRefreshing: boolean = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;
@@ -33,16 +40,10 @@ const processQueue = (error?: any) => {
   failedQueue = [];
 };
 
-const SKIP_REFRESH = [
-  { url: API_ENDPOINTS.SESSIONS, method: "get" },
-  { url: `${API_ENDPOINTS.SESSIONS}/refresh`, method: "post" },
-];
+const SKIP_REFRESH = [{ url: `${API_ENDPOINTS.AUTH}/refresh` }];
 
 const shouldSkipRefresh = (error: any) =>
-  SKIP_REFRESH.some(
-    (skip) =>
-      skip.url === error?.config?.url && skip.method === error?.confi?.method,
-  );
+  !SKIP_REFRESH.some((skip) => skip.url === error?.config?.url);
 
 authInstance.interceptors.response.use(
   (response) => response,
@@ -58,7 +59,7 @@ authInstance.interceptors.response.use(
         try {
           if (!isRefreshing) {
             isRefreshing = true;
-            await authInstance.post(`${API_ENDPOINTS.SESSIONS}/refresh`);
+            useAuthStore().refreshAccessToken();
           } else {
             await new Promise((resolve, reject) => {
               failedQueue.push({ resolve, reject });
