@@ -39,7 +39,7 @@ namespace backend.Controllers
 
         // GET: api/auth/me
         /// <summary>
-        /// Get current authenicated user info
+        /// Get current authenticated user info
         /// </summary>
         /// <response code="200">User info returned successfully</response>
         /// <response code="401">Token is missing or has been revoked</response>
