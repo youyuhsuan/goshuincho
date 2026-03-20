@@ -3,6 +3,8 @@
     v-slot="$form"
     :initialValues="initialValues"
     :resolver="resolver"
+    :validateOnValueUpdate="false"
+    :validateOnBlur="true"
     class="flex flex-col gap-6.5 w-full"
     @submit="onFormSubmit"
   >
@@ -107,7 +109,7 @@ import { z } from "zod";
 import useMessage from "@/composables/useMessage";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
-import type { LoginRequest } from "@/types/userType";
+import type { LoginRequest } from "@/types/authType";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 
@@ -129,23 +131,8 @@ const router = useRouter();
 
 const resolver = zodResolver(
   z.object({
-    email: z
-      .email()
-      .min(1, { message: "Minimum 1 characters." })
-      .max(320, { message: "Maximum 320 characters." }),
-    password: z
-      .string()
-      .min(6, { message: "Minimum 6 characters." })
-      .max(500, { message: "Maximum 500 characters." })
-      .refine((value) => /[a-z]/.test(value), {
-        message: "Must have a lowercase letter.",
-      })
-      .refine((value) => /[A-Z]/.test(value), {
-        message: "Must have an uppercase letter.",
-      })
-      .refine((value) => /\d/.test(value), {
-        message: "Must have a number.",
-      }),
+    email: z.email(),
+    password: z.string(),
   }),
 );
 

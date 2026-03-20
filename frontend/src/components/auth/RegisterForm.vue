@@ -4,6 +4,8 @@
     :initialValues="initialValues"
     :resolver="resolver"
     class="flex flex-col gap-6.5 w-full"
+    :validateOnValueUpdate="false"
+    :validateOnBlur="true"
     @submit="onFormSubmit"
   >
     <!-- Email -->
@@ -123,12 +125,12 @@ import { zodResolver } from "@primevue/forms/resolvers/zod";
 import type { FormSubmitEvent } from "@primevue/forms";
 import { z } from "zod";
 // Composables
-import useApiUser from "@/composables/api/useApiUser";
 import useMessage from "@/composables/useMessage";
+import useApiAuth from "@/composables/api/useApiAuth";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
 // Type
-import type { RegisterFormData, RegisterRequest } from "@/types/userType";
+import type { RegisterFormData, RegisterRequest } from "@/types/authType";
 
 const isLoading = ref<boolean>(false);
 const fieldIds = ref<FieldIds>(
@@ -145,21 +147,17 @@ const isLogin = defineModel<boolean>("isLogin", {
   required: true,
 });
 
-const { registerUser } = useApiUser();
+const { registerUser } = useApiAuth();
 const { showWarning } = useMessage();
 
 const resolver = zodResolver(
   z
     .object({
-      // TODO: first name + last name = full name
       name: z
         .string()
         .min(1, { message: "Minimum 1 characters." })
-        .max(50, { message: "Maximum 50 characters." }),
-      email: z
-        .email()
-        .min(1, { message: "Minimum 1 characters." })
-        .max(320, { message: "Maximum 320 characters." }),
+        .max(100, { message: "Maximum 100 characters." }),
+      email: z.email(),
       password: z
         .string()
         .min(6, { message: "Minimum 6 characters." })
