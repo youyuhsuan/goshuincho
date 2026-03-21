@@ -88,15 +88,7 @@ namespace backend.Services
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email && u.Id != id))
-            {
-                throw new ConflictException("Email already exists");
-            }
-
             user.Name = request.Name;
-            user.Email = request.Email;
-
             await _context.SaveChangesAsync();
         }
 

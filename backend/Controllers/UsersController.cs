@@ -8,20 +8,17 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ICookieService _cookieService;
-        private readonly ILogger<UserController> _logger;
+        private readonly ILogger<UsersController> _logger;
 
 
-        public UserController(
+        public UsersController(
             IUserService userService,
-            ICookieService cookieService,
-            ILogger<UserController> logger)
+            ILogger<UsersController> logger)
         {
             _userService = userService;
-            _cookieService = cookieService;
             _logger = logger;
         }
 
@@ -41,7 +38,7 @@ namespace backend.Controllers
             return Ok(user);
         }
 
-        /// PUT: api/users/{id}
+        /// PATCH: api/users/{id}
         /// <summary>
         /// Updates a user's information.
         /// If the updated user is the current user
@@ -51,9 +48,10 @@ namespace backend.Controllers
         /// <response code="204">User updated successfully</response>
         /// <response code="400">Validation failed</response>
         /// <response code="404">User not found</response>
-        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [Authorize]
-        [HttpPut("{id}")]
+        [HttpPatch("{id}")]
         public async Task<ActionResult> UpdateUser(Guid id, UpdateUserRequest request)
         {
             await _userService.UpdateUserAsync(id, request);
