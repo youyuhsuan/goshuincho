@@ -18,6 +18,9 @@ const useAuthStore = defineStore(
     const accessToken = ref<string | null>(null);
     const refreshToken = ref<string | null>(null);
 
+    // Controls global loading state during auth initiallization
+    const isLoading = ref<boolean>(false);
+
     const {
       getCurrentAuth,
       loginUser,
@@ -48,6 +51,7 @@ const useAuthStore = defineStore(
       }
     };
 
+    // Auth Auctions
     // Authenticated user with email, password and remenberMe
     const login = async (values: LoginRequest) => {
       const {
@@ -63,7 +67,7 @@ const useAuthStore = defineStore(
       isAuthenticated.value = true;
     };
 
-    // Revoke token on the server
+    // Revoke token on the server, clear local state and redirect to home
     const logout = async () => {
       await logoutUser();
 
@@ -73,18 +77,27 @@ const useAuthStore = defineStore(
       refreshToken.value = null;
       user.value = null;
 
-      stopInactivityTimer();
       router.push("/");
     };
 
-    // Restore authenticated store in initialize amount
+    // Restore authenticated state on app startup using persisted tokens
     const initialize = async () => {
-      if (!accessToken.value || !refreshToken.value) return;
+      isLoading.value = true;
+      try {
+        if (!accessToken.value || !refreshToken.value) {
+          isLoading.value = false;
+          return;
+        }
 
-      user.value = (await getCurrentAuth()).data;
-      isAuthenticated.value = true;
+        // Verity token validity
+        user.value = (await getCurrentAuth()).data;
+        isAuthenticated.value = true;
+      } finally {
+        isLoading.value = false;
+      }
     };
 
+    // Exchange refreshToken for a new access token and updated stored tokens
     const refreshAccessToken = async () => {
       const {
         accessToken: accessTokenData,
@@ -108,6 +121,7 @@ const useAuthStore = defineStore(
     return {
       user,
       isAuthenticated: readonly(isAuthenticated),
+      isLoading: readonly(isLoading),
       accessToken,
       refreshToken,
       refreshAccessToken,

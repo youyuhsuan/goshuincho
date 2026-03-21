@@ -1,9 +1,3 @@
-<template>
-  <main class="flex items-center justify-center h-screen">
-    <ProgressSpinner aria-label="Loading" />
-  </main>
-</template>
-
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
@@ -38,3 +32,9 @@ onMounted(async () => {
   }
 });
 </script>
+
+<template>
+  <main class="flex items-center justify-center h-screen">
+    <ProgressSpinner aria-label="Loading" />
+  </main>
+</template>

@@ -1,34 +1,41 @@
 <script setup lang="ts">
-import { computed, onMounted, onBeforeUnmount } from "vue";
+import { computed } from "vue";
 import { RouterView, useRoute } from "vue-router";
+// Premevue
+import ProgressSpinner from "primevue/progressspinner";
 // Components
 import Menubar from "@/components/Menubar.vue";
 import Footer from "@/components/Footer.vue";
 // Stores
-import useAuthSore from "@/stores/auth.store";
+import useAuthStore from "@/stores/auth.store";
 
-const authStore = useAuthSore();
+// Determine if the current route should be displayed in fullscreen mode
 const route = useRoute();
-
 const isFullscreen = computed(() => route.meta.fullscreen === true);
 
-onMounted(() => {
-  authStore.checkSession();
-});
-
-onBeforeUnmount(() => {
-  authStore.stopInactivityTimer();
-});
+// Controls the global loading state while auth is being initialized
+const authStore = useAuthStore();
 </script>
 
 <template>
-  <template v-if="!isFullscreen">
-    <Toast />
-    <Menubar />
-  </template>
-
-  <div :class="isFullscreen ? 'min-h-screen' : 'min-h-screen flex flex-col'">
-    <RouterView />
-    <Footer v-if="!isFullscreen" />
+  <!-- Loading -->
+  <div
+    v-if="authStore.isLoading"
+    class="flex items-center justify-center h-screen"
+  >
+    <ProgressSpinner aria-label="Loading" />
   </div>
+
+  <!-- Main container -->
+  <template v-else>
+    <template v-if="!isFullscreen">
+      <Toast />
+      <Menubar />
+    </template>
+
+    <div :class="isFullscreen ? 'min-h-screen' : 'min-h-screen flex flex-col'">
+      <RouterView />
+      <Footer v-if="!isFullscreen" />
+    </div>
+  </template>
 </template>

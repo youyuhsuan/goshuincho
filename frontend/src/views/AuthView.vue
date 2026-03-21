@@ -43,10 +43,8 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-
 // Primevue
 import Divider from "primevue/divider";
-
 // Copoments
 import LoginForm from "@/components/auth/LoginForm.vue";
 import RegisterForm from "@/components/auth/RegisterForm.vue";
