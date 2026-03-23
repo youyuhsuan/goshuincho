@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using backend.DTOs;
 using backend.DTOs.Requests;
 using backend.Services;
@@ -11,14 +12,17 @@ namespace backend.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IStorageService _storageService;
         private readonly ILogger<UsersController> _logger;
 
 
         public UsersController(
             IUserService userService,
+            IStorageService storageService,
             ILogger<UsersController> logger)
         {
             _userService = userService;
+            _storageService = storageService;
             _logger = logger;
         }
 
@@ -73,6 +77,52 @@ namespace backend.Controllers
         {
             await _userService.DeleteUserAsync(id);
             return NoContent();
+        }
+
+        /// POST: api/users/{id}/picture
+        /// <summary>
+        /// Uploads a profile picture for the specified user
+        /// </summary>
+        /// <response code="200">Picture uploaded successfully, returns picture URL</response>
+        /// <response code="400">Invalid file format or size</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="403">Forbidden — cannot update another user's picture</response>
+        [Authorize]
+        [HttpPost("{id}/picture")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        public async Task<ActionResult> UploadProfilePicture(Guid id, IFormFile file)
+        {
+            // Verify the authenticated user is updating their own picture
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+            {
+                _logger.LogWarning("GetCurrentAuth: Missing claims");
+                return Unauthorized();
+            }
+
+            // Validate file
+            if (file == null || file.Length == 0)
+                return BadRequest("No file provided.");
+
+            if (file.Length > 5 * 1024 * 1024)
+                return BadRequest("File size exceeds 5MB limit.");
+
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/webp" };
+            if (!allowedTypes.Contains(file.ContentType))
+                return BadRequest("Only JPEG, PNG and WebP are allowed.");
+
+            // Upload to storage
+            var pictureUrl = await _storageService.UploadProfilePictureAsync(id.ToString(), file);
+
+            // Update user picture URL in DB
+            await _userService.UpdateProfilePictureAsync(id, pictureUrl);
+
+            _logger.LogInformation("UploadProfilePicture: User {UserId} updated profile picture", id);
+
+            return Ok(pictureUrl);
         }
     }
 }

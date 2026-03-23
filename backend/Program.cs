@@ -82,6 +82,7 @@ builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
 builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 builder.Services.AddSingleton<IOAuthService, OAuthService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
 
 // Configure Swagger API documentation generation
 builder.Services.AddSwaggerGen(c =>

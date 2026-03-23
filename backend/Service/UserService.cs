@@ -21,7 +21,7 @@ namespace backend.Services
         }
 
         // Get user by ID
-        public async Task<UserDto> GetUserByIdAsync(Guid id)
+        public async Task<MeDto> GetUserByIdAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -29,11 +29,12 @@ namespace backend.Services
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-            return new UserDto
+            return new MeDto
             {
                 Id = user.Id,
                 Name = user.Name,
-                Email = user.Email
+                Email = user.Email,
+                Picture = user.Picture,
             };
         }
 
@@ -102,6 +103,15 @@ namespace backend.Services
             }
 
             _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateProfilePictureAsync(Guid id, string pictureUrl)
+        {
+            var user = await _context.Users.FindAsync(id)
+                ?? throw new NotFoundException($"User {id} not found");
+
+            user.Picture = pictureUrl;
             await _context.SaveChangesAsync();
         }
 
