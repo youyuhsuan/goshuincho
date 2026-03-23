@@ -4,12 +4,13 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import router from "@/router";
 // Primevue
-import Avatar from "primevue/avatar";
 import Menubar from "primevue/menubar";
 import Popover from "primevue/popover";
 import Divider from "primevue/divider";
 import "primeicons/primeicons.css";
 import type { MenuItem } from "primevue/menuitem";
+// Components
+import Avatar from "@/components/Avatar.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 // Configs
@@ -132,101 +133,86 @@ onBeforeUnmount(() => {
 
       <template #end>
         <div class="flex items-center gap-1 sm:gap-2">
-          <div class="flex items-center">
-            <!-- Toggle Mode Button -->
-            <Button
-              :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-              text
-              rounded
-              @click="toggleMode"
-              :aria-label="
-                isDark ? 'Switch to light mode' : 'Switch to dark mode'
-              "
-              :aria-pressed="isDark"
-            />
+          <!-- Toggle Mode Button -->
+          <Button
+            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
+            text
+            rounded
+            @click="toggleMode"
+            :aria-label="
+              isDark ? 'Switch to light mode' : 'Switch to dark mode'
+            "
+            :aria-pressed="isDark"
+          />
 
-            <!-- Authentication Button -->
-            <button
-              v-if="!authStore.isAuthenticated"
-              class="p-button p-button-text flex items-center gap-2 px-3 py-2 rounded-md hover:bg-surface-100 transition-colors"
-              :aria-label="authStore.isAuthenticated ? 'Logout' : 'Login'"
-              @click="router.push(ROUTE_CONFIGS.AUTH)"
-            >
-              <i class="pi pi-user" />
-              <span class="hidden sm:inline">Login</span>
-            </button>
+          <!-- Authentication Button -->
+          <button
+            v-if="!authStore.isAuthenticated"
+            class="p-button p-button-text flex items-center gap-2 px-3 py-2 rounded-md hover:bg-surface-100 transition-colors"
+            :aria-label="authStore.isAuthenticated ? 'Logout' : 'Login'"
+            @click="router.push(ROUTE_CONFIGS.AUTH)"
+          >
+            <i class="pi pi-user" />
+            <span class="hidden sm:inline">Login</span>
+          </button>
 
-            <!-- Avatar trigger -->
-            <div
-              v-else
-              @click="showPopover"
-              @mouseenter="showPopover"
-              @mouseleave="hidePopover"
-            >
-              <Avatar
-                :image="authStore.user?.picture"
-                icon="pi pi-user"
-                size="small"
-                shape="circle"
-              />
-            </div>
-
-            <!-- User Popover -->
-            <Popover
-              ref="vPopover"
-              @mouseenter="cancelHidePopover"
-              @mouseleave="hidePopover"
-            >
-              <div class="flex flex-col w-[12.5rem] py-1 px-0.5">
-                <!-- User info -->
-                <div
-                  role="img"
-                  aria-label="user info"
-                  class="flex flex-col items-center cursor-pointer"
-                  @click="router.push(ROUTE_CONFIGS.SETTING)"
-                >
-                  <Avatar
-                    class="!border-2 !rounded-full mb-1"
-                    :image="authStore.user?.picture"
-                    icon="pi pi-user"
-                    size="xlarge"
-                    shape="circle"
-                    :alt="authStore.user?.name"
-                    :aria-label="`${authStore.user?.name} ${authStore.user?.name ? 'picture' : 'icon'}`"
-                  />
-                  <div aria-hidden="true" class="font-medium">
-                    {{ authStore.user?.name }}
-                  </div>
-                </div>
-
-                <Divider />
-
-                <!-- Action menu -->
-                <ul class="list-none p-0 m-0 flex flex-col gap-4">
-                  <li>
-                    <button
-                      aria-label="Go to settings"
-                      class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-600"
-                      @click="router.push(ROUTE_CONFIGS.SETTING)"
-                    >
-                      <i class="pi pi-cog" aria-hidden="true" />
-                      <span>Settings</span>
-                    </button>
-                  </li>
-                  <li>
-                    <button
-                      aria-label="Sign out of account"
-                      class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-700"
-                      @click="logout"
-                    >
-                      <i class="pi pi-sign-out" aria-hidden="true" />
-                      <span>Sign out</span>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </Popover>
+          <!-- Avatar trigger -->
+          <div
+            v-else
+            @click="showPopover"
+            @mouseenter="showPopover"
+            @mouseleave="hidePopover"
+          >
+            <Avatar />
           </div>
+
+          <!-- User Popover -->
+          <Popover
+            ref="vPopover"
+            @mouseenter="cancelHidePopover"
+            @mouseleave="hidePopover"
+          >
+            <div class="flex flex-col w-[12.5rem] py-1 px-0.5">
+              <!-- User info -->
+              <div
+                role="img"
+                aria-label="user info"
+                class="flex flex-col items-center cursor-pointer"
+                @click="router.push(ROUTE_CONFIGS.SETTING)"
+              >
+                <Avatar size="xlarge" iconClass="text-4xl" />
+                <div aria-hidden="true" class="font-medium">
+                  {{ authStore.user?.name }}
+                </div>
+              </div>
+
+              <Divider />
+
+              <!-- Action menu -->
+              <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                <li>
+                  <button
+                    aria-label="Go to settings"
+                    class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-600"
+                    @click="router.push(ROUTE_CONFIGS.SETTING)"
+                  >
+                    <i class="pi pi-cog" aria-hidden="true" />
+                    <span>Settings</span>
+                  </button>
+                </li>
+                <li>
+                  <button
+                    aria-label="Sign out of account"
+                    class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-700"
+                    @click="logout"
+                  >
+                    <i class="pi pi-sign-out" aria-hidden="true" />
+                    <span>Sign out</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </Popover>
         </div>
       </template>
     </Menubar>
