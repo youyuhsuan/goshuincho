@@ -25,7 +25,9 @@ instance.interceptors.response.use(
 );
 
 authInstance.interceptors.request.use(async (config) => {
-  config.headers.Authorization = `Bearer ${useAuthStore().accessToken}`;
+  const authStore = useAuthStore();
+
+  config.headers.Authorization = `Bearer ${authStore.accessToken}`;
   return config;
 });
 
