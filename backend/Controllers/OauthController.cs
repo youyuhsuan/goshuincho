@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Services;
 using backend.DTOs;
 using backend.DTOs.Requests;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -12,6 +13,7 @@ namespace backend.Controllers
         private readonly IJwtTokenGenerator _jwtGenerator;
         private readonly IUserService _userService;
         private readonly IOAuthService _oauthService;
+        private readonly ITokenRepository _tokenRepository;
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<OAuthController> _logger;
 
@@ -19,10 +21,12 @@ namespace backend.Controllers
             IJwtTokenGenerator jwtGenerator,
             IUserService userService,
             IOAuthService oauthService,
+            ITokenRepository tokenRepository,
             IWebHostEnvironment environment,
             ILogger<OAuthController> logger)
         {
             _jwtGenerator = jwtGenerator;
+            _tokenRepository = tokenRepository;
             _userService = userService;
             _oauthService = oauthService;
             _environment = environment;
@@ -69,10 +73,22 @@ namespace backend.Controllers
                     name: userInfo.Name
                 );
 
-            var refreshToken = _jwtGenerator.GenerateRefreshToken(
-                userId: userId.ToString(),
-                expiresAt: DateTime.UtcNow.AddDays(7)
-           );
+            var newRawToken = Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(64));
+            var newHash = Convert.ToBase64String(
+                System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(newRawToken)
+                )
+            );
+
+            await _tokenRepository.CreateAsync(new RefreshToken
+            {
+                UserId = userId,
+                TokenHash = newHash,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            });
+
+            _logger.LogInformation("Login: User {UserId} logged in", userId);
+
 
             // Return token in response body as per RFC 6749 Section 5.1.
             // The OAuth 2.0 specification requires token endpoint to respond with 
@@ -81,7 +97,7 @@ namespace backend.Controllers
             return Ok(new AuthDto
             {
                 AccessToken = accessToken,
-                RefreshToken = refreshToken
+                RefreshToken = newRawToken
             });
         }
     }
