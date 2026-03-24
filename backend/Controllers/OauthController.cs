@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using backend.DTOs;
 using backend.DTOs.Requests;
 
 namespace backend.Controllers
@@ -8,10 +9,7 @@ namespace backend.Controllers
     [Route("api/oauth")]
     public class OAuthController : ControllerBase
     {
-
-
         private readonly IJwtTokenGenerator _jwtGenerator;
-        private readonly ICookieService _cookieService;
         private readonly IUserService _userService;
         private readonly IOAuthService _oauthService;
         private readonly IWebHostEnvironment _environment;
@@ -19,7 +17,6 @@ namespace backend.Controllers
 
         public OAuthController(
             IJwtTokenGenerator jwtGenerator,
-            ICookieService cookieService,
             IUserService userService,
             IOAuthService oauthService,
             IWebHostEnvironment environment,
@@ -27,7 +24,6 @@ namespace backend.Controllers
         {
             _jwtGenerator = jwtGenerator;
             _userService = userService;
-            _cookieService = cookieService;
             _oauthService = oauthService;
             _environment = environment;
             _logger = logger;
@@ -58,7 +54,7 @@ namespace backend.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [HttpPost("tokens")]
-        public async Task<IActionResult> ExchangeToken([FromBody] OAuthRequest request)
+        public async Task<ActionResult<AuthDto>> ExchangeToken([FromBody] OAuthRequest request)
         {
             var (userInfo, token) = await _oauthService.ExchangeCodeForTokenAsync(
                 request.Provider, request.Code, request.State);
@@ -78,13 +74,15 @@ namespace backend.Controllers
                 expiresAt: DateTime.UtcNow.AddDays(7)
            );
 
-            _cookieService.SetAuthCookies(Response, accessToken, refreshToken, null);
-
             // Return token in response body as per RFC 6749 Section 5.1.
             // The OAuth 2.0 specification requires token endpoint to respond with 
             // HTTP 200 OK and a JSON body containing access_token and token_type,
             // even when using cookies for token delivery.
-            return Ok();
+            return Ok(new AuthDto
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            });
         }
     }
 }

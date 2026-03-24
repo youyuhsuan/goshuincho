@@ -179,7 +179,7 @@ namespace backend.Controllers
         /// <response code="401">Refresh Token is invalid, expired, or has been revoked</response>
         [HttpPost("refresh")]
         [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-        public async Task<ActionResult<string>> RefreshToken(RefreshTokenRequest request)
+        public async Task<ActionResult<AuthDto>> RefreshToken(RefreshTokenRequest request)
         {
             // Hash the incoming raw token to look up in DB
             var hash = Convert.ToBase64String(
@@ -226,7 +226,7 @@ namespace backend.Controllers
 
             _logger.LogInformation("RefreshToken: User {UserId} token rotated", stored.UserId);
 
-            return Ok(new
+            return Ok(new AuthDto
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRawToken
