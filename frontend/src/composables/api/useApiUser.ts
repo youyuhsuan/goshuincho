@@ -3,7 +3,7 @@ import { authInstance } from "@/composables/api/useApi";
 // Config
 import { API_ENDPOINTS } from "@/config/apiConfig";
 // Types
-import type { UpdateRequst } from "@/types/userType";
+import type { UpdateRequest } from "@/types/userType";
 
 const useApiUser = () => {
   // Get current authenticated user info
@@ -12,7 +12,7 @@ const useApiUser = () => {
       userId ? `${API_ENDPOINTS.USER}/${userId}` : API_ENDPOINTS.USER,
     );
 
-  const updateUser = (userId: string, payload: Partial<UpdateRequst>) =>
+  const updateUser = (userId: string, payload: Partial<UpdateRequest>) =>
     authInstance.patch(`${API_ENDPOINTS.USER}/${userId}`, payload);
 
   const uploadUserImage = (userId: string, formData: FormData) =>

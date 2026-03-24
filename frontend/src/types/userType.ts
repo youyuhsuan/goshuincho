@@ -5,6 +5,6 @@ export interface User {
   picture?: string;
 }
 
-export interface UpdateRequst {
+export interface UpdateRequest {
   name: string;
 }
