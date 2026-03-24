@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onBeforeUnmount, onMounted } from "vue";
 import { RouterView, useRoute } from "vue-router";
 // Premevue
 import ProgressSpinner from "primevue/progressspinner";
@@ -15,6 +15,42 @@ const isFullscreen = computed(() => route.meta.fullscreen === true);
 
 // Controls the global loading state while auth is being initialized
 const authStore = useAuthStore();
+
+const ACTIVITY_EVENTS = [
+  "mousemove",
+  "click",
+  "keydown",
+  "scroll",
+  "touchstart",
+];
+
+const handleVisibilityChange = () => {
+  if (document.visibilityState === "hidden") {
+    authStore.cancelIntervalTimer();
+    authStore.cancelResetTimer();
+  } else {
+    authStore.startIntervalTimer();
+    authStore.resetTimer();
+  }
+};
+
+onMounted(() => {
+  authStore.startIntervalTimer();
+  ACTIVITY_EVENTS.forEach((event) =>
+    window.addEventListener(event, authStore.resetTimer),
+  );
+  window.addEventListener("visibilitychange", handleVisibilityChange);
+});
+
+onBeforeUnmount(() => {
+  ACTIVITY_EVENTS.forEach((event) => {
+    window.removeEventListener(event, authStore.resetTimer);
+  });
+  window.removeEventListener("visibilitychange", handleVisibilityChange);
+
+  authStore.cancelIntervalTimer();
+  authStore.cancelResetTimer();
+});
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-import { ref, readonly, computed } from "vue";
+import { ref, readonly } from "vue";
 // Pinia
 import { defineStore } from "pinia";
 // Router
@@ -29,42 +29,68 @@ const useAuthStore = defineStore(
     } = useApiAuth();
     const { createGoogleAuthorization, createGoogleToken } = useApiOAuth();
 
-    let refreshInterval: ReturnType<typeof setInterval> | null = null;
-    const ACCESS_TOKEN_EXPITY = 4.5 * 60 * 1000; // 4.5 minutes
+    let refreshAccessIntervalId: ReturnType<typeof setInterval> | null = null;
+    const ACCESS_TOKEN_EXPIRY = 10 * 1000; // 14.5 * 60 * 1000ms = 14.5 minutes
 
-    // Check session on app startup
-    const startInactivityTimer = () => {
-      refreshInterval = setInterval(async () => {
+    // Check access token on app startup
+    const startIntervalTimer = () => {
+      console.log("[Auth] startIntervalTimer", new Date().toLocaleTimeString());
+
+      if (refreshAccessIntervalId) cancelIntervalTimer();
+
+      refreshAccessIntervalId = setInterval(async () => {
         try {
           await refreshAccessToken();
         } catch {
           await logout();
         }
-      }, ACCESS_TOKEN_EXPITY);
+      }, ACCESS_TOKEN_EXPIRY);
     };
 
-    // Stop the timer when user logs out or when the component is onBeforeUnmount
-    const stopInactivityTimer = () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        refreshInterval = null;
-      }
+    const cancelIntervalTimer = () => {
+      if (!refreshAccessIntervalId) return;
+
+      clearInterval(refreshAccessIntervalId);
+      refreshAccessIntervalId = null;
+    };
+
+    let idleTimerId: ReturnType<typeof setTimeout> | null = null;
+    const RESET_TIME_EXPIRY = 15 * 1000; // 15 * 60 * 1000ms = 15 minutes
+
+    const resetTimer = () => {
+      if (idleTimerId) cancelResetTimer();
+
+      if (!refreshAccessIntervalId) startIntervalTimer();
+
+      idleTimerId = setTimeout(() => {
+        cancelIntervalTimer();
+      }, RESET_TIME_EXPIRY);
+    };
+
+    const cancelResetTimer = () => {
+      if (!idleTimerId) return;
+
+      clearTimeout(idleTimerId);
+      idleTimerId = null;
+    };
+
+    // User Actions
+    const getUser = async () => {
+      user.value = (await getCurrentAuth()).data;
     };
 
     // Auth Auctions
+    // Sets accessToken and refreshToken values in localStorage
+    const setAuthState = (token: TokenResponse) => {
+      accessToken.value = token.accessToken;
+      refreshToken.value = token.refreshToken;
+      isAuthenticated.value = true;
+    };
+
     // Authenticated user with email, password and remenberMe
     const login = async (values: LoginRequest) => {
-      const {
-        accessToken: accessTokenData,
-        refreshToken: refreshTokenData,
-      }: TokenResponse = (await loginUser(values)).data;
-
-      // Store token in localStorage on success
-      accessToken.value = accessTokenData;
-      refreshToken.value = refreshTokenData;
-
-      user.value = (await getCurrentAuth()).data;
-      isAuthenticated.value = true;
+      setAuthState((await loginUser(values)).data);
+      await getUser();
     };
 
     // Revoke token on the server, clear local state and redirect to home
@@ -76,6 +102,9 @@ const useAuthStore = defineStore(
       accessToken.value = null;
       refreshToken.value = null;
       user.value = null;
+
+      // Clear persisted tokens from localStorage
+      localStorage.removeItem("auth");
 
       router.push("/");
     };
@@ -89,8 +118,8 @@ const useAuthStore = defineStore(
           return;
         }
 
-        // Verity token validity
-        user.value = (await getCurrentAuth()).data;
+        // Verity token verify
+        await getUser();
         isAuthenticated.value = true;
       } finally {
         isLoading.value = false;
@@ -99,23 +128,17 @@ const useAuthStore = defineStore(
 
     // Exchange refreshToken for a new access token and updated stored tokens
     const refreshAccessToken = async () => {
-      const {
-        accessToken: accessTokenData,
-        refreshToken: refreshTokenData,
-      }: TokenResponse = (await refreshAccessTokenApi()).data;
-
-      // Store token in localStorage on success
-      accessToken.value = accessTokenData;
-      refreshToken.value = refreshTokenData;
+      setAuthState((await refreshAccessTokenApi()).data);
     };
 
-    // OAuth
-    const initiateGoogleLogin = async () =>
-      (window.location.href = (await createGoogleAuthorization()).data);
+    // OAuth Auctions
+    const initiateGoogleLogin = async () => {
+      window.location.href = (await createGoogleAuthorization()).data;
+    };
 
     const processGoogleCallback = async (code: string, state: string) => {
-      await createGoogleToken(code, state);
-      isAuthenticated.value = true;
+      setAuthState((await createGoogleToken(code, state)).data);
+      await getUser();
     };
 
     return {
@@ -124,11 +147,14 @@ const useAuthStore = defineStore(
       isLoading: readonly(isLoading),
       accessToken,
       refreshToken,
+      startIntervalTimer,
+      cancelIntervalTimer,
+      resetTimer,
+      cancelResetTimer,
       refreshAccessToken,
       login,
       logout,
       initialize,
-      stopInactivityTimer,
       google: {
         initiateGoogleLogin,
         processGoogleCallback,
