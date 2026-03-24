@@ -5,7 +5,7 @@ export const API_CONFIG = {
 
 export const API_ENDPOINTS = {
   // User Resource
-  USER: "/api/user",
+  USER: "/api/users",
   // GET: /:id: Get specific user
   // PUT: /:id: Update user
   // DELETE: /:id: Delete user

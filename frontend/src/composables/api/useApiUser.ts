@@ -1,6 +1,9 @@
+// Composables
 import { authInstance } from "@/composables/api/useApi";
+// Config
 import { API_ENDPOINTS } from "@/config/apiConfig";
-import type { RegisterRequest } from "@/types/authType";
+// Types
+import type { UpdateRequst } from "@/types/userType";
 
 const useApiUser = () => {
   // Get current authenticated user info
@@ -9,8 +12,14 @@ const useApiUser = () => {
       userId ? `${API_ENDPOINTS.USER}/${userId}` : API_ENDPOINTS.USER,
     );
 
-  const updateUser = (userId: string, payload: Partial<RegisterRequest>) =>
-    authInstance.put(`${API_ENDPOINTS.USER}/${userId}`, payload);
+  const updateUser = (userId: string, payload: Partial<UpdateRequst>) =>
+    authInstance.patch(`${API_ENDPOINTS.USER}/${userId}`, payload);
+
+  const uploadUserImage = (userId: string, formData: FormData) =>
+    authInstance.post<string>(
+      `${API_ENDPOINTS.USER}/${userId}/picture`,
+      formData,
+    );
 
   const deleteUser = (userId: string) =>
     authInstance.delete(`${API_ENDPOINTS.USER}/${userId}`);
@@ -18,6 +27,7 @@ const useApiUser = () => {
   return {
     getUser,
     updateUser,
+    uploadUserImage,
     deleteUser,
   };
 };
