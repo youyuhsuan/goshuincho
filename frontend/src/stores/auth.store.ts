@@ -29,44 +29,25 @@ const useAuthStore = defineStore(
     } = useApiAuth();
     const { createGoogleAuthorization, createGoogleToken } = useApiOAuth();
 
-    let refreshAccessIntervalId: ReturnType<typeof setInterval> | null = null;
-    const ACCESS_TOKEN_EXPIRY = 10 * 1000; // 14.5 * 60 * 1000ms = 14.5 minutes
+    // Idle timer
+    // Duration of inactivity (in milliseconds) before the timer fires.
+    let idleTimerId: ReturnType<typeof setTimeout> | null = null;
+    const RESET_TIME_EXPIRY = 15 * 60 * 1000; // 15 * 60 * 1000ms = 15 minutes
 
-    // Check access token on app startup
-    const startIntervalTimer = () => {
-      console.log("[Auth] startIntervalTimer", new Date().toLocaleTimeString());
+    // Restart the inactivity timer; refreshes token on expiry, logs out on failure
+    const resetTimer = () => {
+      if (idleTimerId) cancelResetTimer();
 
-      if (refreshAccessIntervalId) cancelIntervalTimer();
-
-      refreshAccessIntervalId = setInterval(async () => {
+      idleTimerId = setTimeout(async () => {
         try {
           await refreshAccessToken();
         } catch {
           await logout();
         }
-      }, ACCESS_TOKEN_EXPIRY);
-    };
-
-    const cancelIntervalTimer = () => {
-      if (!refreshAccessIntervalId) return;
-
-      clearInterval(refreshAccessIntervalId);
-      refreshAccessIntervalId = null;
-    };
-
-    let idleTimerId: ReturnType<typeof setTimeout> | null = null;
-    const RESET_TIME_EXPIRY = 15 * 1000; // 15 * 60 * 1000ms = 15 minutes
-
-    const resetTimer = () => {
-      if (idleTimerId) cancelResetTimer();
-
-      if (!refreshAccessIntervalId) startIntervalTimer();
-
-      idleTimerId = setTimeout(() => {
-        cancelIntervalTimer();
       }, RESET_TIME_EXPIRY);
     };
 
+    // Cancel the active inactivity timer and clear its ID
     const cancelResetTimer = () => {
       if (!idleTimerId) return;
 
@@ -147,8 +128,6 @@ const useAuthStore = defineStore(
       isLoading: readonly(isLoading),
       accessToken,
       refreshToken,
-      startIntervalTimer,
-      cancelIntervalTimer,
       resetTimer,
       cancelResetTimer,
       refreshAccessToken,
