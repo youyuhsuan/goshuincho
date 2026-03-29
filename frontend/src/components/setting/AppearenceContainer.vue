@@ -10,20 +10,23 @@ import type { CardItem } from "@/types/settingType";
 const settingStore = useSettingStore();
 
 const cardMap: CardItem[] = [
-  { title: "System Mode", icon: "pi pi-desktop", src: "", view: "system" },
-  { title: "Light Mode", icon: "pi pi-sun", src: "", view: "light" },
-  { title: "Dark Mode", icon: "pi pi-moon", src: "", view: "dark" },
+  { icon: "pi pi-desktop", src: "", view: "system" },
+  { icon: "pi pi-sun", src: "", view: "light" },
+  { icon: "pi pi-moon", src: "", view: "dark" },
 ];
 </script>
 
 <template>
   <section class="mb-8">
+    <!-- Theme Selection -->
     <div class="mb-6">
-      <h2 class="text-md font-semibold mb-0.5">Themes</h2>
-      <p>Select or customize your UI theme.</p>
+      <h2 class="text-md font-semibold mb-0.5">
+        {{ $t("settings.appearance.theme.title") }}
+      </h2>
+      <p>{{ $t("settings.appearance.theme.description") }}</p>
     </div>
     <div class="flex flex-1 gap-4 flex-col md:flex-row">
-      <template v-for="card in cardMap" :key="card.title">
+      <template v-for="card in cardMap" :key="card.view">
         <div class="relative w-full h-[32]">
           <Card
             class="h-full cursor-pointer overflow-hidden"
@@ -38,15 +41,17 @@ const cardMap: CardItem[] = [
                 <img
                   v-if="card.src"
                   class="w-full h-full object-cover"
-                  :alt="card.title"
                   :src="card.src"
+                  :alt="$t(`settings.appearance.theme.options.${card.view}`)"
                 />
               </div>
             </template>
             <template #title>
               <div class="flex items-center">
                 <i class="mr-2" :class="card.icon" />
-                <span class="text-base lg:text-lg">{{ card.title }}</span>
+                <span class="text-base lg:text-lg"
+                  >{{ $t(`settings.appearance.theme.options.${card.view}`) }}
+                </span>
               </div>
             </template>
           </Card>
@@ -59,10 +64,14 @@ const cardMap: CardItem[] = [
       </template>
     </div>
   </section>
-  <!-- <section>
+
+  <!-- Language Selection -->
+  <section>
     <div class="mb-6">
-      <h2 class="text-md font-semibold mb-0.5">Language</h2>
-      <p>Select the language of the platform.</p>
+      <h2 class="text-md font-semibold mb-0.5">
+        {{ $t("settings.appearance.language.title") }}
+      </h2>
+      <p>{{ $t("settings.appearance.language.description") }}</p>
     </div>
-  </section> -->
+  </section>
 </template>

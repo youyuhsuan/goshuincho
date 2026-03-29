@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 // Route
 import { useRoute } from "vue-router";
 import router from "@/router";
+// i18n
+import { useI18n } from "vue-i18n";
 // Primevue
 import Menubar from "primevue/menubar";
 import Popover from "primevue/popover";
@@ -18,10 +20,12 @@ import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const authStore = useAuthStore();
 
+const { t } = useI18n();
+
 const route = useRoute();
 const items = computed<MenuItem[]>(() => [
   {
-    label: "About",
+    label: t("nav.about"),
     command: () => router.push(ROUTE_CONFIGS.ABOUTE),
     route: ROUTE_CONFIGS.ABOUTE,
   },
@@ -59,6 +63,7 @@ const cancelHidePopover = () => {
   hideTimerId = null;
 };
 
+// Logout action
 const logout = async () => {
   vPopover.value?.hide();
   await authStore.logout();
@@ -69,7 +74,7 @@ const logout = async () => {
   <header>
     <Menubar :model="items">
       <template #start>
-        <a href="/" aria-label="Home">
+        <a href="/" :aria-label="t('nav.ariaLabel.home')">
           <svg
             width="35"
             height="40"
@@ -87,7 +92,7 @@ const logout = async () => {
               fill="var(--p-text-color)"
             />
           </svg>
-          <span class="sr-only">Home</span>
+          <span class="sr-only">{{ t("nav.home") }}</span>
         </a>
       </template>
 
@@ -107,16 +112,20 @@ const logout = async () => {
 
       <template #end>
         <!-- Authentication Button -->
-        <button
+        <Button
           v-if="!authStore.isAuthenticated"
+          icon="pi pi-user"
+          variant="text"
           class="p-button p-button-text flex items-center gap-2 px-3 py-2 rounded-md hover:bg-surface-100 transition-colors"
-          :aria-label="authStore.isAuthenticated ? 'Logout' : 'Login'"
+          :label="authStore.isAuthenticated ? t('nav.signOut') : t('nav.login')"
+          :aria-label="
+            authStore.isAuthenticated
+              ? t('nav.ariaLabel.signOut')
+              : t('nav.ariaLabel.login')
+          "
           @click="router.push(ROUTE_CONFIGS.AUTH)"
         >
-          <i class="pi pi-user" />
-          <span class="hidden sm:inline">Login</span>
-        </button>
-
+        </Button>
         <!-- Avatar trigger -->
         <div
           v-else
@@ -137,7 +146,7 @@ const logout = async () => {
             <!-- User info -->
             <div
               role="img"
-              aria-label="user info"
+              :aria-label="t('nav.ariaLabel.userInfo')"
               class="flex flex-col items-center cursor-pointer"
               @click="router.push(ROUTE_CONFIGS.SETTING)"
             >
@@ -151,25 +160,30 @@ const logout = async () => {
 
             <!-- Action menu -->
             <ul class="list-none p-0 m-0 flex flex-col gap-4">
+              <!-- Settings Button -->
               <li>
-                <button
-                  aria-label="Go to settings"
+                <Button
+                  :label="t('nav.settings')"
+                  :aria-label="t('nav.ariaLabel.settings')"
+                  variant="text"
+                  icon="pi pi-cog"
                   class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-600"
                   @click="router.push(ROUTE_CONFIGS.SETTING)"
                 >
-                  <i class="pi pi-cog" aria-hidden="true" />
-                  <span>Settings</span>
-                </button>
+                </Button>
               </li>
+
+              <!-- Sign Out Button -->
               <li>
-                <button
-                  aria-label="Sign out of account"
+                <Button
+                  :label="t('nav.signOut')"
+                  :aria-label="t('nav.ariaLabel.signOut')"
+                  variant="text"
+                  icon="pi pi-sign-out"
                   class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-700"
                   @click="logout"
                 >
-                  <i class="pi pi-sign-out" aria-hidden="true" />
-                  <span>Sign out</span>
-                </button>
+                </Button>
               </li>
             </ul>
           </div>

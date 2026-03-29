@@ -1,0 +1,126 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "divider": "or"
+  },
+  "nav": {
+    "about": "About",
+    "home": "Home",
+    "login": "Login",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "ariaLabel": {
+      "home": "Go to homepage",
+      "login": "Login to your account",
+      "signOut": "Sign out of your account",
+      "userInfo": "View user profile",
+      "settings": "Go to account settings"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "description": "Sign in to your account to continue.",
+      "question": "Don't have an account?",
+      "action": "Sign up",
+      "field": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "ariaLabel": "Switch to sign in mode",
+      "rememberMe": "Remember Me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in"
+    },
+    "register": {
+      "title": "Get Started Now",
+      "description": "Create an account to get started.",
+      "question": "Already have an account?",
+      "action": "Sign in",
+      "field": {
+        "name": "Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password"
+      },
+      "validation": {
+        "name": {
+          "min": "Minimum 1 characters",
+          "max": "Maximum 100 characters"
+        },
+        "password": {
+          "min": "Minimum 6 characters",
+          "max": "Maximum 500 characters",
+          "lowercase": "Must have a lowercase letter",
+          "uppercase": "Must have an uppercase letter",
+          "number": "Must have a number"
+        },
+        "confirmPassword": {
+          "match": "Passwords do not match"
+        }
+      },
+      "ariaLabel": "Switch to sign up mode",
+      "submit": "Sign up"
+    },
+    "oauth": {
+      "google": "Continue with Google"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account settings and preference.",
+    "menu": {
+      "profile": "Profile",
+      "appearance": "Appearance"
+    },
+    "profile": {
+      "title": "Personal Info",
+      "field": {
+        "name": "Name"
+      },
+      "validation": {
+        "name": {
+          "min": "Minimum 1 characters",
+          "max": "Maximum 100 characters"
+        }
+      },
+      "ariaLabel": {
+        "edit": "Edit personal information",
+        "uploadImage": "Upload profile picture",
+        "deleteAccount": "Delete your account",
+        "submit": "Save changes"
+      },
+      "submit": "Save",
+      "uploadImage": "Upload image",
+      "dialog": {
+        "title": "Edit Profile Picture",
+        "message": {
+          "updateSuccess": "Your changes have been saved."
+        }
+      },
+      "deleteAccount": {
+        "title": "Delete Account",
+        "message": "Are you sure you want to delete your account?",
+        "description": "Deleting your account will permanently remove your profile and all associated content. This action cannot be reversed."
+      }
+    },
+    "appearance": {
+      "theme": {
+        "title": "Themes",
+        "description": "Select or customize your UI theme.",
+        "options": {
+          "system": "System Mode",
+          "light": "Light Mode",
+          "dark": "Dark Mode"
+        }
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select the language of the platform."
+      }
+    }
+  }
+}
