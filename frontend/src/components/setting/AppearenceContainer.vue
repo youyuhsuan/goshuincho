@@ -26,19 +26,22 @@ const cardMap: CardItem[] = [
       <template v-for="card in cardMap" :key="card.title">
         <div class="relative w-full h-[32]">
           <Card
-            class="h-full cursor-pointer"
+            class="h-full cursor-pointer overflow-hidden"
             :class="{
-              '!border-2 !border-primary !focus:border-primary-600 ':
+              '!border-2 !border-primary !focus:border-primary-600':
                 settingStore.currentTheme === card.view,
             }"
             @click="settingStore.changeMode(card.view)"
           >
             <template #header>
-              <img
-                class="w-full h-full object-cover"
-                :alt="card.title"
-                :src="card.src"
-              />
+              <div class="w-full h-[10rem] bg-black bg-opacity-50">
+                <img
+                  v-if="card.src"
+                  class="w-full h-full object-cover"
+                  :alt="card.title"
+                  :src="card.src"
+                />
+              </div>
             </template>
             <template #title>
               <div class="flex items-center">
