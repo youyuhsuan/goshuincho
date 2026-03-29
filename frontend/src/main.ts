@@ -5,6 +5,10 @@ import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Aura from "@primeuix/themes/aura";
 import { definePreset } from "@primeuix/themes";
+// i18n
+import { createI18n } from "vue-i18n";
+import en from "@/config/locales/en.json";
+import zh from "@/config/locales/zh.json";
 // Pinia
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
@@ -16,6 +20,16 @@ import "@/assets/main.css";
 
 const app = createApp(App);
 const pinia = createPinia();
+
+// i18n setup
+const i18n = createI18n({
+  locale: "en",
+  fallbackLocale: "en",
+  messages: {
+    en: en,
+    zh: zh,
+  },
+});
 
 // Customize existing preset
 const MyPreset = definePreset(Aura, {
@@ -41,6 +55,7 @@ const MyPreset = definePreset(Aura, {
 });
 
 app.use(router);
+app.use(i18n);
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
