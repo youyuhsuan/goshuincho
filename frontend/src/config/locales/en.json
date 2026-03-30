@@ -119,7 +119,12 @@
       },
       "language": {
         "title": "Language",
-        "description": "Select the language of the platform."
+        "placeholder": "Select a language",
+        "description": "Select the language of the platform.",
+        "options": {
+          "en": "English",
+          "zh": "繁體中文"
+        }
       }
     }
   }

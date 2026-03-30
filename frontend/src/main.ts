@@ -23,7 +23,9 @@ const pinia = createPinia();
 
 // i18n setup
 const i18n = createI18n({
-  locale: "en",
+  legacy: false,
+  locale:
+    JSON.parse(localStorage.getItem("locale") ?? "{}")?.currentLanguage ?? "en",
   fallbackLocale: "en",
   messages: {
     en: en,
