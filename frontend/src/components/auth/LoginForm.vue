@@ -16,6 +16,8 @@ import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
 import type { LoginRequest } from "@/types/authType";
 // Stores
 import useAuthStore from "@/stores/auth.store";
+// Config
+import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const isLoading = ref<boolean>(false);
 // Remenber check
@@ -52,7 +54,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       await login(e.values as LoginRequest);
       // Reset all form fields to their initial state
       e.reset();
-      router.push("/");
+      router.push(ROUTE_CONFIGS.HOME);
     } catch (error: unknown) {
       if (typeof error === "string") showWarning(error);
     } finally {
