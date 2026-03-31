@@ -7,13 +7,15 @@ import router from "@/router";
 import useApiAuth from "@/composables/api/useApiAuth";
 import useApiOAuth from "@/composables/api/useApiOAuth";
 // Type
-import type { User } from "@/types/userType";
+import type { Me } from "@/types/userType";
 import type { LoginRequest, TokenResponse } from "@/types/authType";
+// Config
+import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const useAuthStore = defineStore(
   "auth",
   () => {
-    const user = ref<User | null>(null);
+    const user = ref<Me | null>(null);
     const isAuthenticated = ref<boolean>(false);
     const accessToken = ref<string | null>(null);
     const refreshToken = ref<string | null>(null);
@@ -87,7 +89,7 @@ const useAuthStore = defineStore(
       // Clear persisted tokens from localStorage
       localStorage.removeItem("auth");
 
-      router.push("/");
+      router.push(ROUTE_CONFIGS.HOME);
     };
 
     // Restore authenticated state on app startup using persisted tokens
@@ -114,11 +116,13 @@ const useAuthStore = defineStore(
 
     // OAuth Auctions
     const initiateGoogleLogin = async () => {
-      window.location.href = (await createGoogleAuthorization()).data;
+      const state: string = crypto.randomUUID();
+      sessionStorage.setItem("oauth_state", state);
+      window.location.href = (await createGoogleAuthorization(state)).data;
     };
 
-    const processGoogleCallback = async (code: string, state: string) => {
-      setAuthState((await createGoogleToken(code, state)).data);
+    const processGoogleCallback = async (code: string) => {
+      setAuthState((await createGoogleToken(code)).data);
       await getUser();
     };
 
@@ -134,17 +138,20 @@ const useAuthStore = defineStore(
       login,
       logout,
       initialize,
-      google: {
+      oauth: {
         initiateGoogleLogin,
         processGoogleCallback,
       },
     };
   },
   {
-    persist: {
-      key: "auth",
-      pick: ["accessToken", "refreshToken"],
-    },
+    persist: [
+      {
+        key: "auth",
+        pick: ["accessToken", "refreshToken"],
+        storage: localStorage,
+      },
+    ],
   },
 );
 
