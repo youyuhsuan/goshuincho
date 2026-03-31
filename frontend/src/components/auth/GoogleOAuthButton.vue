@@ -5,14 +5,14 @@ import IconGoogle from "@/assets/icons/google.svg?component";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 
-const { google } = useAuthStore();
+const { oauth } = useAuthStore();
 </script>
 
 <template>
   <Button
     type="button"
     :label="$t('auth.oauth.google')"
-    @click="google.initiateGoogleLogin"
+    @click="oauth.initiateGoogleLogin"
   >
     <template #icon> <IconGoogle class="w-4 h-4" /> </template>
   </Button>

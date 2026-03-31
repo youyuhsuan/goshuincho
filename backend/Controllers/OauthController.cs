@@ -44,7 +44,7 @@ namespace backend.Controllers
         [HttpPost("authorizations")]
         public IActionResult CreateAuthorization([FromBody] AuthorizationRequest request)
         {
-            var authUrl = _oauthService.GetAuthorizationUrl(request.Provider);
+            var authUrl = _oauthService.GetAuthorizationUrl(request.Provider, request.State);
             return Ok(authUrl);
         }
 
@@ -61,9 +61,10 @@ namespace backend.Controllers
         public async Task<ActionResult<AuthDto>> ExchangeToken([FromBody] OAuthRequest request)
         {
             var (userInfo, token) = await _oauthService.ExchangeCodeForTokenAsync(
-                request.Provider, request.Code, request.State);
+                request.Provider, request.Code);
             _logger.LogInformation("userInfo: {@UserInfo}", userInfo);
 
+            // TODO: Handle different providers and their user info structures
             var userId = await _userService.GetOrCreateByGoogleIdAsync(userInfo);
 
             // Generate JWT tokens

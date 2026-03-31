@@ -5,13 +5,15 @@ import { useRoute, useRouter } from "vue-router";
 import ProgressSpinner from "primevue/progressspinner";
 // Stores
 import useAuthStore from "@/stores/auth.store";
+// Config
+import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const isLoading = ref<boolean>(true);
 
 const router = useRouter();
 const route = useRoute();
 
-const { google } = useAuthStore();
+const { oauth } = useAuthStore();
 
 onMounted(async () => {
   const code: string = route.query.code as string;
@@ -21,9 +23,13 @@ onMounted(async () => {
   try {
     if (errorParam) throw new Error(`OAuth Error: ${errorParam}`);
     if (!code || !state) throw new Error("Missing code or state");
+    if (state !== sessionStorage.getItem("oauth_state"))
+      throw new Error("Invalid state parameter");
 
-    await google.processGoogleCallback(code, state);
-    router.push("/");
+    sessionStorage.removeItem("oauth_state");
+
+    await oauth.processGoogleCallback(code);
+    router.push(ROUTE_CONFIGS.HOME);
   } catch (error) {
     console.error(error);
     router.push("/login?error=oauth_failed");
