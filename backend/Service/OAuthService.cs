@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Net.Http.Json;
 using backend.Services;
-using backend.Models.Entities;
 using backend.DTOs;
 using backend.DTOs.Responses;
 
@@ -11,22 +10,16 @@ namespace backend.Services
     {
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
-        private readonly Dictionary<string, StateData> _stateStore;
 
         public OAuthService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _configuration = configuration;
             _httpClient = httpClientFactory.CreateClient();
-            _stateStore = new Dictionary<string, StateData>();
         }
 
         // Generates the authorization URL for a given provider (e.g., Google)
-        public string GetAuthorizationUrl(string provider)
+        public string GetAuthorizationUrl(string provider, string state)
         {
-            var state = GenerateRandomState();
-            StoreState(state);
-            CleanupExpiredStates();
-
             switch (provider)
             {
                 case "google":
@@ -37,13 +30,8 @@ namespace backend.Services
         }
 
         // Exchanges an authorization code for tokens and fetches user info
-        public async Task<(UserDto user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code, string state)
+        public async Task<(OAuthUserDto user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code)
         {
-            if (!ValidateAndConsumeState(state))
-            {
-                throw new InvalidOperationException("Invalid or expired state parameter");
-            }
-
             switch (provider)
             {
                 case "google":
@@ -57,7 +45,7 @@ namespace backend.Services
                     }
 
 
-                    var userInfo = new UserDto
+                    var userInfo = new OAuthUserDto
                     {
                         GoogleId = googleUserInfo.id,
                         Email = googleUserInfo.email,
@@ -72,55 +60,6 @@ namespace backend.Services
 
         }
 
-        // Generates a secure random state string for CSRF protection
-        private string GenerateRandomState()
-        {
-            var bytes = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(bytes);
-            return Convert.ToHexString(bytes).ToLower();
-        }
-
-        // Stores the generated state in memory with a timestamp and expiration
-        private void StoreState(string state)
-        {
-            _stateStore[state] = new StateData
-            {
-                Timestamp = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(10)
-            };
-        }
-
-        private bool ValidateAndConsumeState(string state)
-        {
-            if (!_stateStore.TryGetValue(state, out var stateData))
-            {
-                return false;
-            }
-
-            if (stateData.ExpiresAt < DateTime.UtcNow)
-            {
-                _stateStore.Remove(state);
-                return false;
-            }
-
-            _stateStore.Remove(state);
-            return true;
-        }
-
-        private void CleanupExpiredStates()
-        {
-            var now = DateTime.UtcNow;
-            var expiredKeys = _stateStore
-                .Where(kvp => kvp.Value.ExpiresAt < now)
-                .Select(kvp => kvp.Key)
-                .ToList();
-
-            foreach (var key in expiredKeys)
-            {
-                _stateStore.Remove(key);
-            }
-        }
 
         private string BuildGoogleAuthUrl(string state)
         {

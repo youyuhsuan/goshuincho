@@ -5,7 +5,7 @@ namespace backend.Services
 {
     public interface IOAuthService
     {
-        string GetAuthorizationUrl(string provider);
-        Task<(UserDto user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code, string state);
+        string GetAuthorizationUrl(string provider, string state);
+        Task<(OAuthUserDto user, GoogleTokenResponse token)> ExchangeCodeForTokenAsync(string provider, string code);
     }
 }
