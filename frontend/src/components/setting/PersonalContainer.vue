@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 // i18n
 import { useI18n } from "vue-i18n";
 // Primevue
+import DatePicker from "primevue/datepicker";
+import Textarea from "primevue/textarea";
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 import Dialog from "primevue/dialog";
 import { useConfirm } from "primevue/useconfirm";
@@ -17,6 +19,7 @@ import Avatar from "@/components/Avatar.vue";
 // Composables
 import useApiUser from "@/composables/api/useApiUser";
 import useMessage from "@/composables/useMessage";
+import useApiAuth from "@/composables/api/useApiAuth";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 // Config
@@ -26,11 +29,22 @@ import compressImage from "@/utils/compressImage";
 import generateFieldIds from "@/utils/generateFieldIds";
 import type { FieldIds } from "@/utils/generateFieldIds";
 // Type
-import type { UpdateRequest } from "@/types/userType";
+import type { User, UpdateRequest } from "@/types/userType";
 
 const { t } = useI18n();
 
 const { getUser, updateUser, uploadUserImage, deleteUser } = useApiUser();
+const { getCurrentAuth } = useApiAuth();
+
+const userInfo = ref<User>({
+  name: "",
+  email: "",
+  picture: "",
+  bio: "",
+  location: "",
+  favoriteGoods: [],
+  birthDate: null,
+});
 const isLoading = ref<boolean>(false);
 
 const authStore = useAuthStore();
@@ -70,7 +84,7 @@ const saveUpload = async () => {
     formData.append("file", image);
 
     await uploadUserImage(authStore.user?.id, formData);
-    authStore.user = (await getUser(authStore.user.id)).data;
+    authStore.user = (await getCurrentAuth()).data;
 
     isVisibleDialog.value = false;
   } catch (error: unknown) {
@@ -89,11 +103,25 @@ const cancelUpload = () => {
 
 // Toggles between view and edit mode
 const isEdit = ref<boolean>(false);
-
+const toggleEditMode = () => {
+  isEdit.value = true;
+  initialValues.value = userInfo.value;
+};
 // Edit Mode
-const fieldIds = ref<FieldIds>(generateFieldIds(["name"]));
-const initialValues = ref({
-  name: authStore.user?.name,
+const fieldIds: FieldIds = generateFieldIds([
+  "name",
+  "birthDate",
+  "bio",
+  "location",
+  "favoriteGoods",
+]);
+const initialValues = ref<User>({
+  name: "",
+  email: "",
+  birthDate: null,
+  bio: "",
+  location: "",
+  favoriteGoods: [],
 });
 
 const resolver = zodResolver(
@@ -102,6 +130,21 @@ const resolver = zodResolver(
       .string()
       .min(1, { message: t("settings.profile.validation.name.min") })
       .max(100, { message: t("settings.profile.validation.name.max") }),
+    bio: z
+      .string()
+      .max(500, { message: t("settings.profile.validation.bio.max") })
+      .optional(),
+    location: z
+      .string()
+      .max(100, { message: t("settings.profile.validation.location.max") })
+      .optional(),
+    birthDate: z.coerce
+      .date()
+      .max(new Date(), {
+        message: t("settings.profile.validation.birthDate.max"),
+      })
+      .nullable()
+      .optional(),
   }),
 );
 const { showWarning, showInfo } = useMessage();
@@ -112,13 +155,35 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   // Prevent the browser's default form submission behavior
   e.originalEvent.preventDefault();
 
-  // Check if all form fields have passed validation
+  // Check if all form fields have passed valida
+  // tion
   if (e.valid) {
     isLoading.value = true;
 
     try {
-      await updateUser(authStore.user.id, e.values as UpdateRequest);
-      authStore.user = (await getUser(authStore.user.id)).data;
+      const isChanged = (key: string, value: unknown): boolean => {
+        const original = initialValues.value[key as keyof User];
+        if (value instanceof Date && original instanceof Date) {
+          return value.getTime() !== original.getTime();
+        }
+        return value !== original;
+      };
+      const updatedFields: UpdateRequest = Object.fromEntries(
+        Object.entries(e.values as User).filter(
+          ([key, value]: [string, unknown]) => isChanged(key, value),
+        ),
+      );
+
+      await updateUser(authStore.user.id, updatedFields);
+
+      if (updatedFields.name) {
+        authStore.user.name = updatedFields.name;
+      }
+      userInfo.value = {
+        ...userInfo.value,
+        ...updatedFields,
+      };
+
       isEdit.value = false;
       showInfo(t("settings.profile.dialog.message.updateSuccess"));
     } catch (error: unknown) {
@@ -161,12 +226,24 @@ const deleteUserAccount = async () => {
     },
   });
 };
+
+onMounted(async () => {
+  userInfo.value = (await getUser(authStore.user!.id)).data;
+  console.log("User Info:", userInfo.value);
+});
 </script>
 
 <template>
   <!-- Section header with edit toggle -->
   <div class="flex justify-between mb-6">
-    <h2 class="text-md font-semibold">{{ $t("settings.profile.title") }}</h2>
+    <div>
+      <h2 class="text-base font-semibold mb-0.5">
+        {{ $t("settings.profile.title") }}
+      </h2>
+      <p class="text-sm text-muted-color">
+        {{ $t("settings.profile.description") }}
+      </p>
+    </div>
     <Button
       v-if="!isEdit"
       variant="outlined"
@@ -175,20 +252,20 @@ const deleteUserAccount = async () => {
       size="small"
       :label="$t('common.edit')"
       :aria-label="$t('settings.profile.ariaLabel.edit')"
-      @click="isEdit = true"
+      @click="toggleEditMode()"
     >
     </Button>
   </div>
 
   <!-- View mode container -->
   <section v-if="!isEdit">
-    <div class="flex items-center gap-4 mb-12">
+    <div class="flex items-center gap-4 mb-8">
       <!-- Avatar -->
       <div class="relative w-fit">
         <Avatar
           :size="avatarSize"
           iconClass="text-4xl"
-          avatarClass="!w-16 !h-16"
+          avatarClass="!w-18 !h-18"
         />
         <!-- Upload image button -->
         <Button
@@ -303,24 +380,63 @@ const deleteUserAccount = async () => {
       <!-- User display name -->
       <div class="flex flex-col">
         <span class="text-2xl font-bold tracking-wide">
-          {{ authStore.user?.name }}
+          {{ userInfo.name }}
         </span>
-        <span class="text-lg font-light">
-          {{ authStore.user?.email }}
+        <span class="text-lg">
+          {{ userInfo.email }}
+        </span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4 mb-12">
+      <!-- Bio -->
+      <div class="flex flex-col" v-if="userInfo.bio">
+        <span class="text-xs font-medium tracking-widest">
+          {{ $t("settings.profile.field.bio") }}
+        </span>
+        <span class="whitespace-pre-line">
+          {{ userInfo.bio }}
+        </span>
+      </div>
+
+      <!-- Location -->
+      <div class="flex flex-col" v-if="userInfo.location">
+        <span class="text-xs font-medium tracking-widest">
+          {{ $t("settings.profile.field.location") }}
+        </span>
+        <span class="whitespace-pre-line">
+          {{ userInfo.location }}
+        </span>
+      </div>
+      <div class="flex flex-col" v-if="userInfo.birthDate">
+        <span class="text-xs font-medium tracking-widest">
+          {{ $t("settings.profile.field.birthDate") }}
+        </span>
+        <span class="whitespace-pre-line">
+          {{
+            userInfo.birthDate
+              ? new Date(userInfo.birthDate).toLocaleDateString()
+              : ""
+          }}
         </span>
       </div>
     </div>
 
     <!-- Delete account -->
-    <div class="flex flex-col">
-      <h2 class="text-md font-bold text-surface-900 dark:text-surface-0 mb-2">
-        {{ $t("settings.profile.deleteAccount.title") }}
-      </h2>
-      <span class="text-xs mb-5">
-        {{ $t("settings.profile.deleteAccount.description") }}
-      </span>
+    <div class="flex justify-between items-center">
+      <div>
+        <h2
+          class="text-base font-semibold text-red-500 dark:text-red-400 mb-0.5"
+        >
+          {{ $t("settings.profile.deleteAccount.title") }}
+        </h2>
+        <span class="text-sm text-muted-color">
+          {{ $t("settings.profile.deleteAccount.description") }}
+        </span>
+      </div>
       <div>
         <Button
+          size="small"
           severity="danger"
           :label="$t('settings.profile.deleteAccount.title')"
           :aria-label="$t('settings.profile.ariaLabel.deleteAccount')"
@@ -342,36 +458,116 @@ const deleteUserAccount = async () => {
       class="flex flex-col gap-6.5 w-full mb-4"
       @submit="onFormSubmit"
     >
-      <!-- Name -->
-      <div class="flex flex-col gap-1">
-        <FloatLabel>
+      <div class="flex flex-col gap-4 mb-6">
+        <!-- Name -->
+        <div class="flex flex-col gap-2">
+          <label :for="fieldIds.name" class="text-sm font-medium">
+            {{ $t("settings.profile.field.name") }}
+          </label>
           <InputText
             :id="fieldIds.name"
             :invalid="$form.name?.invalid"
+            :placeholder="$t('settings.profile.placeholder.name')"
             name="name"
             type="text"
             autocomplete="name"
             fluid
           />
-          <label :for="fieldIds.name">
-            {{ $t("settings.profile.field.name") }}
+          <Message
+            v-if="$form.name?.invalid"
+            severity="error"
+            size="small"
+            variant="simple"
+          >
+            {{ $form.name.error.message }}
+          </Message>
+        </div>
+
+        <!-- Bio -->
+        <div class="flex flex-col gap-2">
+          <label :for="fieldIds.bio" class="text-sm font-medium">
+            {{ $t("settings.profile.field.bio") }}
           </label>
-        </FloatLabel>
-        <Message
-          v-if="$form.name?.invalid"
-          severity="error"
-          size="small"
-          variant="simple"
-        >
-          {{ $form.name.error.message }}
-        </Message>
+          <Textarea
+            :id="fieldIds.bio"
+            :invalid="$form.bio?.invalid"
+            :placeholder="$t('settings.profile.placeholder.bio')"
+            name="bio"
+            rows="5"
+            cols="30"
+            autoResize
+          />
+          <Message
+            v-if="$form.bio?.invalid"
+            severity="error"
+            size="small"
+            variant="simple"
+          >
+            {{ $form.bio.error.message }}
+          </Message>
+        </div>
+
+        <!-- Location -->
+        <div class="flex flex-col gap-2">
+          <label :for="fieldIds.location" class="text-sm font-medium">
+            {{ $t("settings.profile.field.location") }}
+          </label>
+          <InputText
+            :id="fieldIds.location"
+            :invalid="$form.location?.invalid"
+            :placeholder="$t('settings.profile.placeholder.location')"
+            name="location"
+            type="text"
+            fluid
+          />
+          <Message
+            v-if="$form.location?.invalid"
+            severity="error"
+            size="small"
+            variant="simple"
+          >
+            {{ $form.location.error.message }}
+          </Message>
+        </div>
+
+        <!-- BirthDate -->
+        <div class="flex flex-col gap-2">
+          <label :for="fieldIds.birthDate" class="text-sm font-medium">
+            {{ $t("settings.profile.field.birthDate") }}
+          </label>
+          <DatePicker
+            name="birthDate"
+            :placeholder="$t('settings.profile.placeholder.birthDate')"
+            dateFormat="dd/mm/yy"
+            :maxDate="new Date()"
+            fluid
+            showClear
+          />
+          <Message
+            v-if="$form.birthDate?.invalid"
+            severity="error"
+            size="small"
+            variant="simple"
+          >
+            {{ $form.birthDate.error.message }}
+          </Message>
+        </div>
       </div>
 
-      <!-- Save Button -->
-      <div class="flex justify-end">
+      <div class="flex justify-end gap-2">
+        <!-- Cancel Button -->
+        <Button
+          type="button"
+          severity="secondary"
+          variant="outlined"
+          :label="$t('common.cancel')"
+          :aria-label="$t('common.cancel')"
+          @click="isEdit = false"
+        />
+        <!-- Save Button -->
         <Button
           type="submit"
-          severity="secondary"
+          severity="primary"
           :label="$t('settings.profile.submit')"
           :aria-label="$t('settings.profile.ariaLabel.submit')"
           :loading="isLoading"

@@ -114,7 +114,10 @@ namespace backend.Services
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-            user.Name = request.Name;
+            if (request.Name != null) user.Name = request.Name;
+            if (request.Bio != null) user.Bio = request.Bio;
+            if (request.Location != null) user.Location = request.Location;
+            if (request.BirthDate != null) user.BirthDate = request.BirthDate;
             await _context.SaveChangesAsync();
         }
 
