@@ -48,7 +48,7 @@ namespace backend.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [HttpGet("me")]
         [Authorize]
-        public async Task<ActionResult<UserDto>> GetCurrentAuth()
+        public async Task<ActionResult<MeDto>> GetCurrentAuth()
         {
             var jti = User.FindFirst(JwtRegisteredClaimNames.Jti)?.Value;
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -66,7 +66,7 @@ namespace backend.Controllers
                 return Unauthorized();
             }
 
-            var user = await _userService.GetUserByIdAsync(Guid.Parse(userId));
+            var user = await _userService.GetMeAsync(Guid.Parse(userId));
             return Ok(user);
         }
 
@@ -197,7 +197,7 @@ namespace backend.Controllers
             }
 
             // Fetch the associated user
-            var user = await _userService.GetUserByIdAsync(stored.UserId);
+            var user = await _userService.GetMeAsync(stored.UserId);
 
             // Issue new Access Token
             var newAccessToken = _jwtGenerator.GenerateAccessToken(

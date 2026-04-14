@@ -25,6 +25,16 @@ namespace backend.Models
         [MaxLength(500)]
         public string? Picture { get; set; }
 
+        [MaxLength(300)]
+        public string? Bio { get; set; }
+
+        [MaxLength(100)]
+        public string? Location { get; set; }
+
+        public string? FavoriteGoods { get; set; }
+
+        public DateTime? BirthDate { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         // Navigation property

@@ -44,6 +44,20 @@ namespace backend.Data
                     .IsRequired(false)
                     .HasMaxLength(500);
 
+                entity.Property(e => e.Bio)
+                    .IsRequired(false)
+                    .HasMaxLength(300);
+
+                entity.Property(e => e.Location)
+                    .IsRequired(false)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.FavoriteGoods)
+                    .IsRequired(false);
+
+                entity.Property(e => e.BirthDate)
+                    .IsRequired(false);
+
                 entity.Property(e => e.CreatedAt)
                  .IsRequired()
                  .HasDefaultValueSql("GETUTCDATE()");

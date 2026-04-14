@@ -7,9 +7,10 @@ namespace backend.Services
 {
     public interface IUserService
     {
-        Task<MeDto> GetUserByIdAsync(Guid id);
+        Task<MeDto> GetMeAsync(Guid id);
+        Task<UserDto> GetUserByIdAsync(Guid id);
         Task CreateUserAsync(RegisterRequest request);
-        Task<Guid> GetOrCreateByGoogleIdAsync(UserDto googleUser);
+        Task<Guid> GetOrCreateByGoogleIdAsync(OAuthUserDto googleUser);
         Task UpdateUserAsync(Guid id, UpdateUserRequest request);
         Task DeleteUserAsync(Guid id);
         Task UpdateProfilePictureAsync(Guid id, string pictureUrl);

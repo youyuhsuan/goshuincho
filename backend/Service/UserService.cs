@@ -9,6 +9,7 @@ using backend.DTOs.Responses;
 
 using BCrypt.Net;
 
+using System.Text.Json;
 
 namespace backend.Services
 {
@@ -21,7 +22,7 @@ namespace backend.Services
         }
 
         // Get user by ID
-        public async Task<MeDto> GetUserByIdAsync(Guid id)
+        public async Task<MeDto> GetMeAsync(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -35,6 +36,30 @@ namespace backend.Services
                 Name = user.Name,
                 Email = user.Email,
                 Picture = user.Picture,
+            };
+        }
+
+        // Get user by ID
+        public async Task<UserDto> GetUserByIdAsync(Guid id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+            {
+                throw new NotFoundException($"User with ID {id} not found");
+            }
+
+            return new UserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Picture = user.Picture,
+                Bio = user.Bio,
+                Location = user.Location,
+                FavoriteGoods = user.FavoriteGoods is null
+            ? []
+            : JsonSerializer.Deserialize<List<string>>(user.FavoriteGoods) ?? [],
+                BirthDate = user.BirthDate,
             };
         }
 
@@ -59,7 +84,7 @@ namespace backend.Services
         }
 
         // Get or create user by Google ID
-        public async Task<Guid> GetOrCreateByGoogleIdAsync(UserDto googleUser)
+        public async Task<Guid> GetOrCreateByGoogleIdAsync(OAuthUserDto googleUser)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.GoogleId == googleUser.GoogleId);
 
@@ -89,7 +114,10 @@ namespace backend.Services
                 throw new NotFoundException($"User with ID {id} not found");
             }
 
-            user.Name = request.Name;
+            if (request.Name != null) user.Name = request.Name;
+            if (request.Bio != null) user.Bio = request.Bio;
+            if (request.Location != null) user.Location = request.Location;
+            if (request.BirthDate != null) user.BirthDate = request.BirthDate;
             await _context.SaveChangesAsync();
         }
 
