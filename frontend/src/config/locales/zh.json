@@ -1,0 +1,150 @@
+{
+  "common": {
+    "save": "儲存",
+    "cancel": "取消",
+    "edit": "編輯",
+    "delete": "刪除",
+    "divider": "或",
+    "title": "御朱印旅途記錄"
+  },
+  "nav": {
+    "about": "關於",
+    "login": "登入",
+    "settings": "設定",
+    "signOut": "登出",
+    "ariaLabel": {
+      "home": "前往首頁",
+      "login": "登入您的帳號",
+      "signOut": "登出您的帳號",
+      "userInfo": "查看使用者資料",
+      "settings": "前往帳號設定"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "歡迎回來",
+      "description": "登入您的帳號以繼續使用。",
+      "question": "還沒有帳號？",
+      "action": "立即註冊",
+      "field": {
+        "email": "電子郵件",
+        "password": "密碼"
+      },
+      "ariaLabel": "切換至登入模式",
+      "rememberMe": "記住我",
+      "forgotPassword": "忘記密碼？",
+      "submit": "登入"
+    },
+    "register": {
+      "title": "立即開始",
+      "description": "建立帳號以開始使用。",
+      "question": "已有帳號？",
+      "action": "登入",
+      "field": {
+        "name": "姓名",
+        "email": "電子郵件",
+        "password": "密碼",
+        "confirmPassword": "確認密碼"
+      },
+      "validation": {
+        "name": {
+          "min": "最少需輸入 1 個字元",
+          "max": "最多可輸入 100 個字元"
+        },
+        "password": {
+          "min": "最少需輸入 6 個字元",
+          "max": "最多可輸入 500 個字元",
+          "lowercase": "必須包含小寫字母",
+          "uppercase": "必須包含大寫字母",
+          "number": "必須包含數字"
+        },
+        "confirmPassword": {
+          "match": "兩次輸入的密碼不相符"
+        }
+      },
+      "ariaLabel": "切換至註冊模式",
+      "submit": "註冊"
+    },
+    "oauth": {
+      "google": "使用 Google 繼續"
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "description": "管理您的帳號設定與偏好",
+    "menu": {
+      "profile": "個人資料",
+      "appearance": "外觀"
+    },
+    "profile": {
+      "title": "個人資訊",
+      "description": "這裡顯示您的公開個人資料，其他用戶可以看到這些資訊",
+      "field": {
+        "name": "姓名",
+        "birthDate": "生日",
+        "bio": "個人簡介",
+        "location": "所在地"
+      },
+      "placeholder": {
+        "name": "請輸入您的姓名",
+        "bio": "介紹一下您自己...",
+        "location": "城市，國家",
+        "birthDate": "DD/MM/YYYY"
+      },
+      "validation": {
+        "name": {
+          "min": "最少需輸入 1 個字元",
+          "max": "最多可輸入 100 個字元"
+        },
+        "bio": {
+          "max": "最多可輸入 500 個字元"
+        },
+        "location": {
+          "max": "最多可輸入 100 個字元"
+        },
+        "birthDate": {
+          "max": "生日不能設定為未來日期"
+        }
+      },
+      "ariaLabel": {
+        "edit": "編輯個人資訊",
+        "uploadImage": "上傳大頭貼",
+        "deleteAccount": "刪除您的帳號",
+        "submit": "儲存變更"
+      },
+      "submit": "儲存",
+      "uploadImage": "上傳圖片",
+      "dialog": {
+        "title": "編輯個人頭像",
+        "message": {
+          "updateSuccess": "您的變更已儲存。"
+        }
+      },
+      "deleteAccount": {
+        "title": "刪除帳號",
+        "message": "您確定要刪除您的帳號嗎？",
+        "description": "刪除帳號將會永久移除您的個人資料及所有相關內容，此操作無法復原"
+      }
+    },
+    "appearance": {
+      "theme": {
+        "title": "主題",
+        "description": "選擇或自訂您的介面主題",
+        "options": {
+          "system": "跟隨系統",
+          "light": "淺色模式",
+          "dark": "深色模式"
+        }
+      },
+      "language": {
+        "title": "語言",
+        "placeholder": "選擇語言",
+        "description": "選擇平台的顯示語言",
+        "options": {
+          "en": "English",
+          "zh": "繁體中文"
+        }
+      }
+    }
+  }
+}

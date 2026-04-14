@@ -4,11 +4,15 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
-    "divider": "or"
+    "divider": "or",
+    "title": "Goshuincho"
+  },
+  "hero": {
+    "subTitle": "Discover the Art of Goshuin",
+    "cta": "Get Started"
   },
   "nav": {
     "about": "About",
-    "home": "Home",
     "login": "Login",
     "settings": "Settings",
     "signOut": "Sign out",
@@ -78,13 +82,32 @@
     },
     "profile": {
       "title": "Personal Info",
+      "description": "Your public profile information, visible to other users.",
       "field": {
-        "name": "Name"
+        "name": "Name",
+        "birthDate": "Birth Date",
+        "bio": "Bio",
+        "location": "Location"
+      },
+      "placeholder": {
+        "name": "Enter your name",
+        "bio": "Tell us a little about yourself...",
+        "location": "City, Country",
+        "birthDate": "DD/MM/YYYY"
       },
       "validation": {
         "name": {
           "min": "Minimum 1 characters",
           "max": "Maximum 100 characters"
+        },
+        "bio": {
+          "max": "Maximum 500 characters"
+        },
+        "location": {
+          "max": "Maximum 100 characters"
+        },
+        "birthDate": {
+          "max": "Birth date cannot be in the future"
         }
       },
       "ariaLabel": {
