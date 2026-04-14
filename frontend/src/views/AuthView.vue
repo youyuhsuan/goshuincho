@@ -19,7 +19,7 @@ const toggleMode = () => {
 
 <template>
   <main class="flex flex-1">
-    <sectionauthMode
+    <div
       class="flex flex-1 lg:flex-[2.5] flex-col items-center justify-center px-6 sm:px-8 lg:px-12 py-8"
     >
       <!-- title -->
@@ -59,7 +59,7 @@ const toggleMode = () => {
 
       <!-- OAuth authentication button -->
       <google-o-auth-button class="w-full max-w-md" />
-    </sectionauthMode>
+    </div>
 
     <!-- Background image -->
     <section class="hidden lg:flex lg:flex-[3.5] bg-surface-100"></section>
