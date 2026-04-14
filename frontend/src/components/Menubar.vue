@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 // Route
 import { useRoute } from "vue-router";
 import router from "@/router";
+// i18n
+import { useI18n } from "vue-i18n";
 // Primevue
 import Menubar from "primevue/menubar";
 import Popover from "primevue/popover";
@@ -18,10 +20,12 @@ import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const authStore = useAuthStore();
 
+const { t } = useI18n();
+
 const route = useRoute();
 const items = computed<MenuItem[]>(() => [
   {
-    label: "About",
+    label: t("nav.about"),
     command: () => router.push(ROUTE_CONFIGS.ABOUTE),
     route: ROUTE_CONFIGS.ABOUTE,
   },
@@ -59,43 +63,18 @@ const cancelHidePopover = () => {
   hideTimerId = null;
 };
 
+// Logout action
 const logout = async () => {
   vPopover.value?.hide();
   await authStore.logout();
 };
-
-// Control dark mode with a custom class on the root element
-const isDark = ref<boolean>(
-  window.matchMedia("(prefers-color-scheme: dark)").matches,
-);
-const toggleMode = () => {
-  isDark.value = !isDark.value;
-  document.documentElement.classList.toggle("my-app-dark", isDark.value);
-};
-
-const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-const handleChange = (e: MediaQueryListEvent) => {
-  isDark.value = e.matches;
-  document.documentElement.classList.toggle("my-app-dark", isDark.value);
-};
-
-onMounted(() => {
-  mediaQuery.addEventListener("change", handleChange);
-  // initialze dark class
-  document.documentElement.classList.toggle("my-app-dark", isDark.value);
-  isDark.value = mediaQuery.matches;
-});
-
-onBeforeUnmount(() => {
-  mediaQuery.removeEventListener("change", handleChange);
-});
 </script>
 
 <template>
   <header>
     <Menubar :model="items">
       <template #start>
-        <a href="/" aria-label="Home">
+        <a href="/" :aria-label="t('nav.ariaLabel.home')">
           <svg
             width="35"
             height="40"
@@ -113,7 +92,7 @@ onBeforeUnmount(() => {
               fill="var(--p-text-color)"
             />
           </svg>
-          <span class="sr-only">Home</span>
+          <span class="sr-only">{{ t("nav.home") }}</span>
         </a>
       </template>
 
@@ -132,88 +111,83 @@ onBeforeUnmount(() => {
       </template>
 
       <template #end>
-        <div class="flex items-center gap-1 sm:gap-2">
-          <!-- Toggle Mode Button -->
-          <Button
-            :icon="isDark ? 'pi pi-sun' : 'pi pi-moon'"
-            text
-            rounded
-            @click="toggleMode"
-            :aria-label="
-              isDark ? 'Switch to light mode' : 'Switch to dark mode'
-            "
-            :aria-pressed="isDark"
-          />
-
-          <!-- Authentication Button -->
-          <button
-            v-if="!authStore.isAuthenticated"
-            class="p-button p-button-text flex items-center gap-2 px-3 py-2 rounded-md hover:bg-surface-100 transition-colors"
-            :aria-label="authStore.isAuthenticated ? 'Logout' : 'Login'"
-            @click="router.push(ROUTE_CONFIGS.AUTH)"
-          >
-            <i class="pi pi-user" />
-            <span class="hidden sm:inline">Login</span>
-          </button>
-
-          <!-- Avatar trigger -->
-          <div
-            v-else
-            @click="showPopover"
-            @mouseenter="showPopover"
-            @mouseleave="hidePopover"
-          >
-            <Avatar />
-          </div>
-
-          <!-- User Popover -->
-          <Popover
-            ref="vPopover"
-            @mouseenter="cancelHidePopover"
-            @mouseleave="hidePopover"
-          >
-            <div class="flex flex-col w-[12.5rem] py-1 px-0.5">
-              <!-- User info -->
-              <div
-                role="img"
-                aria-label="user info"
-                class="flex flex-col items-center cursor-pointer"
-                @click="router.push(ROUTE_CONFIGS.SETTING)"
-              >
-                <Avatar size="xlarge" iconClass="text-4xl" />
-                <div aria-hidden="true" class="font-medium">
-                  {{ authStore.user?.name }}
-                </div>
-              </div>
-
-              <Divider />
-
-              <!-- Action menu -->
-              <ul class="list-none p-0 m-0 flex flex-col gap-4">
-                <li>
-                  <button
-                    aria-label="Go to settings"
-                    class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-600"
-                    @click="router.push(ROUTE_CONFIGS.SETTING)"
-                  >
-                    <i class="pi pi-cog" aria-hidden="true" />
-                    <span>Settings</span>
-                  </button>
-                </li>
-                <li>
-                  <button
-                    aria-label="Sign out of account"
-                    class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-700"
-                    @click="logout"
-                  >
-                    <i class="pi pi-sign-out" aria-hidden="true" />
-                    <span>Sign out</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </Popover>
+        <!-- Authentication Button -->
+        <Button
+          v-if="!authStore.isAuthenticated"
+          icon="pi pi-user"
+          variant="text"
+          class="p-button p-button-text flex items-center gap-2 px-3 py-2 rounded-md hover:bg-surface-100 transition-colors"
+          :label="authStore.isAuthenticated ? t('nav.signOut') : t('nav.login')"
+          :aria-label="
+            authStore.isAuthenticated
+              ? t('nav.ariaLabel.signOut')
+              : t('nav.ariaLabel.login')
+          "
+          @click="router.push(ROUTE_CONFIGS.AUTH)"
+        >
+        </Button>
+        <!-- Avatar trigger -->
+        <div
+          v-else
+          @click="showPopover"
+          @mouseenter="showPopover"
+          @mouseleave="hidePopover"
+        >
+          <Avatar />
         </div>
+
+        <!-- User Popover -->
+        <Popover
+          ref="vPopover"
+          @mouseenter="cancelHidePopover"
+          @mouseleave="hidePopover"
+        >
+          <div class="flex flex-col w-[12.5rem] py-1 px-0.5">
+            <!-- User info -->
+            <div
+              role="img"
+              :aria-label="t('nav.ariaLabel.userInfo')"
+              class="flex flex-col items-center cursor-pointer"
+              @click="router.push(ROUTE_CONFIGS.SETTING)"
+            >
+              <Avatar size="xlarge" iconClass="text-4xl" />
+              <div aria-hidden="true" class="font-medium">
+                {{ authStore.user?.name }}
+              </div>
+            </div>
+
+            <Divider />
+
+            <!-- Action menu -->
+            <ul class="list-none p-0 m-0 flex flex-col gap-4">
+              <!-- Settings Button -->
+              <li>
+                <Button
+                  :label="t('nav.settings')"
+                  :aria-label="t('nav.ariaLabel.settings')"
+                  variant="text"
+                  icon="pi pi-cog"
+                  class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-600"
+                  @click="router.push(ROUTE_CONFIGS.SETTING)"
+                >
+                </Button>
+              </li>
+
+              <!-- Sign Out Button -->
+              <li>
+                <Button
+                  :label="t('nav.signOut')"
+                  :aria-label="t('nav.ariaLabel.signOut')"
+                  variant="text"
+                  icon="pi pi-sign-out"
+                  class="w-full flex gap-2 cursor-pointer text-sm hover:text-slate-700"
+                  @click="logout"
+                >
+                </Button>
+              </li>
+            </ul>
+          </div>
+        </Popover>
       </template>
     </Menubar>
   </header>

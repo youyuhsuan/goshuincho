@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { computed, ref } from "vue";
+// i18n
+import { useI18n } from "vue-i18n";
 // Primevue
 import FileUpload, { type FileUploadSelectEvent } from "primevue/fileupload";
 import Dialog from "primevue/dialog";
@@ -23,7 +25,10 @@ import ROUTE_CONFIGS from "@/config/routeConfig";
 import compressImage from "@/utils/compressImage";
 import generateFieldIds from "@/utils/generateFieldIds";
 import type { FieldIds } from "@/utils/generateFieldIds";
+// Type
 import type { UpdateRequest } from "@/types/userType";
+
+const { t } = useI18n();
 
 const { getUser, updateUser, uploadUserImage, deleteUser } = useApiUser();
 const isLoading = ref<boolean>(false);
@@ -95,8 +100,8 @@ const resolver = zodResolver(
   z.object({
     name: z
       .string()
-      .min(1, { message: "Minimum 1 characters." })
-      .max(100, { message: "Maximum 100 characters." }),
+      .min(1, { message: t("settings.profile.validation.name.min") })
+      .max(100, { message: t("settings.profile.validation.name.max") }),
   }),
 );
 const { showWarning, showInfo } = useMessage();
@@ -115,7 +120,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       await updateUser(authStore.user.id, e.values as UpdateRequest);
       authStore.user = (await getUser(authStore.user.id)).data;
       isEdit.value = false;
-      showInfo("Your changes have been saved.");
+      showInfo(t("settings.profile.dialog.message.updateSuccess"));
     } catch (error: unknown) {
       if (typeof error === "string") showWarning(error);
     } finally {
@@ -130,16 +135,16 @@ const deleteUserAccount = async () => {
   if (!authStore.user) return;
 
   confirm.require({
-    message: "Are you sure you want to delete your account?",
-    header: "Delete account",
+    message: t("settings.profile.deleteAccount.message"),
+    header: t("settings.profile.deleteAccount.title"),
     icon: "pi pi-exclamation-triangle",
     rejectProps: {
-      label: "Cancel",
+      label: t("common.cancel"),
       severity: "secondary",
       outlined: true,
     },
     acceptProps: {
-      label: "Delete",
+      label: t("common.delete"),
       severity: "danger",
     },
     accept: async () => {
@@ -161,15 +166,15 @@ const deleteUserAccount = async () => {
 <template>
   <!-- Section header with edit toggle -->
   <div class="flex justify-between mb-6">
-    <h2 class="text-md font-semibold">Personal Info</h2>
+    <h2 class="text-md font-semibold">{{ $t("settings.profile.title") }}</h2>
     <Button
       v-if="!isEdit"
       variant="outlined"
       severity="secondary"
       icon="pi pi-pencil"
-      label="Edit"
       size="small"
-      aria-label="Edit"
+      :label="$t('common.edit')"
+      :aria-label="$t('settings.profile.ariaLabel.edit')"
       @click="isEdit = true"
     >
     </Button>
@@ -196,7 +201,7 @@ const deleteUserAccount = async () => {
           icon="pi pi-image"
           rounded
           severity="secondary"
-          aria-label="upload image"
+          :aria-label="$t('settings.profile.ariaLabel.uploadImage')"
           size="small"
           @click="isVisibleDialog = true"
         />
@@ -205,7 +210,7 @@ const deleteUserAccount = async () => {
         <Dialog
           v-model:visible="isVisibleDialog"
           modal
-          header="Edit Profile Picture"
+          :header="$t('settings.profile.dialog.title')"
           :style="{ width: '25rem' }"
         >
           <FileUpload
@@ -219,7 +224,8 @@ const deleteUserAccount = async () => {
                 icon="pi pi-images"
                 variant="outlined"
                 severity="secondary"
-                label="Upload image"
+                :label="$t('settings.profile.uploadImage')"
+                :aria-label="$t('settings.profile.ariaLabel.uploadImage')"
                 @click="chooseCallback()"
                 autofocus
               />
@@ -276,14 +282,16 @@ const deleteUserAccount = async () => {
           <template #footer v-if="selectedFile">
             <!-- Cancel Button -->
             <Button
-              label="Cancel"
+              :label="$t('common.cancel')"
+              :aria-label="$t('common.cancel')"
               text
               severity="secondary"
               @click="cancelUpload()"
             />
             <!-- Save Button -->
             <Button
-              label="Save"
+              :label="$t('common.save')"
+              :aria-label="$t('common.save')"
               variant="outlined"
               severity="secondary"
               @click="saveUpload"
@@ -297,24 +305,25 @@ const deleteUserAccount = async () => {
         <span class="text-2xl font-bold tracking-wide">
           {{ authStore.user?.name }}
         </span>
-        <span class="text-lg font-light">{{ authStore.user?.email }}</span>
+        <span class="text-lg font-light">
+          {{ authStore.user?.email }}
+        </span>
       </div>
     </div>
 
     <!-- Delete account -->
     <div class="flex flex-col">
       <h2 class="text-md font-bold text-surface-900 dark:text-surface-0 mb-2">
-        Delete Account
+        {{ $t("settings.profile.deleteAccount.title") }}
       </h2>
-      <span class="text-xs mb-5"
-        >Deleting your account will permanently remove your profile and all
-        associated content. <br />This action cannot be reversed.
+      <span class="text-xs mb-5">
+        {{ $t("settings.profile.deleteAccount.description") }}
       </span>
       <div>
         <Button
-          label="Delete Account"
           severity="danger"
-          aria-label="Delete Account"
+          :label="$t('settings.profile.deleteAccount.title')"
+          :aria-label="$t('settings.profile.ariaLabel.deleteAccount')"
           @click="deleteUserAccount()"
         />
         <ConfirmDialog></ConfirmDialog>
@@ -344,7 +353,9 @@ const deleteUserAccount = async () => {
             autocomplete="name"
             fluid
           />
-          <label :for="fieldIds.name">name</label>
+          <label :for="fieldIds.name">
+            {{ $t("settings.profile.field.name") }}
+          </label>
         </FloatLabel>
         <Message
           v-if="$form.name?.invalid"
@@ -356,11 +367,13 @@ const deleteUserAccount = async () => {
         </Message>
       </div>
 
+      <!-- Save Button -->
       <div class="flex justify-end">
         <Button
           type="submit"
           severity="secondary"
-          label="Save"
+          :label="$t('settings.profile.submit')"
+          :aria-label="$t('settings.profile.ariaLabel.submit')"
           :loading="isLoading"
           :disabled="$form.valid === false"
         />

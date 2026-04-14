@@ -1,3 +1,101 @@
+<script setup lang="ts">
+import { ref } from "vue";
+// Primevue
+import { zodResolver } from "@primevue/forms/resolvers/zod";
+import type { FormSubmitEvent } from "@primevue/forms";
+// Zod
+import { z } from "zod";
+// i18n
+import { useI18n } from "vue-i18n";
+// Composables
+import useMessage from "@/composables/useMessage";
+import useApiAuth from "@/composables/api/useApiAuth";
+// Utils
+import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
+// Type
+import type {
+  AuthMode,
+  RegisterFormData,
+  RegisterRequest,
+} from "@/types/authType";
+
+const { t } = useI18n();
+
+const isLoading = ref<boolean>(false);
+const fieldIds = ref<FieldIds>(
+  generateFieldIds(["name", "password", "confirmPassword"]),
+);
+const initialValues = ref<RegisterFormData>({
+  email: "",
+  name: "",
+  password: "",
+  confirmPassword: "",
+});
+
+const authMode = defineModel<AuthMode>("authMode", {
+  required: true,
+});
+
+const { registerUser } = useApiAuth();
+const { showWarning } = useMessage();
+
+const resolver = zodResolver(
+  z
+    .object({
+      name: z
+        .string()
+        .min(1, { message: t("auth.register.validation.name.min") })
+        .max(100, { message: t("auth.register.validation.name.max") }),
+      email: z.email(),
+      password: z
+        .string()
+        .min(6, { message: t("auth.register.validation.password.min") })
+        .max(500, { message: t("auth.register.validation.password.max") })
+        .refine((value) => /[a-z]/.test(value), {
+          message: t("auth.register.validation.password.lowercase"),
+        })
+        .refine((value) => /[A-Z]/.test(value), {
+          message: t("auth.register.validation.password.uppercase"),
+        })
+        .refine((value) => /\d/.test(value), {
+          message: t("auth.register.validation.password.number"),
+        }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("auth.register.validation.confirmPassword.match"),
+      path: ["confirmPassword"],
+    }),
+);
+
+const onFormSubmit = async (e: FormSubmitEvent) => {
+  isLoading.value = true;
+  // Prevent the browser's default form submission behavior
+  e.originalEvent.preventDefault();
+
+  // Check if all form fields have passed validation
+  if (e.valid) {
+    try {
+      // Extract form values and submit to the login API
+      const { confirmPassword: _, ...registerData } =
+        e.values as RegisterFormData;
+      await registerUser(registerData as RegisterRequest);
+
+      // Reset all form fields to their initial state
+      e.reset();
+
+      // Switch to login mode after successful registration
+      authMode.value = "login";
+    } catch (error: unknown) {
+      console.error("Registration error:", error);
+      if (typeof error === "string") showWarning(error);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+};
+</script>
+
 <template>
   <Form
     v-slot="$form"
@@ -19,7 +117,9 @@
           autocomplete="email"
           fluid
         />
-        <label :for="fieldIds.email">email</label>
+        <label :for="fieldIds.email">
+          {{ $t("auth.register.field.email") }}
+        </label>
       </FloatLabel>
       <Message
         v-if="$form.email?.invalid"
@@ -43,7 +143,9 @@
           autocomplete="name"
           fluid
         />
-        <label :for="fieldIds.name">name</label>
+        <label :for="fieldIds.name">
+          {{ $t("auth.register.field.name") }}
+        </label>
       </FloatLabel>
       <Message
         v-if="$form.name?.invalid"
@@ -68,7 +170,9 @@
           toggleMask
           fluid
         />
-        <label :for="fieldIds.password">Password</label>
+        <label :for="fieldIds.password">
+          {{ $t("auth.register.field.password") }}
+        </label>
       </FloatLabel>
       <Message
         v-if="$form.password?.invalid"
@@ -96,7 +200,9 @@
           toggleMask
           fluid
         />
-        <label :for="fieldIds.confirmPassword">Confirm Password</label>
+        <label :for="fieldIds.confirmPassword">
+          {{ $t("auth.register.field.confirmPassword") }}
+        </label>
       </FloatLabel>
       <Message
         v-if="$form.confirmPassword?.invalid"
@@ -108,103 +214,13 @@
       </Message>
     </div>
 
+    <!-- Submit Button -->
     <Button
       type="submit"
       severity="secondary"
-      label="Sign up"
+      :label="$t('auth.register.submit')"
       :loading="isLoading"
       :disabled="$form.valid === false"
     />
   </Form>
 </template>
-
-<script setup lang="ts">
-import { ref } from "vue";
-// Primevue
-import { zodResolver } from "@primevue/forms/resolvers/zod";
-import type { FormSubmitEvent } from "@primevue/forms";
-import { z } from "zod";
-// Composables
-import useMessage from "@/composables/useMessage";
-import useApiAuth from "@/composables/api/useApiAuth";
-// Utils
-import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
-// Type
-import type { RegisterFormData, RegisterRequest } from "@/types/authType";
-
-const isLoading = ref<boolean>(false);
-const fieldIds = ref<FieldIds>(
-  generateFieldIds(["name", "password", "confirmPassword"]),
-);
-const initialValues = ref<RegisterFormData>({
-  email: "",
-  name: "",
-  password: "",
-  confirmPassword: "",
-});
-
-const isLogin = defineModel<boolean>("isLogin", {
-  required: true,
-});
-
-const { registerUser } = useApiAuth();
-const { showWarning } = useMessage();
-
-const resolver = zodResolver(
-  z
-    .object({
-      name: z
-        .string()
-        .min(1, { message: "Minimum 1 characters." })
-        .max(100, { message: "Maximum 100 characters." }),
-      email: z.email(),
-      password: z
-        .string()
-        .min(6, { message: "Minimum 6 characters." })
-        .max(500, { message: "Maximum 500 characters." })
-        .refine((value) => /[a-z]/.test(value), {
-          message: "Must have a lowercase letter.",
-        })
-        .refine((value) => /[A-Z]/.test(value), {
-          message: "Must have an uppercase letter.",
-        })
-        .refine((value) => /\d/.test(value), {
-          message: "Must have a number.",
-        }),
-      confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      message: "Passwords do not match.",
-      path: ["confirmPassword"],
-    }),
-);
-
-const onFormSubmit = async (e: FormSubmitEvent) => {
-  isLoading.value = true;
-  // Prevent the browser's default form submission behavior
-  e.originalEvent.preventDefault();
-
-  // Check if all form fields have passed validation
-  if (e.valid) {
-    try {
-      // Extract form values and submit to the login API
-      const { confirmPassword: _, ...registerData } =
-        e.values as RegisterFormData;
-      await registerUser(registerData as RegisterRequest);
-
-      // Reset all form fields to their initial state
-      e.reset();
-
-      // Switch to login mode after successful registration
-      isLogin.value = true;
-    } catch (error: unknown) {
-      console.error("Registration error:", error);
-      if (typeof error === "string") {
-        showWarning(error);
-      }
-    } finally {
-      isLoading.value = false;
-    }
-  }
-};
-</script>

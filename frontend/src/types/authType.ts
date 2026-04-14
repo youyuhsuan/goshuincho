@@ -1,3 +1,5 @@
+export type AuthMode = "login" | "register";
+
 interface BaseAuthCredentials {
   email: string;
   password: string;
