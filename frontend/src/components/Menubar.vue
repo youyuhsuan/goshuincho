@@ -31,6 +31,12 @@ const items = computed<MenuItem[]>(() => [
   },
 ]);
 
+const goToAuth = () => {
+  router.push(ROUTE_CONFIGS.AUTH).catch((error) => {
+    console.warn("Navigation failed:", error);
+  });
+};
+
 watch(
   () => route.path,
   (newPath) => {
@@ -123,7 +129,7 @@ const logout = async () => {
               ? t('nav.ariaLabel.signOut')
               : t('nav.ariaLabel.login')
           "
-          @click="router.push(ROUTE_CONFIGS.AUTH)"
+          @click="goToAuth()"
         >
         </Button>
         <!-- Avatar trigger -->
