@@ -43,12 +43,12 @@ const resolver = zodResolver(
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
-  isLoading.value = true;
   // Prevent the browser's default form submission behavior
   e.originalEvent.preventDefault();
 
   // Check if all form fields have passed validation
   if (e.valid) {
+    isLoading.value = true;
     try {
       // Extract form values and submit to the login store
       await login(e.values as LoginRequest);
@@ -56,6 +56,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       e.reset();
       router.push(ROUTE_CONFIGS.HOME);
     } catch (error: unknown) {
+      console.error("Login error:", error);
       if (typeof error === "string") showWarning(error);
     } finally {
       isLoading.value = false;

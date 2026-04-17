@@ -69,12 +69,12 @@ const resolver = zodResolver(
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
-  isLoading.value = true;
   // Prevent the browser's default form submission behavior
   e.originalEvent.preventDefault();
 
   // Check if all form fields have passed validation
   if (e.valid) {
+    isLoading.value = true;
     try {
       // Extract form values and submit to the login API
       const { confirmPassword: _, ...registerData } =
