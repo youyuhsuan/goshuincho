@@ -88,6 +88,7 @@ const saveUpload = async () => {
 
     isVisibleDialog.value = false;
   } catch (error: unknown) {
+    console.error("Failed to upload profile picture:", error);
     if (typeof error === "string") showWarning(error);
   } finally {
     isLoading.value = false;
@@ -159,7 +160,6 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   // tion
   if (e.valid) {
     isLoading.value = true;
-
     try {
       const isChanged = (key: string, value: unknown): boolean => {
         const original = initialValues.value[key as keyof User];
