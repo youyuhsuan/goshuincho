@@ -43,7 +43,8 @@ const useAuthStore = defineStore(
       idleTimerId = setTimeout(async () => {
         try {
           await refreshAccessToken();
-        } catch {
+        } catch (error: unknown) {
+          console.error("Failed to refresh access token:", error);
           await logout();
         }
       }, RESET_TIME_EXPIRY);
