@@ -30,7 +30,7 @@ onMounted(async () => {
 
     await oauth.processGoogleCallback(code);
     router.push(ROUTE_CONFIGS.HOME);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
     router.push("/login?error=oauth_failed");
   } finally {
