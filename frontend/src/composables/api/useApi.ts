@@ -61,14 +61,14 @@ authInstance.interceptors.response.use(
         try {
           if (!isRefreshing) {
             isRefreshing = true;
-            useAuthStore().refreshAccessToken();
+            await useAuthStore().refreshAccessToken();
           } else {
             await new Promise((resolve, reject) => {
               failedQueue.push({ resolve, reject });
             });
           }
           processQueue();
-        } catch (error) {
+        } catch (error: unknown) {
           processQueue(error);
         } finally {
           isRefreshing = false;
