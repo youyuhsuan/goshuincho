@@ -191,8 +191,6 @@ namespace backend.Data
                 entity.HasIndex(e => e.Prefecture);
                 entity.HasIndex(e => e.Name);
             });
-
-            base.OnModelCreating(modelBuilder);
         }
     }
 }
