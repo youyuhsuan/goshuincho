@@ -1,6 +1,6 @@
 const ROUTE_CONFIGS = {
   HOME: "/",
-  ABOUTE: "/about",
+  ABOUT: "/about",
   AUTH: "/auth",
   OAUTH: "/oauth/callback",
   SETTING: "/settings",
