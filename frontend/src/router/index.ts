@@ -29,7 +29,7 @@ const router = createRouter({
     {
       path: ROUTE_CONFIGS.OAUTH,
       name: "oAuthCallback",
-      component: () => import("@/views/OAuthCallback.vue"),
+      component: { template: "<div></div>" },
       meta: {
         fullscreen: true,
       },
