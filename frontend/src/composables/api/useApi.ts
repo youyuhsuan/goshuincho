@@ -17,6 +17,7 @@ export const authInstance = axios.create({
   withCredentials: true,
 });
 
+// Global response error handling
 instance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -24,6 +25,7 @@ instance.interceptors.response.use(
   },
 );
 
+// Attach access token to Authorization header for authenticated requests
 authInstance.interceptors.request.use(async (config) => {
   const authStore = useAuthStore();
 
@@ -34,15 +36,15 @@ authInstance.interceptors.request.use(async (config) => {
 let isRefreshing: boolean = false;
 let failedQueue: {
   resolve: (value?: unknown) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: unknown) => void;
 }[] = [];
 
-const processQueue = (error?: any) => {
+const processQueue = (error?: unknown) => {
   failedQueue.forEach((prom) => (error ? prom.reject(error) : prom.resolve()));
   failedQueue = [];
 };
 
-const SKIP_REFRESH = [{ url: `${API_ENDPOINTS.AUTH}/refresh` }];
+const SKIP_REFRESH = [{ url: API_ENDPOINTS.AUTH.REFRESH }];
 
 const shouldSkipRefresh = (error: any) =>
   !SKIP_REFRESH.some((skip) => skip.url === error?.config?.url);
@@ -58,6 +60,7 @@ authInstance.interceptors.response.use(
       error.config._retry = true;
 
       try {
+        // Avoid multiple simultaneous refresh attempts
         try {
           if (!isRefreshing) {
             isRefreshing = true;
