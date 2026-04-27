@@ -23,6 +23,10 @@ const useAuthStore = defineStore(
     // Controls global loading state during auth initiallization
     const isLoading = ref<boolean>(false);
 
+    const setLoading = (value: boolean) => {
+      isLoading.value = value;
+    };
+
     const {
       getCurrentAuth,
       loginUser,
@@ -133,6 +137,7 @@ const useAuthStore = defineStore(
       isLoading: readonly(isLoading),
       accessToken,
       refreshToken,
+      setLoading,
       resetTimer,
       cancelResetTimer,
       refreshAccessToken,

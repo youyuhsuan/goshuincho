@@ -33,6 +33,31 @@ const router = createRouter({
       meta: {
         fullscreen: true,
       },
+      beforeEnter: async (to) => {
+        const authStore = useAuthStore();
+        authStore.setLoading(true);
+
+        const code = to.query.code as string;
+        const state = to.query.state as string;
+        const errorParam = to.query.error as string;
+
+        try {
+          if (errorParam) throw new Error(`OAuth Error: ${errorParam}`);
+          if (!code || !state) throw new Error("Missing code or state");
+          if (state !== sessionStorage.getItem("oauth_state"))
+            throw new Error("Invalid state parameter");
+
+          sessionStorage.removeItem("oauth_state");
+          await authStore.oauth.processGoogleCallback(code);
+
+          authStore.setLoading(false);
+          return { path: ROUTE_CONFIGS.HOME };
+        } catch (error) {
+          console.error(error);
+          authStore.setLoading(false);
+          return { path: ROUTE_CONFIGS.HOME, hash: "#error=oauth_failed" };
+        }
+      },
     },
     {
       path: ROUTE_CONFIGS.SETTING,
