@@ -12,6 +12,7 @@ namespace backend.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<TokenBlacklist> TokenBlacklists => Set<TokenBlacklist>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<Shrine> Shrines => Set<Shrine>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -123,6 +124,73 @@ namespace backend.Data
                      entity.HasIndex(rt => rt.UserId);
                      entity.HasIndex(rt => rt.ExpiresAt);
                  });
+
+            modelBuilder.Entity<Shrine>(entity =>
+            {
+                entity.ToTable("Shrines");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasDefaultValueSql("NEWID()")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.Prefecture)
+                    .IsRequired(false)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.City)
+                    .IsRequired(false)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Region)
+                    .IsRequired(false)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Address)
+                    .IsRequired(false)
+                    .HasMaxLength(300);
+
+                entity.Property(e => e.Latitude)
+                    .IsRequired(false);
+
+                entity.Property(e => e.Longitude)
+                    .IsRequired(false);
+
+                entity.Property(e => e.EnshrineDeity)
+                    .IsRequired(false)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Founded)
+                    .IsRequired(false)
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.OpeningHours)
+                    .IsRequired(false)
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Website)
+                    .IsRequired(false)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.ImageUrl)
+                    .IsRequired(false)
+                    .HasMaxLength(500);
+
+                entity.Property(e => e.Category)
+                    .IsRequired(false);
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                // Index
+                entity.HasIndex(e => e.Prefecture);
+                entity.HasIndex(e => e.Name);
+            });
 
             base.OnModelCreating(modelBuilder);
         }
