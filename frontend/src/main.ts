@@ -56,7 +56,6 @@ const MyPreset = definePreset(Aura, {
   },
 });
 
-app.use(router);
 app.use(i18n);
 app.use(PrimeVue, {
   theme: {
@@ -70,5 +69,6 @@ app.use(ToastService);
 app.use(ConfirmationService);
 app.use(pinia);
 pinia.use(piniaPluginPersistedstate);
+app.use(router);
 
 app.mount("#app");
