@@ -26,8 +26,8 @@ const route = useRoute();
 const items = computed<MenuItem[]>(() => [
   {
     label: t("nav.about"),
-    command: () => router.push(ROUTE_CONFIGS.ABOUTE),
-    route: ROUTE_CONFIGS.ABOUTE,
+    command: () => router.push(ROUTE_CONFIGS.ABOUT),
+    route: ROUTE_CONFIGS.ABOUT,
   },
 ]);
 
