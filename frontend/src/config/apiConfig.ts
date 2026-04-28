@@ -31,4 +31,12 @@ export const API_ENDPOINTS = {
     TOKENS: "/api/oauth/tokens",
     // POST: Exchange authorization code for access token
   },
+  SHRINES: {
+    BASE: "/api/shrines",
+    // GET: /:id: Get specific shrine
+    SUGGESTIONS: "/api/shrines/suggestions",
+    // GET: Get shrine suggestions based on query
+    FEATURED: "/api/shrines/featured",
+    // GET: Get featured shrines for homepage
+  },
 } as const;
