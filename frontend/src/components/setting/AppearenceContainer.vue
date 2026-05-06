@@ -47,10 +47,9 @@ const languageOption = computed<LanguageOption[]>(() =>
           <Card
             class="h-full cursor-pointer overflow-hidden transition-shadow"
             :class="{
-              '!border-2 !border-primary':
-                settingStore.currentTheme === card.view,
+              '!border-2 !border-primary': settingStore.userTheme === card.view,
             }"
-            @click="settingStore.changeMode(card.view)"
+            @click="settingStore.changeThemeMode(card.view)"
           >
             <template #header>
               <div class="w-full h-32 md:h-40 bg-surface-100">
@@ -73,7 +72,7 @@ const languageOption = computed<LanguageOption[]>(() =>
           </Card>
           <RadioButton
             class="!absolute !right-2.5 !bottom-2.5"
-            v-model="settingStore.currentTheme"
+            v-model="settingStore.userTheme"
             :value="card.view"
           />
         </div>

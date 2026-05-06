@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted } from "vue";
+import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { RouterView, useRoute } from "vue-router";
 // Premevue
 import ProgressSpinner from "primevue/progressspinner";
@@ -41,9 +41,22 @@ const handleVisibilityChange = () => {
 // Debounce the timer reset to avoid firing excessively on high-frequency
 const debouncedResetTimer = debounce(authStore.resetTimer, 1000);
 
-const handleChange = (e: MediaQueryListEvent) => {
-  if (settingStore.currentTheme === "system") {
-    document.documentElement.classList.toggle("my-app-dark", e.matches);
+// Watch for changes in active theme and update DOM accordingly
+watch(
+  () => settingStore.activeTheme,
+  () => {
+    document.documentElement.classList.toggle(
+      "app-dark",
+      settingStore.shouldBeDark(),
+    );
+  },
+  { immediate: true },
+);
+
+// Sync system theme preference changes to DOM when user selects "system" mode
+const onSystemThemeChange = (e: MediaQueryListEvent) => {
+  if (settingStore.activeTheme === "system") {
+    document.documentElement.classList.toggle("app-dark", e.matches);
   }
 };
 
@@ -55,10 +68,10 @@ onMounted(() => {
   window.addEventListener("visibilitychange", handleVisibilityChange);
 
   // Apply the persisted theme on initial load so the UI reflects
-  settingStore.changeMode(settingStore.currentTheme);
+  settingStore.changeThemeMode(settingStore.userTheme);
   window
     .matchMedia("(prefers-color-scheme: dark)")
-    .addEventListener("change", handleChange);
+    .addEventListener("change", onSystemThemeChange);
 });
 
 // Clean up all event listeners and cancel any pending timer
@@ -71,7 +84,7 @@ onBeforeUnmount(() => {
 
   window
     .matchMedia("(prefers-color-scheme: dark)")
-    .removeEventListener("change", handleChange);
+    .removeEventListener("change", onSystemThemeChange);
 });
 </script>
 
@@ -86,10 +99,8 @@ onBeforeUnmount(() => {
 
   <!-- Main container -->
   <template v-else>
-    <template v-if="!isFullscreen">
-      <Toast />
-      <Menubar />
-    </template>
+    <Toast />
+    <Menubar />
 
     <div :class="isFullscreen ? 'min-h-screen' : 'min-h-screen flex flex-col'">
       <RouterView />

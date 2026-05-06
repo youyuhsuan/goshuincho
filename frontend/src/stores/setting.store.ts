@@ -5,29 +5,45 @@ import { defineStore } from "pinia";
 import { useI18n, type Locale } from "vue-i18n";
 // Type
 import type { theme } from "@/types/settingType";
+// Stores
+import useAuthStore from "@/stores/auth.store";
 
 const useSettingStore = defineStore(
   "setting",
   () => {
+    const authStore = useAuthStore();
     // Theme
-    const currentTheme = ref<theme>("system");
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    // LocalStorage user theme
+    const userTheme = ref<theme>("system");
 
-    const changeMode = (mode: theme) => {
-      currentTheme.value = mode;
+    // Computed active theme based on authentication state
+    const activeTheme = computed(() => {
+      if (authStore.isAuthenticated) {
+        return userTheme.value;
+      } else {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ===
+          true
+          ? "dark"
+          : "light";
+      }
+    });
 
-      const shouldBeDark = () => {
-        switch (currentTheme.value) {
-          case "light":
-            return false;
-          case "dark":
-            return true;
-          default:
-            return mediaQuery.matches;
-        }
-      };
+    // Determine if the theme should be dark based on activeTheme
+    const shouldBeDark = (): boolean => {
+      switch (activeTheme.value) {
+        case "light":
+          return false;
+        case "dark":
+          return true;
+        default:
+          return window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+    };
 
-      document.documentElement.classList.toggle("my-app-dark", shouldBeDark());
+    // Update user theme preference and sync DOM
+    const changeThemeMode = (mode: theme) => {
+      if (authStore.isAuthenticated) userTheme.value = mode;
+      document.documentElement.classList.toggle("app-dark", shouldBeDark());
     };
 
     // i18n
@@ -36,13 +52,20 @@ const useSettingStore = defineStore(
 
     const changeLanguage = () => (locale.value = currentLanguage.value);
 
-    return { currentTheme, changeMode, currentLanguage, changeLanguage };
+    return {
+      activeTheme,
+      userTheme,
+      shouldBeDark,
+      changeThemeMode,
+      currentLanguage,
+      changeLanguage,
+    };
   },
   {
     persist: [
       {
         key: "theme",
-        pick: ["currentTheme"],
+        pick: ["userTheme"],
         storage: localStorage,
       },
       {
