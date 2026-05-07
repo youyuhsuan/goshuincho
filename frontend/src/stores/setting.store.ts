@@ -12,6 +12,15 @@ const useSettingStore = defineStore(
   "setting",
   () => {
     const authStore = useAuthStore();
+    const cursor = ref<{
+      type: string;
+      size?: number;
+      color?: string;
+    }>({
+      type: "dot",
+      size: 1,
+      color: "var(--p-primary-500)",
+    });
     // Theme
     // LocalStorage user theme
     const userTheme = ref<theme>("system");
@@ -53,6 +62,7 @@ const useSettingStore = defineStore(
     const changeLanguage = () => (locale.value = currentLanguage.value);
 
     return {
+      cursor,
       activeTheme,
       userTheme,
       shouldBeDark,
