@@ -12,7 +12,7 @@ import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 import Avatar from "@/components/Avatar.vue";
 import Hamburger from "@/components/Menubar/Hamburger.vue";
 import ThemeToggle from "@/components/Menubar/ThemeToggle.vue";
-import MenuItem from "@/components/MenuItem.vue";
+import MenuItem from "@/components/Menubar/MenuItem.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 // Configs

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MenuItem } from "primevue/menuitem";
+
 defineProps<{ item: MenuItem }>();
 </script>
 

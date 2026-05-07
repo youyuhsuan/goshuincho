@@ -1,10 +1,9 @@
 <script setup lang="ts">
 // i18n
 import { useI18n } from "vue-i18n";
-
 // Components
-import DesktopNav from "@/components/DesktopNav.vue";
-import MobileNav from "@/components/MobileNav.vue";
+import DesktopNav from "@/components/Menubar/DesktopNav.vue";
+import MobileNav from "@/components/Menubar/MobileNav.vue";
 
 const { t } = useI18n();
 </script>

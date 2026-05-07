@@ -4,7 +4,7 @@ import { RouterView, useRoute } from "vue-router";
 // Premevue
 import ProgressSpinner from "primevue/progressspinner";
 // Components
-import Menubar from "@/components/Menubar.vue";
+import Menubar from "@/components/Menubar/Menubar.vue";
 import Footer from "@/components/Footer.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
