@@ -14,7 +14,7 @@ defineProps<{ item: MenuItem }>();
     <a
       :href="href"
       :class="[
-        'w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100 transition-colors',
+        'w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800 transition-colors',
         isActive && 'text-primary',
       ]"
       :aria-label="String(item.label)"
@@ -28,7 +28,7 @@ defineProps<{ item: MenuItem }>();
   <button
     v-else-if="item.command"
     :class="[
-      'w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100 transition-colors',
+      'w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800 transition-colors',
     ]"
     :aria-label="String(item.label)"
     @click="item?.command?.()"

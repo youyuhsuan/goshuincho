@@ -76,7 +76,7 @@ const cancelHidePopover = () => {
 
 <template>
   <nav
-    class="hidden md:flex items-center gap-4 text-sm text-gray-700 dark:text-gray-300 hover:opacity-80 dark:hover:text-slate-800 transition"
+    class="hidden md:flex items-center gap-4"
     :aria-label="t('nav.ariaLabel.desktop')"
   >
     <!-- Menu Items -->
@@ -84,7 +84,7 @@ const cancelHidePopover = () => {
       v-for="(item, index) in baseMenuItems"
       :key="index"
       :to="item.route"
-      class="px-4"
+      class="px-4 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800"
       :aria-label="item.label"
       v-ripple
     >
@@ -99,7 +99,7 @@ const cancelHidePopover = () => {
       <router-link
         :to="ROUTE_CONFIGS.AUTH"
         :aria-label="t('nav.ariaLabel.login')"
-        class="flex items-center gap-2 px-4"
+        class="flex items-center gap-2 px-4 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800"
         v-ripple
       >
         <i
