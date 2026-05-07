@@ -6,6 +6,7 @@ import ProgressSpinner from "primevue/progressspinner";
 // Components
 import Menubar from "@/components/Menubar/Menubar.vue";
 import Footer from "@/components/Footer.vue";
+import CustomCursor from "@/components/CustomCursor.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 import useSettingStore from "@/stores/setting.store";
@@ -89,6 +90,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <CustomCursor />
   <!-- Loading -->
   <div
     v-if="authStore.isLoading"
