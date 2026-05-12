@@ -17,6 +17,8 @@ import App from "@/App.vue";
 import router from "@/router";
 // Styles
 import "@/assets/main.css";
+//
+import vCursorHover from "@/directives/cursor";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -72,9 +74,7 @@ app.use(i18n);
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
-    options: {
-      darkModeSelector: ".my-app-dark",
-    },
+    options: {},
   },
 });
 app.use(ToastService);
@@ -83,4 +83,5 @@ app.use(pinia);
 pinia.use(piniaPluginPersistedstate);
 app.use(router);
 
+app.directive("cursor-hover", vCursorHover);
 app.mount("#app");
