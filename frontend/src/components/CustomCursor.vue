@@ -1,33 +1,24 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { computed } from "vue";
+// Store
 import useSettingStore from "@/stores/setting.store";
+// Composables
+import useMouse from "@/composables/useMouse";
 
 const settingStore = useSettingStore();
+const { x, y } = useMouse();
 
-// Track mouse position
-const x = ref<number>(0);
-const y = ref<number>(0);
-const onMove = (e: MouseEvent) => {
-  x.value = e.clientX;
-  y.value = e.clientY;
-};
-
-// Position the cursor wrapper at the mouse coordinates
 const wrapperStyle = computed(() => ({
   left: `${x.value}px`,
   top: `${y.value}px`,
 }));
 
-// Apply size via scale and color from store
 const dotStyle = computed(() => ({
   width: "1rem",
   height: "1rem",
   background: settingStore.cursor.color,
   transform: `scale(${settingStore.cursor.size})`,
 }));
-
-onMounted(() => window.addEventListener("mousemove", onMove));
-onUnmounted(() => window.removeEventListener("mousemove", onMove));
 </script>
 
 <template>
@@ -37,6 +28,13 @@ onUnmounted(() => window.removeEventListener("mousemove", onMove));
       <div
         v-if="settingStore.cursor.type === 'dot'"
         class="cursor-dot"
+        :style="dotStyle"
+      />
+
+      <!-- cursor stamp -->
+      <div
+        v-else-if="settingStore.cursor.type === 'stamp'"
+        class="cursor-stamp"
         :style="dotStyle"
       />
     </div>
@@ -53,6 +51,10 @@ onUnmounted(() => window.removeEventListener("mousemove", onMove));
 
 .cursor-dot {
   border-radius: 50%;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cursor-stamp {
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 </style>

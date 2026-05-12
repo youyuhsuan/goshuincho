@@ -7,6 +7,7 @@ import ProgressSpinner from "primevue/progressspinner";
 import Menubar from "@/components/Menubar/Menubar.vue";
 import Footer from "@/components/Footer.vue";
 import CustomCursor from "@/components/CustomCursor.vue";
+import StampImpression from "@/components/StampImpression.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 import useSettingStore from "@/stores/setting.store";
@@ -91,7 +92,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <!-- Cursor -->
   <CustomCursor />
+  <!-- StampImpression -->
+  <StampImpression />
   <!-- Loading -->
   <div
     v-if="loadingStore.isGlobalLoading"

@@ -16,10 +16,12 @@ const useSettingStore = defineStore(
       type: string;
       size?: number;
       color?: string;
+      clickId: number;
     }>({
       type: "dot",
       size: 1,
       color: "var(--p-primary-500)",
+      clickId: 0,
     });
     // Theme
     // LocalStorage user theme

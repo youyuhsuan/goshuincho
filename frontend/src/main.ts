@@ -17,8 +17,9 @@ import App from "@/App.vue";
 import router from "@/router";
 // Styles
 import "@/assets/main.css";
-//
+// Directives
 import vCursorHover from "@/directives/cursor";
+import vCursorStamp from "@/directives/stamp";
 
 const app = createApp(App);
 const pinia = createPinia();
@@ -113,4 +114,5 @@ pinia.use(piniaPluginPersistedstate);
 app.use(router);
 
 app.directive("cursor-hover", vCursorHover);
+app.directive("cursor-stamp", vCursorStamp);
 app.mount("#app");
