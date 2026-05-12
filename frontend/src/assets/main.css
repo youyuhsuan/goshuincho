@@ -1,2 +1,30 @@
 @import "tailwindcss";
 @import "tailwindcss-primeui";
+
+@custom-variant dark (&:where(.app-dark, .app-dark *));
+
+@theme {
+  --color-stone-50: #faf8f6;
+  --color-stone-100: #f3efeb;
+  --color-stone-200: #e8e2db;
+  --color-stone-300: #d4cbc1;
+  --color-stone-400: #b0a596;
+  --color-stone-500: #8a7e6f;
+  --color-stone-600: #6b6053;
+  --color-stone-700: #4a4239;
+  --color-stone-800: #302a24;
+  --color-stone-900: #1a1612;
+}
+
+.app-dark {
+  --color-stone-50: #0f0d0b;
+  --color-stone-100: #1a1612;
+  --color-stone-200: #252019;
+  --color-stone-300: #36302a;
+  --color-stone-400: #5a5248;
+  --color-stone-500: #7a7269;
+  --color-stone-600: #a09589;
+  --color-stone-700: #c4bab0;
+  --color-stone-800: #e0dad4;
+  --color-stone-900: #f5f2ef;
+}

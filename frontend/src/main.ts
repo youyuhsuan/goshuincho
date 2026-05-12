@@ -66,6 +66,33 @@ const MyPreset = definePreset(Aura, {
           900: "#1A1612",
         },
       },
+      dark: {
+        primary: {
+          "50": "#2A0C0A",
+          "100": "#3D1210",
+          "200": "#5C1E1A",
+          "300": "#8C2E26",
+          "400": "#C04438",
+          "500": "#E8533F",
+          "600": "#FF6E58",
+          "700": "#FF8C7A",
+          "800": "#FFAD9E",
+          "900": "#FFCFC8",
+          "950": "#FFE8E4",
+        },
+        stone: {
+          "50": "#0F0D0B",
+          "100": "#1A1612",
+          "200": "#252019",
+          "300": "#36302A",
+          "400": "#5A5248",
+          "500": "#7A7269",
+          "600": "#A09589",
+          "700": "#C4BAB0",
+          "800": "#E0DAD4",
+          "900": "#F5F2EF",
+        },
+      },
     },
   },
 });
@@ -74,7 +101,9 @@ app.use(i18n);
 app.use(PrimeVue, {
   theme: {
     preset: MyPreset,
-    options: {},
+    options: {
+      darkModeSelector: ".app-dark",
+    },
   },
 });
 app.use(ToastService);
