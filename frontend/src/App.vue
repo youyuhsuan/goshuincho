@@ -4,7 +4,7 @@ import { RouterView, useRoute } from "vue-router";
 // Premevue
 import ProgressSpinner from "primevue/progressspinner";
 // Components
-import Menubar from "@/components/Menubar/Menubar.vue";
+import Menubar from "@/components/menubar/Menubar.vue";
 import Footer from "@/components/Footer.vue";
 import CustomCursor from "@/components/CustomCursor.vue";
 import StampImpression from "@/components/StampImpression.vue";

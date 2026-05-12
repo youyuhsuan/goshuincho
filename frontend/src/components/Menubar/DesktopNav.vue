@@ -11,8 +11,8 @@ import "primeicons/primeicons.css";
 import type { MenuItem as PrimeMenuItem } from "primevue/menuitem";
 // Components
 import Avatar from "@/components/Avatar.vue";
-import ThemeToggle from "@/components/Menubar/ThemeToggle.vue";
-import MenuItem from "@/components/Menubar/MenuItem.vue";
+import ThemeToggle from "@/components/menubar/ThemeToggle.vue";
+import MenuItem from "@/components/menubar/MenuItem.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 // Configs
