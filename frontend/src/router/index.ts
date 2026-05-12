@@ -16,11 +16,13 @@ const router = createRouter({
       path: ROUTE_CONFIGS.HOME,
       name: "home",
       component: HomeView,
+      meta: { showLoading: true },
     },
     {
       path: ROUTE_CONFIGS.ABOUT,
       name: "about",
       component: AboutView,
+      meta: { showLoading: true },
     },
     {
       path: ROUTE_CONFIGS.AUTH,
@@ -78,6 +80,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from) => {
   const authStore = useAuthStore();
+  const loadingStore = useLoadingStore();
 
   // Restore authentication state if tokens exist, but user is not yet authentocated
   if (
@@ -95,6 +98,11 @@ router.beforeEach(async (to, from) => {
   // Redirect to home if user is already authenticated and tries to auth pag
   if (to.path === "/auth" && authStore.isAuthenticated) {
     return { path: "/" };
+  }
+
+  // Play intro animation once on first entry to Home or About
+  if (to.meta.showLoading) {
+    await loadingStore.playIntro();
   }
 });
 

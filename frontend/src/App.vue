@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { RouterView, useRoute } from "vue-router";
-// Premevue
-import ProgressSpinner from "primevue/progressspinner";
 // Components
+import LoadingView from "@/views/LoadingView.vue";
 import Menubar from "@/components/menubar/Menubar.vue";
 import Footer from "@/components/Footer.vue";
 import CustomCursor from "@/components/CustomCursor.vue";
@@ -96,22 +95,34 @@ onBeforeUnmount(() => {
   <CustomCursor />
   <!-- StampImpression -->
   <StampImpression />
+
   <!-- Loading -->
-  <div
-    v-if="loadingStore.isGlobalLoading"
-    class="flex items-center justify-center h-screen"
+  <Transition
+    leave-active-class="transition-opacity duration-500 ease-in-out"
+    leave-to-class="opacity-0"
   >
-    <ProgressSpinner aria-label="Loading" />
+    <LoadingView v-if="loadingStore.isGlobalLoading" />
+  </Transition>
+
+  <!-- Toast -->
+  <Toast />
+  <!-- Menubar -->
+  <Menubar v-show="!loadingStore.isGlobalLoading" />
+
+  <!-- View -->
+  <div :class="isFullscreen ? 'min-h-screen' : 'min-h-screen flex flex-col'">
+    <RouterView v-slot="{ Component }">
+      <Transition
+        mode="out-in"
+        enter-active-class="transition-opacity duration-500 ease-in-out"
+        enter-from-class="opacity-0"
+        leave-active-class="transition-opacity duration-300 ease-in-out"
+        leave-to-class="opacity-0"
+      >
+        <component :is="Component" :key="route.path" />
+      </Transition>
+    </RouterView>
+    <!-- Footer -->
+    <Footer v-show="!isFullscreen && !loadingStore.isGlobalLoading" />
   </div>
-
-  <!-- Main container -->
-  <template v-else>
-    <Toast />
-    <Menubar />
-
-    <div :class="isFullscreen ? 'min-h-screen' : 'min-h-screen flex flex-col'">
-      <RouterView />
-      <Footer v-if="!isFullscreen" />
-    </div>
-  </template>
 </template>
