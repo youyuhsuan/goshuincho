@@ -10,6 +10,7 @@ import CustomCursor from "@/components/CustomCursor.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
 import useSettingStore from "@/stores/setting.store";
+import useLoadingStore from "@/stores/loading.store";
 // Utils
 import debounce from "@/utils/debounce";
 
@@ -17,9 +18,9 @@ import debounce from "@/utils/debounce";
 const route = useRoute();
 const isFullscreen = computed(() => route.meta.fullscreen === true);
 
-// Controls the global loading state while auth is being initialized
 const authStore = useAuthStore();
 const settingStore = useSettingStore();
+const loadingStore = useLoadingStore();
 
 // A list of DOM events considered indicative of user activity
 const ACTIVITY_EVENTS = [
@@ -93,7 +94,7 @@ onBeforeUnmount(() => {
   <CustomCursor />
   <!-- Loading -->
   <div
-    v-if="authStore.isLoading"
+    v-if="loadingStore.isGlobalLoading"
     class="flex items-center justify-center h-screen"
   >
     <ProgressSpinner aria-label="Loading" />

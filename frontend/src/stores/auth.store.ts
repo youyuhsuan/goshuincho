@@ -6,6 +6,8 @@ import router from "@/router";
 // Composables
 import useApiAuth from "@/composables/api/useApiAuth";
 import useApiOAuth from "@/composables/api/useApiOAuth";
+// Stores
+import useLoadingStore from "@/stores/loading.store";
 // Type
 import type { Me } from "@/types/userType";
 import type { LoginRequest, TokenResponse } from "@/types/authType";
@@ -20,12 +22,7 @@ const useAuthStore = defineStore(
     const accessToken = ref<string | null>(null);
     const refreshToken = ref<string | null>(null);
 
-    // Controls global loading state during auth initiallization
-    const isLoading = ref<boolean>(false);
-
-    const setLoading = (value: boolean) => {
-      isLoading.value = value;
-    };
+    const loadingStore = useLoadingStore();
 
     const {
       getCurrentAuth,
@@ -99,18 +96,14 @@ const useAuthStore = defineStore(
 
     // Restore authenticated state on app startup using persisted tokens
     const initialize = async () => {
-      isLoading.value = true;
+      loadingStore.start();
       try {
-        if (!accessToken.value || !refreshToken.value) {
-          isLoading.value = false;
-          return;
-        }
+        if (!accessToken.value || !refreshToken.value) return;
 
-        // Verity token verify
         await getUser();
         isAuthenticated.value = true;
       } finally {
-        isLoading.value = false;
+        loadingStore.stop();
       }
     };
 
@@ -134,10 +127,8 @@ const useAuthStore = defineStore(
     return {
       user,
       isAuthenticated: readonly(isAuthenticated),
-      isLoading: readonly(isLoading),
       accessToken,
       refreshToken,
-      setLoading,
       resetTimer,
       cancelResetTimer,
       refreshAccessToken,

@@ -5,6 +5,7 @@ import AuthView from "@/views/AuthView.vue";
 import AboutView from "@/views/AboutView.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
+import useLoadingStore from "@/stores/loading.store";
 // Configs
 import ROUTE_CONFIGS from "@/config/routeConfig";
 
@@ -25,6 +26,9 @@ const router = createRouter({
       path: ROUTE_CONFIGS.AUTH,
       name: "auth",
       component: AuthView,
+      meta: {
+        fullscreen: true,
+      },
     },
     {
       path: ROUTE_CONFIGS.OAUTH,
@@ -35,7 +39,9 @@ const router = createRouter({
       },
       beforeEnter: async (to) => {
         const authStore = useAuthStore();
-        authStore.setLoading(true);
+
+        const loadingStore = useLoadingStore();
+        loadingStore.start();
 
         const code = to.query.code as string;
         const state = to.query.state as string;
@@ -50,12 +56,12 @@ const router = createRouter({
           sessionStorage.removeItem("oauth_state");
           await authStore.oauth.processGoogleCallback(code);
 
-          authStore.setLoading(false);
           return { path: ROUTE_CONFIGS.HOME };
         } catch (error) {
           console.error(error);
-          authStore.setLoading(false);
           return { path: ROUTE_CONFIGS.HOME, hash: "#error=oauth_failed" };
+        } finally {
+          loadingStore.stop();
         }
       },
     },
