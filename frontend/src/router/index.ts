@@ -28,9 +28,6 @@ const router = createRouter({
       path: ROUTE_CONFIGS.AUTH,
       name: "auth",
       component: AuthView,
-      meta: {
-        fullscreen: true,
-      },
     },
     {
       path: ROUTE_CONFIGS.OAUTH,
