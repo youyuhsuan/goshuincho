@@ -87,12 +87,13 @@ const cancelHidePopover = () => {
       class="px-4 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800"
       :aria-label="item.label"
       v-ripple
+      v-cursor-hover
     >
       {{ item.label }}
     </router-link>
 
     <!-- Theme Toggle -->
-    <ThemeToggle />
+    <ThemeToggle v-cursor-hover />
 
     <!-- Login Button -->
     <template v-if="!authStore.isAuthenticated">
@@ -101,6 +102,7 @@ const cancelHidePopover = () => {
         :aria-label="t('nav.ariaLabel.login')"
         class="flex items-center gap-2 px-4 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800"
         v-ripple
+        v-cursor-hover
       >
         <i
           class="pi pi-user leading-none transition-colors"

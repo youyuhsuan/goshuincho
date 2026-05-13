@@ -15,6 +15,7 @@ const { t } = useI18n();
   >
     <!-- Logo -->
     <router-link
+      v-cursor-hover
       to="/"
       class="font-bold text-xl text-gray-900 dark:text-white hover:opacity-80 transition"
     >
@@ -31,5 +32,20 @@ const { t } = useI18n();
 <style scoped>
 header {
   transition: background-color 0.3s ease;
+  animation: shrine-descent 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0s both;
+}
+
+@keyframes shrine-descent {
+  0% {
+    opacity: 0;
+    transform: translateY(-120px);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
