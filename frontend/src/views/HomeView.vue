@@ -22,13 +22,13 @@ const router = useRouter();
 const { getFeaturedShrines } = useApiShrines();
 
 const featuredTodayShrines = ref<Shrine[]>([]);
-const featuredLoad = useAsyncState(() =>
+const featuredLoad = useAsyncState<Shrine[], []>(() =>
   getFeaturedShrines().then((r) => r.data),
 );
 
 onMounted(async () => {
   await featuredLoad.execute();
-  featuredTodayShrines.value = featuredLoad.data.value || [];
+  featuredTodayShrines.value = featuredLoad.data.value;
 });
 </script>
 
@@ -36,18 +36,16 @@ onMounted(async () => {
   <main class="w-full bg-stone-50 relative" aria-label="homepage">
     <!-- Hero section -->
     <section
-      class="w-full flex flex-col justify-center h-full gap-3 px-6 md:px-16 lg:px-32 z-10"
-      style="height: min(70dvh, 640px)"
+      class="w-full h-dvh flex flex-col justify-center gap-3 px-6 md:px-16 lg:px-32 z-10"
       :aria-label="t('home.ariaLabel.heroSection')"
     >
-      <!-- Title brush-reveal -->
+      <!-- Hero content -->
       <h1
         class="title-reveal text-8xl md:text-6xl tracking-0.5 text-primary-500 font-bold"
         v-cursor-hover
       >
         {{ t("common.title") }}
       </h1>
-
       <p
         class="subtitle-reveal text-sm md:text-base text-stone-400 tracking-wider"
       >
@@ -55,7 +53,7 @@ onMounted(async () => {
       </p>
 
       <!-- Search bar -->
-      <SearchBar class="search-reveal !w-full" />
+      <SearchBar class="search-reveal w-full" />
     </section>
 
     <!-- TwelvePetalFlower section -->
@@ -75,39 +73,34 @@ onMounted(async () => {
       class="my-16 md:my-20 px-6 md:px-16 lg:px-32"
       :aria-label="t('home.ariaLabel.featuredtodaySection')"
     >
-      <!-- Section header -->
-      <div
-        class="mb-10 flex items-end justify-between flex-wrap gap-4 relative z-10"
-      >
-        <div class="">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="h-px w-6 bg-primary-400" />
-            <span
-              class="text-xs tracking-[0.25em] text-primary-500 uppercase font-medium"
-            >
-              {{ t("home.featuredToday.title") }}
-            </span>
-          </div>
-          <h2
-            class="text-2xl md:text-3xl font-light tracking-wider text-stone-700 mb-2"
+      <div class="mb-10 flex flex-col z-10">
+        <div class="flex items-center gap-3 mb-3">
+          <span class="h-px w-6 bg-primary-400" />
+          <span
+            class="text-xs tracking-[0.25em] text-primary-500 uppercase font-medium"
           >
             {{ t("home.featuredToday.title") }}
-          </h2>
-          <p class="text-sm text-stone-400 tracking-wide">
-            {{ t("home.featuredToday.description") }}
-          </p>
+          </span>
         </div>
+        <h2
+          class="text-2xl md:text-3xl font-light tracking-wider text-stone-700 mb-2"
+        >
+          {{ t("home.featuredToday.title") }}
+        </h2>
+        <p class="text-sm text-stone-400 tracking-wide">
+          {{ t("home.featuredToday.description") }}
+        </p>
       </div>
 
-      <!-- Loading skeleton -->
+      <!-- Shrine cards loading skeleton-->
       <div
         v-if="featuredLoad.isLoading.value"
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
       >
         <div v-for="n in 3" :key="n" class="flex flex-col">
-          <Skeleton class="mb-4 !rounded-lg" height="17rem" />
-          <Skeleton class="mb-2 !rounded" height="1.25rem" width="60%" />
-          <Skeleton class="!rounded" height="0.875rem" width="40%" />
+          <Skeleton class="mb-4" height="17rem" />
+          <Skeleton class="mb-2" height="1.25rem" width="60%" />
+          <Skeleton height="0.875rem" width="40%" />
         </div>
       </div>
 
@@ -135,9 +128,7 @@ onMounted(async () => {
           v-cursor-hover
         >
           <!-- Image -->
-          <div
-            class="relative h-64 bg-stone-100 rounded-lg overflow-hidden mb-4"
-          >
+          <div class="relative h-64 bg-stone-100 overflow-hidden mb-4">
             <img
               v-if="shrine.imageUrl"
               class="w-full h-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-105"
