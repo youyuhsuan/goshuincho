@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import AutoComplete from "primevue/autocomplete";
 // Router
-import { useRouter } from "vue-router";
+import { useRouter, type LocationQueryRaw } from "vue-router";
+// Primevue
+import AutoComplete from "primevue/autocomplete";
 // Composables
 import useAsyncState from "@/composables/useAsyncState";
 import useApiShrines from "@/composables/api/useApiShrines";
@@ -14,6 +15,7 @@ import type { SuggestionShrine } from "@/types/shrinesType";
 import ROUTE_CONFIGS from "@/config/routeConfig";
 // Utils
 import filterNullish from "@/utils/filterNullish";
+import debounce from "@/utils/debounce";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -48,37 +50,30 @@ const getUserLocation = () => {
 };
 
 // Store for shrine suggestions fetched from API
-const suggestionShrines = ref<SuggestionShrine[]>([]);
 const suggest = useAsyncState<SuggestionShrine[], []>(() =>
   getShrineSuggestions(keyword.value.shrine).then((r) => r.data),
 );
 
 // Fetch shrine suggestions based on user input
-const onSearchShrineSuggestions = async () => {
+const debouncedExecute = debounce(suggest.execute);
+const onSearchShrineSuggestions = () => {
   if (!keyword.value.shrine) return;
-  await suggest.execute();
-  suggestionShrines.value = suggest.data.value;
-};
-
-// Navigate to search results page with query parameters
-const navigateToSearch = () => {
-  const query: Record<string, string> = filterNullish({
-    shrine: keyword.value.shrine,
-    location: keyword.value.location,
-    latitude: location.value?.latitude
-      ? String(location.value.latitude)
-      : undefined,
-    longitude: location.value?.longitude
-      ? String(location.value.longitude)
-      : undefined,
-  });
-
-  router.push({ path: ROUTE_CONFIGS.SHRINES, query });
+  debouncedExecute();
 };
 
 const onSelectSuggestion = (event: { value: SuggestionShrine }) => {
   keyword.value.shrine = event.value.name;
-  navigateToSearch();
+};
+
+// Navigate to search results page with query parameters
+const navigateToSearch = () => {
+  const query = filterNullish({
+    shrine: keyword.value.shrine || undefined,
+    latitude: location.value?.latitude,
+    longitude: location.value?.longitude,
+    page: 1,
+  });
+  router.push({ path: ROUTE_CONFIGS.SEARCH, query: query as LocationQueryRaw });
 };
 </script>
 
@@ -122,10 +117,9 @@ const onSelectSuggestion = (event: { value: SuggestionShrine }) => {
       }"
       optionLabel="name"
       :placeholder="t('home.placeholder.shrine')"
-      :suggestions="suggestionShrines"
+      :suggestions="suggest.data.value ?? []"
       @complete="onSearchShrineSuggestions"
       @option-select="onSelectSuggestion"
-      @keydown.enter="navigateToSearch"
     />
 
     <!-- Search button -->
