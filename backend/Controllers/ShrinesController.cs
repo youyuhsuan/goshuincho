@@ -21,8 +21,8 @@ namespace backend.Controllers
             _logger = logger;
         }
 
-        /// GET: api/shrines/suggestions?keyword=
         /// <summary>
+        /// GET: api/shrines/suggestions?keyword=
         /// Get shrine name suggestions for autocomplete
         /// </summary>
         /// <response code="200">Returns shrine suggestions</response>
@@ -35,14 +35,18 @@ namespace backend.Controllers
             [FromQuery] string keyword)
         {
             if (string.IsNullOrWhiteSpace(keyword))
+            {
+                _logger.LogWarning("GetSuggestions called with empty keyword");
                 return BadRequest("keyword is required");
+            }
 
+            _logger.LogInformation("Shrine suggestions requested for keyword: {Keyword}", keyword);
             var suggestions = await _shrineService.GetSuggestionsByKeywordAsync(keyword);
             return Ok(suggestions);
         }
 
-        /// GET: api/shrines/featured
         /// <summary>
+        /// GET: api/shrines/featured
         /// Get featured today shrines for homepage
         /// </summary>
         /// <response code="200">Returns featured shrines</response>
@@ -51,22 +55,32 @@ namespace backend.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ShrineDto>>> GetFeaturedShrines()
         {
+            _logger.LogInformation("Featured shrines requested");
             var shrines = await _shrineService.GetFeaturedAsync();
             return Ok(shrines);
         }
 
-
-        /// GET: api/shrines?shrine=&location=
         /// <summary>
-        /// Search shrines by keyword and location
+        /// POST: api/shrines
+        /// Search shrines by name and location
         /// </summary>
         /// <response code="200">Returns search results</response>
         [ProducesResponseType(typeof(IEnumerable<ShrineDto>), StatusCodes.Status200OK)]
         [HttpPost]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ShrineDto>>> GetShrines(
-            [FromQuery] ShrineSearchRequest request)
+            [FromBody] ShrineSearchRequest? request)
         {
+            if (request == null)
+            {
+                _logger.LogWarning("GetShrines called with null request body, using empty params");
+                request = new ShrineSearchRequest();
+            }
+
+            _logger.LogInformation(
+                "Shrine search requested: shrine={Shrine}, location={Location}",
+                request.Shrine, request.Location);
+
             var shrines = await _shrineService.GetShrinesAsync(request);
             return Ok(shrines);
         }
