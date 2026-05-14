@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using backend.DTOs;
 using backend.Services;
 using backend.DTOs.Requests;
@@ -62,9 +63,9 @@ namespace backend.Controllers
 
         /// <summary>
         /// POST: api/shrines
-        /// Search shrines by name and location
+        /// Search shrines by name
         /// </summary>
-        /// <response code="200">Returns search results</response>
+        /// <response code="200">Returns search results with pagination headers</response>
         [ProducesResponseType(typeof(IEnumerable<ShrineDto>), StatusCodes.Status200OK)]
         [HttpPost]
         [AllowAnonymous]
@@ -78,11 +79,21 @@ namespace backend.Controllers
             }
 
             _logger.LogInformation(
-                "Shrine search requested: shrine={Shrine}, location={Location}",
-                request.Shrine, request.Location);
+                "Shrine search requested: shrine={Shrine}, page={Page}",
+                request.Shrine, request.Page);
 
-            var shrines = await _shrineService.GetShrinesAsync(request);
-            return Ok(shrines);
+            var result = await _shrineService.GetShrinesAsync(request);
+
+            var paginationMeta = new
+            {
+                totalPages = result.TotalPages,
+                currentPage = result.CurrentPage,
+                hasNextPage = result.NextPage.HasValue,
+                hasPreviousPage = result.PreviousPage.HasValue,
+            };
+            Response.Headers["X-Pagination"] = JsonSerializer.Serialize(paginationMeta);
+
+            return Ok(result.Items);
         }
     }
 }

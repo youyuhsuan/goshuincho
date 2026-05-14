@@ -8,7 +8,7 @@ namespace backend.Services
     {
         Task<IEnumerable<ShrineSuggestionDto>> GetSuggestionsByKeywordAsync(string keyword);
         Task<IEnumerable<ShrineDto>> GetFeaturedAsync();
-        Task<IEnumerable<ShrineDto>> GetShrinesAsync(ShrineSearchRequest request);
+        Task<PagedResult<ShrineDto>> GetShrinesAsync(ShrineSearchRequest request);
 
     }
 }
