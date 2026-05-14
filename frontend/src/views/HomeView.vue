@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 // Router
 import { useRouter } from "vue-router";
@@ -21,14 +21,12 @@ const { t } = useI18n();
 const router = useRouter();
 const { getFeaturedShrines } = useApiShrines();
 
-const featuredTodayShrines = ref<Shrine[]>([]);
-const featuredLoad = useAsyncState<Shrine[], []>(() =>
-  getFeaturedShrines().then((r) => r.data),
+const featuredShrines = useAsyncState<Shrine[], []>(
+  async () => await getFeaturedShrines().then((r) => r.data),
 );
 
 onMounted(async () => {
-  await featuredLoad.execute();
-  featuredTodayShrines.value = featuredLoad.data.value;
+  await featuredShrines.execute();
 });
 </script>
 
@@ -94,7 +92,7 @@ onMounted(async () => {
 
       <!-- Shrine cards loading skeleton-->
       <div
-        v-if="featuredLoad.isLoading.value"
+        v-if="featuredShrines.isLoading.value"
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
       >
         <div v-for="n in 3" :key="n" class="flex flex-col">
@@ -111,7 +109,7 @@ onMounted(async () => {
       >
         <!-- Empty state -->
         <div
-          v-if="featuredTodayShrines.length === 0"
+          v-if="!featuredShrines.data.value?.length"
           class="col-span-full flex flex-col items-center justify-center py-24 text-stone-300"
         >
           <i class="pi pi-inbox text-5xl mb-4 opacity-50" />
@@ -119,7 +117,7 @@ onMounted(async () => {
         </div>
 
         <article
-          v-for="shrine in featuredTodayShrines"
+          v-for="shrine in featuredShrines.data.value ?? []"
           :key="shrine.id"
           class="flex flex-col cursor-pointer group outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-4 rounded-lg"
           tabindex="0"
