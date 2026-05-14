@@ -19,7 +19,7 @@ interface UseAsyncStateOptions {
 }
 
 const useAsyncState = <T, A extends unknown[]>(
-  asyncFunction: (...args: A[]) => Promise<T>,
+  asyncFunction: (...args: A) => Promise<T>,
   options?: UseAsyncStateOptions,
 ) => {
   const data = ref<T | null>(null);
@@ -32,7 +32,7 @@ const useAsyncState = <T, A extends unknown[]>(
   const { showError, showSuccess } = useMessage();
 
   // Wraps the async function with loading and error handling
-  const execute = async (...args: A[]): Promise<void | null> => {
+  const execute = async (...args: A): Promise<void | null> => {
     isLoading.value = true;
     error.value = null;
 
