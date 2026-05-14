@@ -1,7 +1,7 @@
-const debounce = <T extends (...args: any[]) => any>(
+const debounce = <T extends (...args: unknown[]) => unknown>(
   fnc: T,
   delay: number = 500,
-) => {
+): ((...args: Parameters<T>) => void) => {
   let timer: ReturnType<typeof setTimeout> | null = null;
 
   return (...arg: Parameters<T>) => {
