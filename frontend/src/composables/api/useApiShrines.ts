@@ -22,9 +22,7 @@ const useApiShrines = () => {
 
   // Get shrines with optional query parameters
   const getShrines = (params: SearchShrinesParams) =>
-    instance.post<Shrine[]>(`${API_ENDPOINTS.SHRINES.BASE}`, {
-      params,
-    });
+    instance.post<Shrine[]>(`${API_ENDPOINTS.SHRINES.BASE}`, params);
 
   return { getShrineSuggestions, getFeaturedShrines, getShrines };
 };
