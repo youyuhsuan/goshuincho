@@ -53,11 +53,16 @@ const userMenuItems = computed<PrimeMenuItem[]>(() => [
   },
 ]);
 
-// Show user profile popover, Cancels any pending hide timers to prevent menu flickering
-const showPopover = (event: MouseEvent) => {
+const openPopover = (event: MouseEvent) => {
   if (!vAuthPopover.value) return;
   cancelHidePopover();
-  vAuthPopover.value?.toggle(event);
+  vAuthPopover.value.show(event);
+};
+
+const togglePopover = (event: MouseEvent) => {
+  if (!vAuthPopover.value) return;
+  cancelHidePopover();
+  vAuthPopover.value.toggle(event);
 };
 
 // Hide user profile popover with delay, Uses setTimeout to allow user to move mouse to popover without it closing
@@ -115,8 +120,8 @@ const cancelHidePopover = () => {
     <!-- User Avatar -->
     <template v-else>
       <div
-        @click="showPopover"
-        @mouseenter="showPopover"
+        @click="togglePopover"
+        @mouseenter="openPopover"
         @mouseleave="hidePopover"
         role="button"
         :aria-label="t('nav.ariaLabel.userMenu')"
