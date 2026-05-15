@@ -31,7 +31,7 @@ defineProps<{ item: MenuItem }>();
       'w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 transition hover:opacity-80 dark:hover:text-slate-800 transition-colors',
     ]"
     :aria-label="String(item.label)"
-    @click="item?.command?.()"
+    @click="(e) => item?.command?.({ originalEvent: e, item })"
   >
     <i v-if="item.icon" :class="item.icon" />
     <span>{{ item.label }}</span>
