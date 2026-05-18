@@ -186,6 +186,22 @@ namespace backend.Controllers
             return Ok();
         }
 
+        /// POST: api/auth/reset-password
+        /// <summary>
+        /// Reset password using a valid token
+        /// </summary>
+        /// <response code="204">Password reset successfully</response>
+        /// <response code="400">Validation failed</response>
+        /// <response code="422">Token is invalid or expired</response>
+        [HttpPost("reset-password")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(Dictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status422UnprocessableEntity)]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            await _userService.ResetPasswordAsync(request.Token, request.NewPassword);
+            return NoContent();
+        }
 
         /// POST: api/auth/refresh
         /// <summary>

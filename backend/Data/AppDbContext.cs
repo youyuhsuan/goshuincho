@@ -12,6 +12,7 @@ namespace backend.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<TokenBlacklist> TokenBlacklists => Set<TokenBlacklist>();
         public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
         public DbSet<Shrine> Shrines => Set<Shrine>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -124,6 +125,35 @@ namespace backend.Data
                      entity.HasIndex(rt => rt.UserId);
                      entity.HasIndex(rt => rt.ExpiresAt);
                  });
+
+            modelBuilder.Entity<PasswordResetToken>(entity =>
+            {
+                entity.ToTable("PasswordResetTokens");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                    .HasDefaultValueSql("NEWID()")
+                    .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.TokenHash)
+                    .IsRequired()
+                    .HasMaxLength(512);
+
+                entity.Property(e => e.ExpiresAt)
+                    .IsRequired();
+
+                entity.Property(e => e.CreatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.User)
+                    .WithMany()
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.TokenHash).IsUnique();
+                entity.HasIndex(e => e.UserId);
+            });
 
             modelBuilder.Entity<Shrine>(entity =>
             {

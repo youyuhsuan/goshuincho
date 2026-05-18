@@ -172,11 +172,25 @@ namespace backend.Services
             await _context.SaveChangesAsync();
 
             var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5173";
-            var resetUrl = $"{frontendBaseUrl}/reset-password?token={Uri.EscapeDataString(rawToken)}";
+            var resetUrl = $"{frontendBaseUrl}/auth/reset-password?token={Uri.EscapeDataString(rawToken)}";
             await _emailService.SendPasswordResetEmailAsync(user.Email, resetUrl);
         }
 
+        public async Task ResetPasswordAsync(string token, string newPassword)
+        {
+            var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
+            var record = await _context.PasswordResetTokens
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.TokenHash == tokenHash);
+
+            if (record == null || record.ExpiresAt < DateTime.UtcNow)
+                throw new UnprocessableContent("Password reset token is invalid or has expired.");
+
+            record.User!.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            _context.PasswordResetTokens.Remove(record);
+            await _context.SaveChangesAsync();
+        }
 
         // Validate user credentials for login
         public async Task<UserDto> ValidateCredentialsAsync(LoginRequest request)

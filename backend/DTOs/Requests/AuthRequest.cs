@@ -42,5 +42,16 @@ namespace backend.DTOs.Requests
         public string Email { get; set; } = string.Empty;
     }
 
+    public class ResetPasswordRequest
+    {
+        [Required]
+        public string Token { get; set; } = string.Empty;
 
+        [Required]
+        [MinLength(6)]
+        [MaxLength(500)]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$",
+            ErrorMessage = "Password must contain at least one lowercase letter, one uppercase letter, and one number.")]
+        public string NewPassword { get; set; } = string.Empty;
+    }
 }
