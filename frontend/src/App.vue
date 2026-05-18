@@ -119,7 +119,10 @@ onBeforeUnmount(() => {
         leave-active-class="transition-opacity duration-300 ease-in-out"
         leave-to-class="opacity-0"
       >
-        <component :is="Component" :key="route.path" />
+        <component
+          :is="Component"
+          :key="route.matched[0]?.path ?? route.path"
+        />
       </Transition>
     </RouterView>
     <!-- Footer -->
