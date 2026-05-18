@@ -92,10 +92,15 @@ const router = createRouter({
         requiresAuth: true,
       },
     },
+    {
+      path: ROUTE_CONFIGS.SEARCH,
+      name: "search",
+      component: () => import("@/views/SearchView.vue"),
+    },
   ],
 });
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
   const loadingStore = useLoadingStore();
 

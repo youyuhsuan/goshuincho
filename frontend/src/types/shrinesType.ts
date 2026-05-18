@@ -4,10 +4,9 @@ export interface SuggestionShrine {
 
 export interface SearchShrinesParams {
   shrine?: string;
-  location?: string;
   latitude?: number;
   longitude?: number;
-  cursor?: string;
+  page?: number;
   pageSize?: number;
 }
 
