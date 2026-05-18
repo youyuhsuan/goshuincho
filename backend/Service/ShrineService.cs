@@ -17,21 +17,18 @@ namespace backend.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<ShrineSuggestionDto>> GetSuggestionsByKeywordAsync(string keyword)
+        public async Task<IEnumerable<ShrineSuggestionDto>> GetSuggestionsByKeywordAsync(
+            string keyword, string locale = "en")
         {
-            return await _context.Shrines
-                .Where(s =>
-                    s.Name.Contains(keyword))
-                .OrderBy(s => s.Name.StartsWith(keyword) ? 0 : 1)
+            return await _context.ShrineTranslations
+                .Where(t => t.Locale == locale && t.Name.Contains(keyword))
+                .OrderBy(t => t.Name.StartsWith(keyword) ? 0 : 1)
                 .Take(6)
-                .Select(s => new ShrineSuggestionDto
-                {
-                    Name = s.Name,
-                })
+                .Select(t => new ShrineSuggestionDto { Name = t.Name })
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<ShrineDto>> GetFeaturedAsync()
+        public async Task<IEnumerable<ShrineDto>> GetFeaturedAsync(string locale = "en")
         {
             return await _context.Shrines
                 .OrderBy(s => Guid.NewGuid())
@@ -39,16 +36,29 @@ namespace backend.Services
                 .Select(s => new ShrineDto
                 {
                     Id = s.Id,
-                    Name = s.Name,
-                    ImageUrl = s.ImageUrl ?? string.Empty,
-                    Prefecture = s.Prefecture ?? string.Empty,
-                    City = s.City ?? string.Empty,
-                    Region = s.Region ?? string.Empty,
-                }).ToListAsync();
+                    Name = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Name)
+                        .FirstOrDefault() ?? string.Empty,
+                    Prefecture = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Prefecture)
+                        .FirstOrDefault() ?? string.Empty,
+                    City = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.City)
+                        .FirstOrDefault() ?? string.Empty,
+                    Region = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Region)
+                        .FirstOrDefault() ?? string.Empty,
+                })
+                .ToListAsync();
         }
 
         public async Task<PagedResult<ShrineDto>> GetShrinesAsync(ShrineSearchRequest request)
         {
+            string locale = request.Locale;
             int pageSize = Math.Clamp(request.PageSize, 1, 50);
             int currentPage = Math.Max(1, request.Page);
             int offset = (currentPage - 1) * pageSize;
@@ -56,39 +66,53 @@ namespace backend.Services
             var baseQuery = _context.Shrines.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Shrine))
-                baseQuery = baseQuery.Where(s => s.Name.Contains(request.Shrine));
+            {
+                var matchingIds = _context.ShrineTranslations
+                    .Where(t => t.Locale == locale && t.Name.Contains(request.Shrine))
+                    .Select(t => t.ShrineId);
+
+                baseQuery = baseQuery.Where(s => matchingIds.Contains(s.Id));
+            }
 
             if (request.Latitude.HasValue && request.Longitude.HasValue)
             {
                 double lat = request.Latitude.Value;
                 double lon = request.Longitude.Value;
 
-                // Pass 1: fetch only Id + coords within bounding box (dynamic radius)
                 var candidates = await FetchCandidatesWithDynamicRadiusAsync(baseQuery, lat, lon);
 
-                // Sort by exact Haversine distance in memory, then paginate
                 var sorted = candidates
                     .OrderBy(c => HaversineDistanceKm(lat, lon, c.Lat, c.Lon))
                     .ToList();
 
                 var pageItems = sorted.Skip(offset).Take(pageSize).ToList();
 
-                // Pass 2: fetch full data only for the paged IDs
                 var ids = pageItems.Select(c => c.Id).ToList();
                 var shrines = await _context.Shrines
                     .Where(s => ids.Contains(s.Id))
                     .Select(s => new ShrineDto
                     {
                         Id = s.Id,
-                        Name = s.Name,
-                        ImageUrl = s.ImageUrl ?? string.Empty,
-                        Prefecture = s.Prefecture ?? string.Empty,
-                        City = s.City ?? string.Empty,
-                        Region = s.Region ?? string.Empty,
+                        Name = s.Translations
+                            .Where(t => t.Locale == locale)
+                            .Select(t => t.Name)
+                            .FirstOrDefault() ?? string.Empty,
+                        Prefecture = s.Translations
+                            .Where(t => t.Locale == locale)
+                            .Select(t => t.Prefecture)
+                            .FirstOrDefault() ?? string.Empty,
+                        City = s.Translations
+                            .Where(t => t.Locale == locale)
+                            .Select(t => t.City)
+                            .FirstOrDefault() ?? string.Empty,
+                        Region = s.Translations
+                            .Where(t => t.Locale == locale)
+                            .Select(t => t.Region)
+                            .FirstOrDefault() ?? string.Empty,
                     })
+                    .Take(6)
                     .ToListAsync();
 
-                // Preserve distance order from Pass 1
                 var ordered = ids
                     .Select(id => shrines.First(s => s.Id == id))
                     .ToList();
@@ -104,17 +128,28 @@ namespace backend.Services
 
             var total = await baseQuery.CountAsync();
             var items = await baseQuery
-                .OrderBy(s => s.Name)
+                .OrderBy(s => s.CreatedAt)
                 .Skip(offset)
                 .Take(pageSize)
                 .Select(s => new ShrineDto
                 {
                     Id = s.Id,
-                    Name = s.Name,
-                    ImageUrl = s.ImageUrl ?? string.Empty,
-                    Prefecture = s.Prefecture ?? string.Empty,
-                    City = s.City ?? string.Empty,
-                    Region = s.Region ?? string.Empty,
+                    Name = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Name)
+                        .FirstOrDefault() ?? string.Empty,
+                    Prefecture = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Prefecture)
+                        .FirstOrDefault() ?? string.Empty,
+                    City = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.City)
+                        .FirstOrDefault() ?? string.Empty,
+                    Region = s.Translations
+                        .Where(t => t.Locale == locale)
+                        .Select(t => t.Region)
+                        .FirstOrDefault() ?? string.Empty,
                 })
                 .ToListAsync();
 
