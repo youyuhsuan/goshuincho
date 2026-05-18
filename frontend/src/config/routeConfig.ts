@@ -4,6 +4,7 @@ const ROUTE_CONFIGS = {
   AUTH: "/auth",
   AUTH_LOGIN: "/auth/login",
   AUTH_REGISTER: "/auth/register",
+  AUTH_FORGOT_PASSWORD: "/auth/forgot-password",
   OAUTH: "/oauth/callback",
   SETTING: "/settings",
   SHRINES: "/shrines",

@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
     // POST: Logout current user
     REFRESH: "/api/auth/refresh",
     // POST: Issue a new Access Token using a valid Refresh Token
+    FORGOT_PASSWORD: "/api/auth/forgot-password",
+    // POST: Request a password reset email
   },
 
   // OAuth Resource

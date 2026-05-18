@@ -25,7 +25,7 @@ const router = createRouter({
     {
       path: ROUTE_CONFIGS.AUTH,
       component: AuthView,
-      redirect: ROUTE_CONFIGS.AUTH,
+      redirect: ROUTE_CONFIGS.AUTH_LOGIN,
       children: [
         {
           path: "login",
@@ -36,6 +36,11 @@ const router = createRouter({
           path: "register",
           name: "register",
           component: () => import("@/views/auth/AuthRegisterView.vue"),
+        },
+        {
+          path: "forgot-password",
+          name: "forgotPassword",
+          component: () => import("@/views/auth/ForgotPasswordView.vue"),
         },
       ],
     },

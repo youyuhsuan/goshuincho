@@ -32,12 +32,16 @@ const useApiAuth = () => {
       refreshToken: useAuthStore().refreshToken,
     });
 
+  const forgotPassword = (email: string) =>
+    instance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
+
   return {
     getCurrentAuth,
     loginUser,
     registerUser,
     logoutUser,
     refreshAccessToken,
+    forgotPassword,
   };
 };
 

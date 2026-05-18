@@ -17,7 +17,7 @@ import ROUTE_CONFIGS from "@/config/routeConfig";
     <!-- Form -->
     <RegisterForm class="mb-4" />
 
-    <div class="text-sm mb-6">
+    <div class="w-full text-sm mb-6">
       <span class="text-gray-600">{{ $t("auth.register.question") }}</span>
       <RouterLink
         :to="ROUTE_CONFIGS.AUTH_LOGIN"
