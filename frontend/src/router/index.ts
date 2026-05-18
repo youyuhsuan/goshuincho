@@ -42,6 +42,11 @@ const router = createRouter({
           name: "forgotPassword",
           component: () => import("@/views/auth/ForgotPasswordView.vue"),
         },
+        {
+          path: "reset-password",
+          name: "resetPassword",
+          component: () => import("@/views/auth/ResetPasswordView.vue"),
+        },
       ],
     },
     {
@@ -109,7 +114,11 @@ router.beforeEach(async (to, from) => {
 
   // Redirect to home if user is already authenticated and tries to access auth pages
   // Allow reset-password even when authenticated (email link may be clicked while logged in)
-  if (to.path.startsWith("/auth") && authStore.isAuthenticated) {
+  if (
+    to.path.startsWith("/auth") &&
+    to.name !== "resetPassword" &&
+    authStore.isAuthenticated
+  ) {
     return { path: "/" };
   }
 

@@ -35,6 +35,9 @@ const useApiAuth = () => {
   const forgotPassword = (email: string) =>
     instance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
 
+  const resetPassword = (token: string, newPassword: string) =>
+    instance.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, { token, newPassword });
+
   return {
     getCurrentAuth,
     loginUser,
@@ -42,6 +45,7 @@ const useApiAuth = () => {
     logoutUser,
     refreshAccessToken,
     forgotPassword,
+    resetPassword,
   };
 };
 
