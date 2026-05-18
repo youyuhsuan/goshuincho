@@ -6,9 +6,7 @@ import ConfirmationService from "primevue/confirmationservice";
 import Aura from "@primeuix/themes/aura";
 import { definePreset } from "@primeuix/themes";
 // i18n
-import { createI18n } from "vue-i18n";
-import en from "@/config/locales/en.json";
-import zh from "@/config/locales/zh.json";
+import i18n from "@/config/i18nConfig";
 // Pinia
 import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
@@ -23,18 +21,6 @@ import vCursorStamp from "@/directives/stamp";
 
 const app = createApp(App);
 const pinia = createPinia();
-
-// i18n setup
-const i18n = createI18n({
-  legacy: false,
-  locale:
-    JSON.parse(localStorage.getItem("locale") ?? "{}")?.currentLanguage ?? "en",
-  fallbackLocale: "en",
-  messages: {
-    en: en,
-    zh: zh,
-  },
-});
 
 // Customize existing preset
 const MyPreset = definePreset(Aura, {
