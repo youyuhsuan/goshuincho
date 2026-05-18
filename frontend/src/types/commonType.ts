@@ -11,3 +11,10 @@ export interface Impression {
   x: number;
   y: number;
 }
+
+export interface Pagination {
+  totalPages: number;
+  currentPage: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
