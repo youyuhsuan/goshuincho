@@ -1,4 +1,9 @@
 import { AxiosError, type AxiosResponse } from "axios";
+// Config
+import i18n from "@/config/i18nConfig";
+
+const t = (key: string): string =>
+  (i18n.global as unknown as { t: (k: string) => string }).t(key);
 
 /**
  * Formats validation errors from API responses into user-readable format
@@ -25,28 +30,28 @@ const handleApiError = (error: AxiosError<AxiosResponse>): string => {
   const { status, data } = error.response || {};
 
   // Handle network-level errors first
-  if (error.code === AxiosError.ERR_NETWORK) return handleNetworkError();
-  if (error.code === AxiosError.ERR_CANCELED) return "Request was cancelled";
-  if (error.code === AxiosError.ETIMEDOUT) return "Request timed out";
+  if (error.code === AxiosError.ERR_NETWORK) return t("errors.networkError");
+  if (error.code === AxiosError.ERR_CANCELED) return t("errors.cancelled");
+  if (error.code === AxiosError.ETIMEDOUT) return t("errors.timeout");
 
   // Handle HTTP status code errors
   switch (status) {
     case 401:
-      return "Please log in again";
+      return t("errors.unauthorized");
     case 403:
-      return "Access denied - insufficient permissions";
+      return t("errors.forbidden");
     case 404:
-      return "Requested resource not found";
+      return t("errors.notFound");
     case 422:
-      return formatValidationErrors(data) || "Validation failed";
+      return formatValidationErrors(data) || t("errors.validationFailed");
     case 500:
-      return "Internal server error, please try again later";
+      return t("errors.serverError");
     default:
       return data
         ? typeof data === "string"
           ? data
-          : "Request failed"
-        : `Request failed with status ${status}`;
+          : t("errors.unknown")
+        : t("errors.unknown");
   }
 };
 
@@ -54,9 +59,7 @@ const handleApiError = (error: AxiosError<AxiosResponse>): string => {
  * Handles generic network connectivity issues
  * @returns Network error message with troubleshooting hint
  */
-const handleNetworkError = (): string => {
-  return "Network connection failed, please check your internet connection";
-};
+const handleNetworkError = (): string => t("errors.networkError");
 
 /**
  * Handles errors that don't fit other categories
@@ -64,9 +67,8 @@ const handleNetworkError = (): string => {
  * @returns Generic error message, using error.message if available
  */
 const handleUnknownError = (error: unknown): string => {
-  if (error instanceof Error)
-    return error.message || "An unknown error occurred";
-  return "An unknown error occurred";
+  if (error instanceof Error) return error.message || t("errors.unknown");
+  return t("errors.unknown");
 };
 
 /**
