@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 // Components
 import HomeView from "@/views/HomeView.vue";
-import AuthView from "@/views/AuthView.vue";
+import AuthView from "@/views/auth/AuthView.vue";
 import AboutView from "@/views/AboutView.vue";
 // Stores
 import useAuthStore from "@/stores/auth.store";
@@ -16,18 +16,28 @@ const router = createRouter({
       path: ROUTE_CONFIGS.HOME,
       name: "home",
       component: HomeView,
-      meta: { showLoading: true },
     },
     {
       path: ROUTE_CONFIGS.ABOUT,
       name: "about",
       component: AboutView,
-      meta: { showLoading: true },
     },
     {
       path: ROUTE_CONFIGS.AUTH,
-      name: "auth",
       component: AuthView,
+      redirect: ROUTE_CONFIGS.AUTH,
+      children: [
+        {
+          path: "login",
+          name: "login",
+          component: () => import("@/views/auth/AuthLoginView.vue"),
+        },
+        {
+          path: "register",
+          name: "register",
+          component: () => import("@/views/auth/AuthRegisterView.vue"),
+        },
+      ],
     },
     {
       path: ROUTE_CONFIGS.OAUTH,
@@ -92,8 +102,9 @@ router.beforeEach(async (to, from) => {
     return { path: "/auth" };
   }
 
-  // Redirect to home if user is already authenticated and tries to auth pag
-  if (to.path === "/auth" && authStore.isAuthenticated) {
+  // Redirect to home if user is already authenticated and tries to access auth pages
+  // Allow reset-password even when authenticated (email link may be clicked while logged in)
+  if (to.path.startsWith("/auth") && authStore.isAuthenticated) {
     return { path: "/" };
   }
 

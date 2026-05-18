@@ -9,8 +9,12 @@ import type { FormSubmitEvent } from "@primevue/forms";
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 // Zod
 import { z } from "zod";
+// i18n
+import { useI18n } from "vue-i18n";
 // Composables
-import useMessage from "@/composables/useMessage";
+import useAsyncAction from "@/composables/useAsyncAction";
+// Schemas
+import { emailSchema } from "@/schemas/authSchemas";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
 import type { LoginRequest } from "@/types/authType";
@@ -19,48 +23,35 @@ import useAuthStore from "@/stores/auth.store";
 // Config
 import ROUTE_CONFIGS from "@/config/routeConfig";
 
-const isLoading = ref<boolean>(false);
-// Remenber check
+const { t } = useI18n();
 const checked = ref<boolean>(false);
-
 const fieldIds = ref<FieldIds>(
   generateFieldIds(["email", "password", "checked"]),
 );
-const initialValues = ref<LoginRequest>({
-  email: "",
-  password: "",
-});
+const initialValues = ref<LoginRequest>({ email: "", password: "" });
 
-const { showWarning } = useMessage();
 const { login } = useAuthStore();
 const router = useRouter();
 
+const { isLoading, execute } = useAsyncAction((values: LoginRequest) =>
+  login(values),
+);
+
 const resolver = zodResolver(
   z.object({
-    email: z.email(),
+    email: emailSchema(t),
     password: z.string(),
   }),
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
-  // Prevent the browser's default form submission behavior
   e.originalEvent.preventDefault();
+  if (!e.valid) return;
 
-  // Check if all form fields have passed validation
-  if (e.valid) {
-    isLoading.value = true;
-    try {
-      // Extract form values and submit to the login store
-      await login(e.values as LoginRequest);
-      // Reset all form fields to their initial state
-      e.reset();
-      router.push(ROUTE_CONFIGS.HOME);
-    } catch (error: unknown) {
-      console.error("Login error:", error);
-      if (typeof error === "string") showWarning(error);
-    } finally {
-      isLoading.value = false;
-    }
+  const ok = await execute(e.values as LoginRequest);
+  if (ok) {
+    e.reset();
+    router.push(ROUTE_CONFIGS.HOME);
   }
 };
 </script>
@@ -72,7 +63,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
     :resolver="resolver"
     :validateOnValueUpdate="false"
     :validateOnBlur="true"
-    class="flex flex-col gap-6.5 w-full"
+    class="w-full flex flex-col gap-6.5"
     @submit="onFormSubmit"
   >
     <!-- Email -->
@@ -91,7 +82,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         </label>
       </FloatLabel>
       <Message
-        v-if="$form.email?.invalid"
+        v-if="$form.email?.invalid && $form.email?.value"
         severity="error"
         size="small"
         variant="simple"
@@ -153,9 +144,12 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
 
       <!-- Forgot Password -->
       <div class="ml-auto">
-        <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline">
+        <RouterLink
+          :to="ROUTE_CONFIGS.AUTH_FORGOT_PASSWORD"
+          class="text-primary-600 hover:text-primary-800 hover:underline"
+        >
           {{ $t("auth.login.forgotPassword") }}
-        </a>
+        </RouterLink>
       </div>
     </div>
 
@@ -165,7 +159,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       severity="secondary"
       :label="$t('auth.login.submit')"
       :loading="isLoading"
-      :disabled="$form.valid === false"
+      :disabled="$form.valid === false || $form.dirty === false || isLoading"
     />
   </Form>
 </template>

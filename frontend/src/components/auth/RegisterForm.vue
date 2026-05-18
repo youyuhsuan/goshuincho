@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 // Primevue
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import type { FormSubmitEvent } from "@primevue/forms";
@@ -8,20 +9,20 @@ import { z } from "zod";
 // i18n
 import { useI18n } from "vue-i18n";
 // Composables
-import useMessage from "@/composables/useMessage";
 import useApiAuth from "@/composables/api/useApiAuth";
+import useAsyncAction from "@/composables/useAsyncAction";
+// Schemas
+import { emailSchema, passwordSchema } from "@/schemas/authSchemas";
 // Utils
 import generateFieldIds, { type FieldIds } from "@/utils/generateFieldIds";
 // Type
-import type {
-  AuthMode,
-  RegisterFormData,
-  RegisterRequest,
-} from "@/types/authType";
+import type { RegisterFormData, RegisterRequest } from "@/types/authType";
+// Config
+import ROUTE_CONFIGS from "@/config/routeConfig";
 
 const { t } = useI18n();
+const router = useRouter();
 
-const isLoading = ref<boolean>(false);
 const fieldIds = ref<FieldIds>(
   generateFieldIds(["name", "password", "confirmPassword"]),
 );
@@ -32,12 +33,11 @@ const initialValues = ref<RegisterFormData>({
   confirmPassword: "",
 });
 
-const authMode = defineModel<AuthMode>("authMode", {
-  required: true,
-});
-
 const { registerUser } = useApiAuth();
-const { showWarning } = useMessage();
+
+const { isLoading, execute } = useAsyncAction((values: RegisterRequest) =>
+  registerUser(values),
+);
 
 const resolver = zodResolver(
   z
@@ -46,52 +46,25 @@ const resolver = zodResolver(
         .string()
         .min(1, { message: t("auth.register.validation.name.min") })
         .max(100, { message: t("auth.register.validation.name.max") }),
-      email: z.email(),
-      password: z
-        .string()
-        .min(6, { message: t("auth.register.validation.password.min") })
-        .max(500, { message: t("auth.register.validation.password.max") })
-        .refine((value) => /[a-z]/.test(value), {
-          message: t("auth.register.validation.password.lowercase"),
-        })
-        .refine((value) => /[A-Z]/.test(value), {
-          message: t("auth.register.validation.password.uppercase"),
-        })
-        .refine((value) => /\d/.test(value), {
-          message: t("auth.register.validation.password.number"),
-        }),
+      email: emailSchema(t),
+      password: passwordSchema(t),
       confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {
-      message: t("auth.register.validation.confirmPassword.match"),
+      message: t("validation.confirmPassword.match"),
       path: ["confirmPassword"],
     }),
 );
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
-  // Prevent the browser's default form submission behavior
   e.originalEvent.preventDefault();
+  if (!e.valid) return;
 
-  // Check if all form fields have passed validation
-  if (e.valid) {
-    isLoading.value = true;
-    try {
-      // Extract form values and submit to the login API
-      const { confirmPassword: _, ...registerData } =
-        e.values as RegisterFormData;
-      await registerUser(registerData as RegisterRequest);
-
-      // Reset all form fields to their initial state
-      e.reset();
-
-      // Switch to login mode after successful registration
-      authMode.value = "login";
-    } catch (error: unknown) {
-      console.error("Registration error:", error);
-      if (typeof error === "string") showWarning(error);
-    } finally {
-      isLoading.value = false;
-    }
+  const { confirmPassword: _, ...registerData } = e.values as RegisterFormData;
+  const ok = await execute(registerData);
+  if (ok) {
+    e.reset();
+    router.push(ROUTE_CONFIGS.AUTH_LOGIN);
   }
 };
 </script>
@@ -101,7 +74,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
     v-slot="$form"
     :initialValues="initialValues"
     :resolver="resolver"
-    class="flex flex-col gap-6.5 w-full"
+    class="w-full flex flex-col gap-6.5"
     :validateOnValueUpdate="false"
     :validateOnBlur="true"
     @submit="onFormSubmit"
@@ -122,7 +95,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         </label>
       </FloatLabel>
       <Message
-        v-if="$form.email?.invalid"
+        v-if="$form.email?.invalid && $form.email?.value"
         severity="error"
         size="small"
         variant="simple"
@@ -220,7 +193,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       severity="secondary"
       :label="$t('auth.register.submit')"
       :loading="isLoading"
-      :disabled="$form.valid === false"
+      :disabled="$form.valid === false || $form.dirty === false || isLoading"
     />
   </Form>
 </template>
