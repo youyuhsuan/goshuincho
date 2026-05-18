@@ -1,0 +1,517 @@
+[
+  {
+    "latitude": 37.1437,
+    "longitude": 140.448,
+    "website": "",
+    "translations": {
+      "ja": {
+        "name": "石都々古和気神社",
+        "prefecture": "福島県",
+        "city": "石川郡石川町",
+        "region": "八幡山（通称）",
+        "address": "福島県石川郡石川町字下泉150（社務所）",
+        "enshrineDeity": [
+          "味秬高彦根命（あじすきたかひこねのみこと）",
+          "大国主命（おおくにぬしのみこと）",
+          "誉田別命（ほんだわけのみこと）"
+        ],
+        "benefits": [
+          "農業の神",
+          "商売繁盛",
+          "家内安全",
+          "戦の神",
+          "本土創造",
+          "工業の神"
+        ]
+      },
+      "zh": {
+        "name": "石都々古和気神社",
+        "prefecture": "福島縣",
+        "city": "石川郡石川町",
+        "region": "八幡山（通稱）",
+        "address": "福島縣石川郡石川町字下泉150（社務所）",
+        "enshrineDeity": [
+          "味秬高彦根命（農業之神）",
+          "大國主命（商業之神）",
+          "誉田別命（戰神）"
+        ],
+        "benefits": [
+          "農業保佑",
+          "商業繁榮",
+          "家內安全",
+          "戰爭勝利",
+          "國土創造",
+          "工業保佑"
+        ]
+      },
+      "en": {
+        "name": "Iwatsutsukowake Shrine",
+        "prefecture": "Fukushima Prefecture",
+        "city": "Ishikawa District, Ishikawa Town",
+        "region": "Hachiman Mountain (Hachiman-yama)",
+        "address": "150 Shimoizumi, Ishikawa Town, Ishikawa District, Fukushima Prefecture, Japan (Shrine Office)",
+        "enshrineDeity": [
+          "Ajisukitakahikone no Mikoto (God of Agriculture)",
+          "Okuninushi no Mikoto (God of Commerce)",
+          "Hondawake no Mikoto (God of War)"
+        ],
+        "benefits": [
+          "Agricultural Blessing",
+          "Business Prosperity",
+          "Family Protection",
+          "Military Victory",
+          "Land Creation",
+          "Industrial Blessing"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 36.9894,
+    "longitude": 140.3644,
+    "founded": 807,
+    "website": "",
+    "translations": {
+      "ja": {
+        "name": "八槻都々古別神社",
+        "prefecture": "福島県",
+        "city": "東白川郡棚倉町",
+        "region": "八槻字大宮",
+        "address": "〒963-5672 福島県東白川郡棚倉町八槻大宮224",
+        "enshrineDeity": [
+          "味耜高彦根命（あじすきたかひこねのみこと）",
+          "日本武尊（やまとたけるのみこと）"
+        ],
+        "benefits": [
+          "交通安全",
+          "五穀豊穣",
+          "家内安全",
+          "農業の神",
+          "縁結び",
+          "長寿"
+        ]
+      },
+      "zh": {
+        "name": "八槻都々古別神社",
+        "prefecture": "福島縣",
+        "city": "東白川郡棚倉町",
+        "region": "八槻字大宮",
+        "address": "〒963-5672 福島縣東白川郡棚倉町八槻大宮224",
+        "enshrineDeity": ["味耜高彦根命（農業之神）", "日本武尊（戰神）"],
+        "benefits": [
+          "交通安全",
+          "五穀豐收",
+          "家內安全",
+          "農業保佑",
+          "結緣",
+          "長壽"
+        ]
+      },
+      "en": {
+        "name": "Yatsuki Tsutsukowake Shrine",
+        "prefecture": "Fukushima Prefecture",
+        "city": "Higashishirakawa District, Tanagura Town",
+        "region": "Yatsuki, Omiya",
+        "address": "224 Omiya, Yatsuki, Tanagura Town, Higashishirakawa District, Fukushima Prefecture 963-5672, Japan",
+        "enshrineDeity": [
+          "Ajisukitakahikone no Mikoto (God of Agriculture)",
+          "Yamato Takeru no Mikoto (God of War)"
+        ],
+        "benefits": [
+          "Traffic Safety",
+          "Abundant Harvest",
+          "Family Protection",
+          "Agricultural Blessing",
+          "Good Relationships",
+          "Longevity"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 37.0014,
+    "longitude": 140.3417,
+    "founded": 807,
+    "website": "",
+    "translations": {
+      "ja": {
+        "name": "馬場都々古別神社",
+        "prefecture": "福島県",
+        "city": "東白川郡棚倉町",
+        "region": "棚倉字馬場",
+        "address": "〒963-6131 福島県東白川郡棚倉町棚倉字馬場39",
+        "enshrineDeity": [
+          "味耜高彦根命（あじすきたかひこねのみこと）",
+          "日本武尊（やまとたけるのみこと）"
+        ],
+        "benefits": ["殖産興業", "家内安全", "戦勝祈願", "農業の神", "五穀豊穣"]
+      },
+      "zh": {
+        "name": "馬場都々古別神社",
+        "prefecture": "福島縣",
+        "city": "東白川郡棚倉町",
+        "region": "棚倉字馬場",
+        "address": "〒963-6131 福島縣東白川郡棚倉町棚倉字馬場39",
+        "enshrineDeity": ["味耜高彦根命（農業之神）", "日本武尊（戰神）"],
+        "benefits": ["產業發展", "家內安全", "戰爭勝利", "農業保佑", "五穀豐收"]
+      },
+      "en": {
+        "name": "Baba Tsutsukowake Shrine",
+        "prefecture": "Fukushima Prefecture",
+        "city": "Higashishirakawa District, Tanagura Town",
+        "region": "Tanagura, Baba",
+        "address": "39 Baba, Tanagura, Tanagura Town, Higashishirakawa District, Fukushima Prefecture 963-6131, Japan",
+        "enshrineDeity": [
+          "Ajisukitakahikone no Mikoto (God of Agriculture)",
+          "Yamato Takeru no Mikoto (God of War)"
+        ],
+        "benefits": [
+          "Industrial Development",
+          "Family Protection",
+          "Military Victory",
+          "Agricultural Blessing",
+          "Abundant Harvest"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 37.4552,
+    "longitude": 139.84,
+    "founded": 552,
+    "website": "https://isasumi.or.jp/",
+    "translations": {
+      "ja": {
+        "name": "伊佐須美神社",
+        "prefecture": "福島県",
+        "city": "大沼郡会津美里町",
+        "region": "宮林甲",
+        "address": "〒969-6263 福島県大沼郡会津美里町宮林甲4377",
+        "enshrineDeity": [
+          "伊弉諾尊（いざなぎのみこと）",
+          "伊弉冉尊（いざなみのみこと）",
+          "大毘古命（おおひこのみこと）",
+          "建沼河別命（たけぬなかわわけのみこと）"
+        ],
+        "benefits": [
+          "事業育成",
+          "方除開運",
+          "厄除健康",
+          "産業文化",
+          "延寿縁結",
+          "交通安全",
+          "農業・工業繁栄"
+        ]
+      },
+      "zh": {
+        "name": "伊佐須美神社",
+        "prefecture": "福島縣",
+        "city": "大沼郡會津美里町",
+        "region": "宮林甲",
+        "address": "〒969-6263 福島縣大沼郡會津美里町宮林甲4377",
+        "enshrineDeity": [
+          "伊弉諾尊（伊邪那岐，國土創造之神）",
+          "伊弉冉尊（伊邪那美，國土創造之神）",
+          "大毘古命（皇子，統治者）",
+          "建沼河別命（皇子，統治者）"
+        ],
+        "benefits": [
+          "事業培育",
+          "方位開運",
+          "厄運消除與健康",
+          "產業文化",
+          "長壽與良緣",
+          "交通安全",
+          "農業與工業繁榮"
+        ]
+      },
+      "en": {
+        "name": "Isasumi Shrine",
+        "prefecture": "Fukushima Prefecture",
+        "city": "Onuma District, Aizumisato Town",
+        "region": "Miyabayashi",
+        "address": "4377 Miyabayashi, Aizumisato Town, Onuma District, Fukushima Prefecture 969-6263, Japan",
+        "enshrineDeity": [
+          "Izanagi no Mikoto (Creator Deity)",
+          "Izanami no Mikoto (Creator Deity)",
+          "Ohihiko no Mikoto (Prince)",
+          "Takenunakawa Waku no Mikoto (Prince)"
+        ],
+        "benefits": [
+          "Business Development",
+          "Direction Fortune Opening",
+          "Evil Removal & Health",
+          "Industrial Culture",
+          "Longevity & Good Relationships",
+          "Traffic Safety",
+          "Agricultural & Industrial Prosperity"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 38.7347,
+    "longitude": 140.0572,
+    "founded": 564,
+    "website": "https://oomonoimijinja.verse.jp/",
+    "translations": {
+      "ja": {
+        "name": "鳥海山大物忌神社(蕨岡口之宮)",
+        "prefecture": "山形県",
+        "city": "飽海郡遊佐町",
+        "region": "上蕨岡字松ヶ岡",
+        "address": "〒999-8314 山形県飽海郡遊佐町上蕨岡字松ヶ岡51",
+        "enshrineDeity": ["大物忌神（おおものいみのかみ）"],
+        "benefits": ["五穀豊穣", "海上安全", "厄除開運", "農業開運", "火山鎮祭"]
+      },
+      "zh": {
+        "name": "鳥海山大物忌神社(蕨岡口之宮)",
+        "prefecture": "山形縣",
+        "city": "飽海郡遊佐町",
+        "region": "上蕨岡字松ヶ岡",
+        "address": "〒999-8314 山形縣飽海郡遊佐町上蕨岡字松ヶ岡51",
+        "enshrineDeity": ["大物忌神（稲穀之神，與倉稲魂命、豐受姫神同體）"],
+        "benefits": [
+          "五穀豐收",
+          "海上安全",
+          "厄運消除與開運",
+          "農業開運",
+          "火山祭祀"
+        ]
+      },
+      "en": {
+        "name": "Chokaisan Omono-Imi-jinja Shrine",
+        "prefecture": "Yamagata Prefecture",
+        "city": "Shonai District, Yuza Town",
+        "region": "Kamiwarabioka, Matsuoka",
+        "address": "51 Matsuoka, Kamiwarabioka, Yuza Town, Shonai District, Yamagata Prefecture 999-8314, Japan",
+        "enshrineDeity": ["Omono-Imi no Kami (Deity of Grain and Bounty)"],
+        "benefits": [
+          "Abundant Harvest",
+          "Maritime Safety",
+          "Evil Removal & Fortune",
+          "Agricultural Fortune",
+          "Volcanic Pacification"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 38.3189,
+    "longitude": 141.0126,
+    "founded": "ancient",
+    "website": "http://www.shiogamajinja.jp/",
+    "translations": {
+      "ja": {
+        "name": "志波彦神社・鹽竈神社",
+        "prefecture": "宮城県",
+        "city": "塩竈市",
+        "region": "一森山",
+        "address": "〒985-8510 宮城県塩竈市一森山1-1",
+        "enshrineDeity": [
+          "鹽土老翁神（しおつちおじのかみ）",
+          "武甕槌神（たけみかづちのかみ）",
+          "経津主神（ふつぬしのかみ）",
+          "志波彦神（しはひこのかみ）"
+        ],
+        "benefits": ["安産守護", "延命長寿", "大漁", "東北鎮護", "交通安全"]
+      },
+      "zh": {
+        "name": "志波彦神社・鹽竈神社",
+        "prefecture": "宮城縣",
+        "city": "塩竈市",
+        "region": "一森山",
+        "address": "〒985-8510 宮城縣塩竈市一森山1-1",
+        "enshrineDeity": [
+          "鹽土老翁神（航海與漁業之神）",
+          "武甕槌神（武道之神）",
+          "経津主神（武道之神）",
+          "志波彦神"
+        ],
+        "benefits": ["安產守護", "延命長壽", "大豐收", "東北鎮護", "交通安全"]
+      },
+      "en": {
+        "name": "Shiwahiko Shrine & Shiogama Shrine",
+        "prefecture": "Miyagi Prefecture",
+        "city": "Shiogama City",
+        "region": "Ichimori-yama",
+        "address": "1-1 Ichimori-yama, Shiogama City, Miyagi Prefecture 985-8510, Japan",
+        "enshrineDeity": [
+          "Shioshio no Ojino Kami (Deity of Navigation & Fishing)",
+          "Takemikazuchi no Kami (God of Martial Arts)",
+          "Futsunushi no Kami (God of Martial Arts)",
+          "Shiwahiko no Kami"
+        ],
+        "benefits": [
+          "Safe Childbirth",
+          "Longevity",
+          "Good Catch",
+          "Protection of Northeast",
+          "Traffic Safety"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 38.9414,
+    "longitude": 141.1197,
+    "founded": "ancient",
+    "website": "https://komagata.iwate.jp/",
+    "translations": {
+      "ja": {
+        "name": "駒形神社",
+        "prefecture": "岩手県",
+        "city": "奥州市水沢区",
+        "region": "中上野町",
+        "address": "〒023-0003 岩手県奥州市水沢区中上野町1-83",
+        "enshrineDeity": ["駒形大神（こまがたおおかみ）"],
+        "benefits": [
+          "産業開発",
+          "交通安全",
+          "必勝祈願",
+          "馬の守護神",
+          "農業開運"
+        ]
+      },
+      "zh": {
+        "name": "駒形神社",
+        "prefecture": "岩手縣",
+        "city": "奥州市水沢區",
+        "region": "中上野町",
+        "address": "〒023-0003 岩手縣奧州市水澤區中上野町1-83",
+        "enshrineDeity": ["駒形大神（馬之守護神）"],
+        "benefits": ["產業開發", "交通安全", "必勝祈願", "馬匹守護", "農業開運"]
+      },
+      "en": {
+        "name": "Komagata Shrine",
+        "prefecture": "Iwate Prefecture",
+        "city": "Oshu City, Mizusawa Ward",
+        "region": "Nakauwano-cho",
+        "address": "1-83 Nakauwano-cho, Mizusawa Ward, Oshu City, Iwate Prefecture 023-0003, Japan",
+        "enshrineDeity": ["Komagata Okami (Deity of Horses)"],
+        "benefits": [
+          "Industrial Development",
+          "Traffic Safety",
+          "Victory Prayer",
+          "Horse Protection",
+          "Agricultural Fortune"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 40.5934,
+    "longitude": 140.5169,
+    "founded": "ancient (circa 1200 years ago)",
+    "website": "https://www.iwakisan.jp/",
+    "translations": {
+      "ja": {
+        "name": "岩木山神社",
+        "prefecture": "青森県",
+        "city": "弘前市",
+        "region": "百沢字寺沢",
+        "address": "〒036-1343 青森県弘前市大字百沢字寺沢27",
+        "enshrineDeity": [
+          "顕國魂神（あきつくにたまのかみ）",
+          "多都比姫神（たつひひめのかみ）"
+        ],
+        "benefits": ["津軽守護", "五穀豊穣", "開運", "安産祈願", "厄除け"]
+      },
+      "zh": {
+        "name": "岩木山神社",
+        "prefecture": "青森縣",
+        "city": "弘前市",
+        "region": "百沢字寺沢",
+        "address": "〒036-1343 青森縣弘前市大字百澤字寺澤27",
+        "enshrineDeity": ["顕國魂神（津輕守護神）", "多都比姫神"],
+        "benefits": ["津輕守護", "五穀豐收", "開運", "安產祈願", "厄運消除"]
+      },
+      "en": {
+        "name": "Iwakiyama Shrine",
+        "prefecture": "Aomori Prefecture",
+        "city": "Hirosaki City",
+        "region": "Hyakuzawa, Terasawa",
+        "address": "27 Terasawa, Hyakuzawa, Hirosaki City, Aomori Prefecture 036-1343, Japan",
+        "enshrineDeity": [
+          "Akitsukunitama no Kami (Guardian of Tsugaru)",
+          "Tatsuhihime no Kami"
+        ],
+        "benefits": [
+          "Tsugaru Protection",
+          "Abundant Harvest",
+          "Good Fortune",
+          "Safe Childbirth",
+          "Evil Removal"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 43.062,
+    "longitude": 141.3548,
+    "founded": 1869,
+    "website": "https://hokkaidojinjacho.jp/%E5%8C%97%E6%B5%B7%E9%81%93%E7%A5%9E%E5%AE%AE/",
+    "translations": {
+      "ja": {
+        "name": "北海道神宮",
+        "prefecture": "北海道",
+        "city": "札幌市中央区",
+        "region": "宮ヶ丘",
+        "address": "〒064-0959 北海道札幌市中央区宮ヶ丘474-35",
+        "enshrineDeity": [
+          "大國魂神（おおくにたまのかみ）",
+          "大那牟遲神（おおなむちのかみ）",
+          "少彦名神（すくなひこなのかみ）",
+          "明治天皇（めいじてんのう）"
+        ],
+        "benefits": [
+          "北海道開拓守護",
+          "道民守護",
+          "産業振興",
+          "安全祈願",
+          "幸せ祈願"
+        ]
+      },
+      "zh": {
+        "name": "北海道神宮",
+        "prefecture": "北海道",
+        "city": "札幌市中央區",
+        "region": "宮ヶ丘",
+        "address": "〒064-0959 北海道札幌市中央區宮ヶ丘474-35",
+        "enshrineDeity": [
+          "大國魂神（北海道開拓守護神）",
+          "大那牟遲神（大國主命之子）",
+          "少彦名神（開拓之神）",
+          "明治天皇"
+        ],
+        "benefits": [
+          "北海道開拓守護",
+          "道民守護",
+          "產業振興",
+          "安全祈願",
+          "幸福祈願"
+        ]
+      },
+      "en": {
+        "name": "Hokkaido Shrine",
+        "prefecture": "Hokkaido",
+        "city": "Sapporo City, Chuo Ward",
+        "region": "Miyagaoka",
+        "address": "474-35 Miyagaoka, Chuo Ward, Sapporo City, Hokkaido 064-0959, Japan",
+        "enshrineDeity": [
+          "Okuninushi (Deity of Land & Commerce)",
+          "Okunitama (Deity of Land)",
+          "Sukunahikona (Deity of Development)",
+          "Emperor Meiji"
+        ],
+        "benefits": [
+          "Hokkaido Development Protection",
+          "Regional Protection",
+          "Industrial Promotion",
+          "Safety Prayer",
+          "Happiness Prayer"
+        ]
+      }
+    }
+  }
+]
