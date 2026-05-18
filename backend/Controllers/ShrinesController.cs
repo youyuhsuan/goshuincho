@@ -33,7 +33,8 @@ namespace backend.Controllers
         [HttpGet("suggestions")]
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<ShrineSuggestionDto>>> GetSuggestions(
-            [FromQuery] string keyword)
+            [FromQuery] string keyword,
+            [FromQuery] string locale = "en")
         {
             if (string.IsNullOrWhiteSpace(keyword))
             {
@@ -42,7 +43,7 @@ namespace backend.Controllers
             }
 
             _logger.LogInformation("Shrine suggestions requested for keyword: {Keyword}", keyword);
-            var suggestions = await _shrineService.GetSuggestionsByKeywordAsync(keyword);
+            var suggestions = await _shrineService.GetSuggestionsByKeywordAsync(keyword, locale);
             return Ok(suggestions);
         }
 
@@ -54,10 +55,11 @@ namespace backend.Controllers
         [ProducesResponseType(typeof(IEnumerable<ShrineDto>), StatusCodes.Status200OK)]
         [HttpGet("featured")]
         [AllowAnonymous]
-        public async Task<ActionResult<IEnumerable<ShrineDto>>> GetFeaturedShrines()
+        public async Task<ActionResult<IEnumerable<ShrineDto>>> GetFeaturedShrines(
+            [FromQuery] string locale = "en")
         {
             _logger.LogInformation("Featured shrines requested");
-            var shrines = await _shrineService.GetFeaturedAsync();
+            var shrines = await _shrineService.GetFeaturedAsync(locale);
             return Ok(shrines);
         }
 
