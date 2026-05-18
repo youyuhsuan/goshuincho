@@ -13,6 +13,7 @@ import ROUTE_CONFIGS from "@/config/routeConfig";
     <!-- Form -->
     <ForgotPasswordForm class="mb-4" />
 
+    <!-- Login Link -->
     <div class="w-full text-sm mb-6">
       <span class="text-gray-600">{{ $t("auth.login.question") }}</span>
       <RouterLink
