@@ -14,8 +14,8 @@ import useMessage from "@/composables/useMessage";
 
 interface UseAsyncStateOptions {
   showErrorToast?: boolean;
-  onError?: (error: unknown) => void;
   successMessage?: string;
+  onError?: (error: unknown) => void;
 }
 
 const useAsyncState = <T, A extends unknown[]>(
@@ -44,7 +44,7 @@ const useAsyncState = <T, A extends unknown[]>(
 
       return data.value;
     } catch (errorMessage: unknown) {
-      console.error("Async function error:", errorMessage);
+      console.error("Async function state error:", errorMessage);
 
       // Show error message if provided
       if (typeof errorMessage === "string") {
