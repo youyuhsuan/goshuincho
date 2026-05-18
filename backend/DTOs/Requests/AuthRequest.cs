@@ -34,4 +34,13 @@ namespace backend.DTOs.Requests
         [Required]
         public string RefreshToken { get; set; } = string.Empty;
     }
+
+    public class ForgotPasswordRequest
+    {
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+
 }

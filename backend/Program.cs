@@ -12,6 +12,9 @@ using System.Reflection;
 using Serilog;
 using Serilog.Events;
 
+using Resend;
+using Log = Serilog.Log;
+
 using backend.Data;
 using backend.Middleware;
 using backend.Configuration;
@@ -84,6 +87,11 @@ builder.Services.AddSingleton<IOAuthService, OAuthService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IStorageService, AzureBlobStorageService>();
 builder.Services.AddScoped<IShrineService, ShrineService>();
+builder.Services.AddResend(options =>
+{
+    options.ApiToken = builder.Configuration["Resend:ApiKey"]!;
+});
+builder.Services.AddScoped<IEmailService, ResendEmailService>();
 
 // Configure Swagger API documentation generation
 builder.Services.AddSwaggerGen(c =>
@@ -134,7 +142,8 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "http://localhost:5286")
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Pagination");
     });
 });
 

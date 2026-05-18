@@ -10,15 +10,22 @@ using backend.DTOs.Responses;
 using BCrypt.Net;
 
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace backend.Services
 {
     public class UserService : IUserService
     {
         private readonly AppDbContext _context;
-        public UserService(AppDbContext context)
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
+
+        public UserService(AppDbContext context, IEmailService emailService, IConfiguration configuration)
         {
             _context = context;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         // Get user by ID
@@ -142,6 +149,34 @@ namespace backend.Services
             user.Picture = pictureUrl;
             await _context.SaveChangesAsync();
         }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null) return; // silently return — do not reveal if email exists
+
+            // Remove any existing reset tokens for this user
+            var existing = _context.PasswordResetTokens.Where(t => t.UserId == user.Id);
+            _context.PasswordResetTokens.RemoveRange(existing);
+
+            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
+
+            _context.PasswordResetTokens.Add(new PasswordResetToken
+            {
+                UserId = user.Id,
+                TokenHash = tokenHash,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
+                CreatedAt = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+
+            var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5173";
+            var resetUrl = $"{frontendBaseUrl}/reset-password?token={Uri.EscapeDataString(rawToken)}";
+            await _emailService.SendPasswordResetEmailAsync(user.Email, resetUrl);
+        }
+
+
 
         // Validate user credentials for login
         public async Task<UserDto> ValidateCredentialsAsync(LoginRequest request)

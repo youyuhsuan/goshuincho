@@ -171,6 +171,22 @@ namespace backend.Controllers
             return NoContent();
         }
 
+        /// POST: api/auth/forgot-password
+        /// <summary>
+        /// Request a password reset email
+        /// </summary>
+        /// <response code="200">Request processed (always returns 200 to avoid email enumeration)</response>
+        /// <response code="400">Validation failed</response>
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Dictionary<string, string[]>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordRequest request)
+        {
+            await _userService.ForgotPasswordAsync(request.Email);
+            return Ok();
+        }
+
+
         /// POST: api/auth/refresh
         /// <summary>
         /// Issue a new Access Token using a valid Refresh Token

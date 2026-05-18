@@ -15,5 +15,6 @@ namespace backend.Services
         Task DeleteUserAsync(Guid id);
         Task UpdateProfilePictureAsync(Guid id, string pictureUrl);
         Task<UserDto> ValidateCredentialsAsync(LoginRequest request);
+        Task ForgotPasswordAsync(string email);
     }
 }
