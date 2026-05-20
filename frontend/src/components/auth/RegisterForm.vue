@@ -34,9 +34,11 @@ const initialValues = ref<RegisterFormData>({
 });
 
 const { registerUser } = useApiAuth();
+const serverError = ref<string>("");
 
-const { isLoading, execute } = useAsyncAction((values: RegisterRequest) =>
-  registerUser(values),
+const { isLoading, execute } = useAsyncAction(
+  (values: RegisterRequest) => registerUser(values),
+  { onError: (error) => { serverError.value = error as string; } },
 );
 
 const resolver = zodResolver(
@@ -60,6 +62,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   e.originalEvent.preventDefault();
   if (!e.valid) return;
 
+  serverError.value = "";
   const { confirmPassword: _, ...registerData } = e.values as RegisterFormData;
   const ok = await execute(registerData);
   if (ok) {
@@ -84,7 +87,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       <FloatLabel>
         <InputText
           :id="fieldIds.email"
-          :invalid="$form.email?.invalid"
+          :invalid="$form.email?.invalid && !!$form.email?.value"
           name="email"
           type="text"
           autocomplete="email"
@@ -110,7 +113,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       <FloatLabel>
         <InputText
           :id="fieldIds.name"
-          :invalid="$form.name?.invalid"
+          :invalid="$form.name?.invalid && !!$form.name?.value"
           name="name"
           type="text"
           autocomplete="name"
@@ -121,7 +124,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         </label>
       </FloatLabel>
       <Message
-        v-if="$form.name?.invalid"
+        v-if="$form.name?.invalid && !!$form.name?.value"
         severity="error"
         size="small"
         variant="simple"
@@ -136,7 +139,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       <FloatLabel>
         <Password
           :id="fieldIds.password"
-          :invalid="$form.password?.invalid"
+          :invalid="$form.password?.invalid && !!$form.password?.value"
           name="password"
           :feedback="false"
           :inputProps="{ autocomplete: 'new-password' }"
@@ -148,7 +151,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         </label>
       </FloatLabel>
       <Message
-        v-if="$form.password?.invalid"
+        v-if="$form.password?.invalid && !!$form.password?.value"
         severity="error"
         size="small"
         variant="simple"
@@ -166,7 +169,9 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       <FloatLabel>
         <Password
           :id="fieldIds.confirmPassword"
-          :invalid="$form.confirmPassword?.invalid"
+          :invalid="
+            $form.confirmPassword?.invalid && !!$form.confirmPassword?.value
+          "
           name="confirmPassword"
           :feedback="false"
           :inputProps="{ autocomplete: 'new-password' }"
@@ -178,7 +183,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         </label>
       </FloatLabel>
       <Message
-        v-if="$form.confirmPassword?.invalid"
+        v-if="$form.confirmPassword?.invalid && !!$form.confirmPassword?.value"
         severity="error"
         size="small"
         variant="simple"
@@ -187,13 +192,18 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       </Message>
     </div>
 
+    <!-- Server-side error (e.g. email already exists) -->
+    <Message v-if="serverError" severity="error" size="small" variant="simple">
+      {{ serverError }}
+    </Message>
+
     <!-- Submit Button -->
     <Button
       type="submit"
       severity="secondary"
       :label="$t('auth.register.submit')"
       :loading="isLoading"
-      :disabled="$form.valid === false || $form.dirty === false || isLoading"
+      :disabled="$form.valid === false || isLoading"
     />
   </Form>
 </template>
