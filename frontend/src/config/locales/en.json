@@ -5,11 +5,9 @@
     "edit": "Edit",
     "delete": "Delete",
     "divider": "or",
-    "title": "Goshuincho"
-  },
-  "hero": {
-    "subTitle": "Discover the Art of Goshuin",
-    "cta": "Get Started"
+    "title": "Goshuincho",
+    "empty": "No items found",
+    "loadMore": "Load more"
   },
   "nav": {
     "about": "About",
@@ -21,7 +19,54 @@
       "login": "Login to your account",
       "signOut": "Sign out of your account",
       "userInfo": "View user profile",
-      "settings": "Go to account settings"
+      "settings": "Go to account settings",
+      "main": "Main navigation",
+      "desktop": "Desktop navigation",
+      "mobile": "Mobile navigation",
+      "toggleMenu": "Toggle menu"
+    }
+  },
+  "home": {
+    "placeholder": {
+      "shrine": "Search shrine name...",
+      "location": "Search location..."
+    },
+    "ariaLabel": {
+      "heroSection": "Hero section",
+      "searchShrine": "Search shrines",
+      "getCurrentLocation": "Get current location",
+      "featuredtodaySection": "Featured"
+    },
+    "location": {
+      "currentLocation": "Current location",
+      "notSupported": "Your browser does not support geolocation",
+      "permissionDenied": "You have denied access to your location",
+      "positionUnavailable": "Unable to retrieve your location",
+      "timeout": "Location request timed out, please try again"
+    },
+    "hero": {
+      "subTitle": "Discover the Art of Goshuin",
+      "cta": "Get Started"
+    },
+    "featuredToday": {
+      "title": "Featured today",
+      "subTitle": "Featured",
+      "description": "Explore shrines featured on our platform and start your goshuin journey."
+    }
+  },
+  "shrines": {
+    "pageTitle": "Shrines",
+    "search": {
+      "resultsFor": "Results for \"{query}\"",
+      "noResults": "No shrines matched your search"
+    },
+    "featured": {
+      "label": "Featured today",
+      "description": "Explore shrines featured on our platform and start your goshuin journey."
+    },
+    "ariaLabel": {
+      "page": "Shrines page",
+      "shrineCard": "View {name}"
     }
   },
   "auth": {
@@ -54,28 +99,99 @@
         "name": {
           "min": "Minimum 1 characters",
           "max": "Maximum 100 characters"
-        },
-        "password": {
-          "min": "Minimum 6 characters",
-          "max": "Maximum 500 characters",
-          "lowercase": "Must have a lowercase letter",
-          "uppercase": "Must have an uppercase letter",
-          "number": "Must have a number"
-        },
-        "confirmPassword": {
-          "match": "Passwords do not match"
         }
       },
       "ariaLabel": "Switch to sign up mode",
       "submit": "Sign up"
     },
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "description": "Enter your email and we'll send you a reset link.",
+      "field": {
+        "email": "Email"
+      },
+      "submit": "Send Reset Link",
+      "success": "Check your inbox for a reset link. It expires in 15 minutes.",
+      "successMessage": "Check your inbox for a reset link. It expires in 15 minutes.",
+      "backToLogin": "Back to Sign in"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "description": "Enter your new password below.",
+      "field": {
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm Password"
+      },
+      "submit": "Reset Password",
+      "success": "Password reset successful. Redirecting to sign in...",
+      "error": "The reset link is invalid or has expired.",
+      "requestNewLink": "Request a new link"
+    },
     "oauth": {
       "google": "Continue with Google"
     }
   },
+  "validation": {
+    "email": {
+      "required": "Email is required",
+      "invalid": "Invalid email address"
+    },
+    "password": {
+      "min": "Minimum 6 characters",
+      "max": "Maximum 500 characters",
+      "lowercase": "Must have a lowercase letter",
+      "uppercase": "Must have an uppercase letter",
+      "number": "Must have a number"
+    },
+    "confirmPassword": {
+      "match": "Passwords do not match"
+    }
+  },
+  "errors": {
+    "unauthorized": "Session expired, please sign in again",
+    "forbidden": "Access denied",
+    "notFound": "Resource not found",
+    "validationFailed": "Validation failed",
+    "serverError": "Server error, please try again later",
+    "networkError": "Network connection failed, please check your internet connection",
+    "timeout": "Request timed out",
+    "cancelled": "Request was cancelled",
+    "unknown": "An unknown error occurred"
+  },
+  "fortune": {
+    "pick": "Pick a card",
+    "result": "Your fortune",
+    "drawAgain": "Draw again",
+    "items": {
+      "daiKichi": {
+        "label": "大吉",
+        "message": "All is well and the path ahead is bright. Fortune favors you — move forward with confidence."
+      },
+      "kichi": {
+        "label": "吉",
+        "message": "Things proceed smoothly. Act diligently and good results will follow. Seize the moment."
+      },
+      "chuKichi": {
+        "label": "中吉",
+        "message": "Progress builds steadily. Patience will bring your efforts to fruition. Act with care."
+      },
+      "shoKichi": {
+        "label": "小吉",
+        "message": "Advance step by step. Caution brings no harm. Stay grounded and rewards will come."
+      },
+      "sueMichi": {
+        "label": "末吉",
+        "message": "The timing is not yet right. Patience is your ally. Brighter days lie on the horizon."
+      },
+      "kyo": {
+        "label": "凶",
+        "message": "Take great care in all matters. Misfortune can be turned by a sincere heart. Reflect and persevere."
+      }
+    }
+  },
   "settings": {
     "title": "Settings",
-    "description": "Manage your account settings and preference.",
+    "description": "Manage your account settings and preferences.",
     "menu": {
       "profile": "Profile",
       "appearance": "Appearance"
