@@ -513,5 +513,123 @@
         ]
       }
     }
+  },
+  {
+    "latitude": 35.3795,
+    "longitude": 139.3833,
+    "founded": "",
+    "website": "https://samukawajinjya.jp/",
+    "translations": {
+      "ja": {
+        "name": "寒川神社",
+        "prefecture": "神奈川県",
+        "city": "高座郡寒川町",
+        "region": "宮山",
+        "address": "〒253-0195 神奈川県高座郡寒川町宮山3916",
+        "enshrineDeity": [
+          "寒川比古命（さむかわひこのみこと）",
+          "寒川比女命（さむかわひめのみこと）"
+        ],
+        "benefits": ["八方除け", "厄除け", "家内安全", "方位除け", "運気向上"]
+      },
+      "zh": {
+        "name": "寒川神社",
+        "prefecture": "神奈川縣",
+        "city": "高座郡寒川町",
+        "region": "宮山",
+        "address": "〒253-0195 神奈川縣高座郡寒川町宮山3916",
+        "enshrineDeity": ["寒川比古命（男神）", "寒川比女命（女神）"],
+        "benefits": [
+          "八方除（八個方向的厄運消除）",
+          "厄運消除",
+          "家內安全",
+          "方位除（方位厄運消除）",
+          "運氣提升"
+        ]
+      },
+      "en": {
+        "name": "Samukawa Shrine",
+        "prefecture": "Kanagawa Prefecture",
+        "city": "Koaza District, Samukawa Town",
+        "region": "Miyayama",
+        "address": "3916 Miyayama, Samukawa Town, Koaza District, Kanagawa Prefecture 253-0195, Japan",
+        "enshrineDeity": [
+          "Samukawa Hiko no Mikoto (Male Deity)",
+          "Samukawa Hime no Mikoto (Female Deity)"
+        ],
+        "benefits": [
+          "Hapo-Yoke (Protection from All Directions)",
+          "Evil Removal",
+          "Family Protection",
+          "Direction Fortune Removal",
+          "Luck Improvement"
+        ]
+      }
+    }
+  },
+  {
+    "latitude": 35.3249,
+    "longitude": 139.5561,
+    "founded": 1063,
+    "website": "https://www.hachimangu.or.jp/",
+    "translations": {
+      "ja": {
+        "name": "鶴岡八幡宮",
+        "prefecture": "神奈川県",
+        "city": "鎌倉市",
+        "region": "雪ノ下",
+        "address": "〒248-8588 神奈川県鎌倉市雪ノ下2-1-31",
+        "enshrineDeity": [
+          "応神天皇（おうじんてんのう）",
+          "比売神（ひめがみ）",
+          "神功皇后（じんぐうこうごう）"
+        ],
+        "benefits": [
+          "出世開運",
+          "合格祈願",
+          "縁結び",
+          "武士の守護神",
+          "鎌倉幕府の宗社"
+        ]
+      },
+      "zh": {
+        "name": "鶴岡八幡宮",
+        "prefecture": "神奈川縣",
+        "city": "鎌倉市",
+        "region": "雪之下",
+        "address": "神奈川縣鎌倉市雪之下2丁目1-31",
+        "enshrineDeity": [
+          "應神天皇（第15代天皇）",
+          "比賣神（女神）",
+          "神功皇后（應神天皇之母）"
+        ],
+        "benefits": [
+          "出世開運",
+          "合格祈願",
+          "結緣",
+          "武士守護神",
+          "鎌倉幕府宗社"
+        ]
+      },
+      "en": {
+        "name": "Tsurugaoka Hachimangu",
+        "prefecture": "Kanagawa Prefecture",
+        "city": "Kamakura City",
+        "region": "Yukinoshita",
+        "address": "2-1-31 Yukinoshita, Kamakura City, Kanagawa Prefecture 248-8588, Japan",
+        "enshrineDeity": [
+          "Emperor Ojin (15th Emperor)",
+          "Hime no Kami (Female Deity)",
+          "Empress Jingu (Mother of Emperor Ojin)"
+        ],
+        "benefits": [
+          "Success and Prosperity",
+          "Exam Success Prayer",
+          "Good Relationships",
+          "Guardian of Warriors",
+          "Kamakura Shogunate Protection"
+        ]
+      }
+    }
   }
 ]
