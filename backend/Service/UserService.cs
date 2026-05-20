@@ -159,7 +159,10 @@ namespace backend.Services
             var existing = _context.PasswordResetTokens.Where(t => t.UserId == user.Id);
             _context.PasswordResetTokens.RemoveRange(existing);
 
-            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            // Use URL-safe Base64 (no +, /, or = chars) so the token survives email clients
+            // that mangle percent-encoded characters in href attributes.
+            var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64))
+                .Replace('+', '-').Replace('/', '_').TrimEnd('=');
             var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 
             _context.PasswordResetTokens.Add(new PasswordResetToken
@@ -172,7 +175,7 @@ namespace backend.Services
             await _context.SaveChangesAsync();
 
             var frontendBaseUrl = _configuration["AppSettings:FrontendBaseUrl"] ?? "http://localhost:5173";
-            var resetUrl = $"{frontendBaseUrl}/auth/reset-password?token={Uri.EscapeDataString(rawToken)}";
+            var resetUrl = $"{frontendBaseUrl}/auth/reset-password?token={rawToken}";
             await _emailService.SendPasswordResetEmailAsync(user.Email, resetUrl);
         }
 
