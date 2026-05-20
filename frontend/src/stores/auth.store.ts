@@ -64,7 +64,7 @@ const useAuthStore = defineStore(
       user.value = (await getCurrentAuth()).data;
     };
 
-    // Auth Auctions
+    // Auth Actions
     // Sets accessToken and refreshToken values in localStorage
     const setAuthState = (token: TokenResponse) => {
       accessToken.value = token.accessToken;
@@ -80,6 +80,7 @@ const useAuthStore = defineStore(
 
     // Revoke token on the server, clear local state and redirect to home
     const logout = async () => {
+      cancelResetTimer();
       await logoutUser();
 
       // Reset all auth state
