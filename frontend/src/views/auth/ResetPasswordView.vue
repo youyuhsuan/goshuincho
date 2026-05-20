@@ -26,8 +26,12 @@ const { resetPassword } = useApiAuth();
 
 const token = computed(() => route.query.token as string | undefined);
 
-const { isLoading, execute } = useAsyncAction((newPassword: string) =>
-  resetPassword(token.value!, newPassword),
+const { isLoading, execute } = useAsyncAction(
+  (newPassword: string) => resetPassword(token.value!, newPassword),
+  {
+    successMessage: t("auth.resetPassword.success"),
+    showErrorToast: true,
+  },
 );
 
 const RESTRICT_MS = 3800;
@@ -133,7 +137,7 @@ onMounted(() => {
         severity="secondary"
         :label="$t('auth.resetPassword.submit')"
         :loading="isLoading"
-        :disabled="$form.valid === false || $form.dirty === false || isLoading"
+        :disabled="$form.valid === false || !$form.dirty || isLoading"
         fluid
       />
     </Form>
