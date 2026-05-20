@@ -16,11 +16,11 @@ const compressImage = async (
   const url = URL.createObjectURL(file);
   const img = await loadImage(url);
 
-  const radio = Math.min(maxSize / img.width, maxSize / img.height);
+  const ratio = Math.min(maxSize / img.width, maxSize / img.height);
 
   const canvas = document.createElement("canvas");
-  canvas.width = img.width * radio;
-  canvas.height = img.height * radio;
+  canvas.width = img.width * ratio;
+  canvas.height = img.height * ratio;
   canvas.getContext("2d")?.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   return new Promise((resolve, reject) => {

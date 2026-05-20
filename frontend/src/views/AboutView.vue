@@ -8,7 +8,7 @@
       <div class="relative shrink-0">
         <div class="w-52 h-52 rounded-2xl overflow-hidden">
           <Image
-            src="/frontend/src/assets/images/profile.jpg"
+            :src="profileImage"
             alt="You Yu-Hsuan"
             class="w-full h-full object-cover"
           />
@@ -83,5 +83,7 @@
 </template>
 
 <script setup lang="ts">
+import profileImage from "@/assets/images/profile.jpg";
+
 const techs = ["Vue.js", "TypeScript", "Tailwind CSS", "Pinia"];
 </script>

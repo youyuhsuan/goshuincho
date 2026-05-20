@@ -11,12 +11,16 @@ const downLineTransform = computed(() =>
   isMobileMenuOpen.value ? "translate(0, 4.25) rotate(-45)" : "",
 );
 const middleLineOpacity = computed(() => (isMobileMenuOpen.value ? 0 : 1));
+const middleLineStyle = computed(() => ({
+  transition:
+    "opacity 300ms cubic-bezier(0.34, 1.56, 0.64, 1), transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+  transform: `scaleY(${middleLineOpacity.value ? 1 : 0})`,
+}));
 </script>
 
 <template>
   <Button
     class="flex flex-col items-center justify-center rounded gap-1.5 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-800"
-    abel="Link"
     variant="link"
     :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
     @click="isMobileMenuOpen = !isMobileMenuOpen"
@@ -53,12 +57,7 @@ const middleLineOpacity = computed(() => (isMobileMenuOpen.value ? 0 : 1));
         stroke-width="2"
         stroke-linecap="round"
         :opacity="middleLineOpacity"
-        style="
-          transition:
-            opacity 300ms cubic-bezier(0.34, 1.56, 0.64, 1),
-            transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-          transform: scaleY(v-bind(middleLineOpacity ? 1: 0));
-        "
+        :style="middleLineStyle"
       />
       <!-- Down line -->
       <line

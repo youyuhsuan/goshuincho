@@ -3,12 +3,12 @@ import ShrineGate from "@/assets/images/loadingShrine.svg?component";
 </script>
 
 <template>
-  <div class="scene-3d">
+  <div class="scene-3d bg-stone-50 dark:bg-slate-800">
     <div v-for="i in 8" :key="i" class="gate-layer" :class="`layer-${i}`">
       <ShrineGate />
     </div>
   </div>
-  <div class="convergence-overlay" />
+  <main class="convergence-overlay" />
 </template>
 
 <style scoped>

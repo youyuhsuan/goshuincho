@@ -229,7 +229,6 @@ const deleteUserAccount = async () => {
 
 onMounted(async () => {
   userInfo.value = (await getUser(authStore.user!.id)).data;
-  console.log("User Info:", userInfo.value);
 });
 </script>
 
