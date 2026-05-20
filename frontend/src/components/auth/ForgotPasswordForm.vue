@@ -47,7 +47,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
           name="email"
           type="text"
           autocomplete="email"
-          :invalid="$form.email?.invalid"
+          :invalid="$form.email?.invalid && !!$form.email?.value"
           fluid
         />
         <label for="forgot-email">{{
@@ -71,7 +71,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
       severity="secondary"
       :label="$t('auth.forgotPassword.submit')"
       :loading="isLoading"
-      :disabled="$form.valid === false || $form.dirty === false || isLoading"
+      :disabled="$form.valid === false || !$form.dirty || isLoading"
     />
   </Form>
 </template>
