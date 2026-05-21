@@ -2,6 +2,11 @@
 # Logs
 logs
 *.log
+post-log.json
+
+# Claude Code tooling
+.agents/
+skills-lock.json
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -68,8 +73,6 @@ web_modules/
 
 # dotenv environment variable files
 .env
-.env.*
-!.env.example
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
