@@ -26,6 +26,8 @@ const route = useRoute();
 
     <section
       class="hidden lg:flex flex-1 items-center justify-center bg-surface-100"
-    ></section>
+    >
+      <FortuneSticks />
+    </section>
   </main>
 </template>
