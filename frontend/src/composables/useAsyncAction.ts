@@ -19,7 +19,7 @@ interface UseAsyncActionOptions {
  */
 
 const useAsyncAction = <A extends unknown[]>(
-  asyncFunction: (...args: A) => Promise<void>,
+  asyncFunction: (...args: A) => Promise<unknown>,
   options?: UseAsyncActionOptions,
 ) => {
   const isLoading = ref<boolean>(false);
