@@ -12,7 +12,6 @@ import useApiShrines from "@/composables/api/useApiShrines";
 import type { SearchShrinesParams } from "@/types/shrinesType";
 // Config
 import ROUTE_CONFIGS from "@/config/routeConfig";
-
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
@@ -80,7 +79,7 @@ onMounted(async () => {
         {{
           route.query.shrine
             ? t("shrines.search.resultsFor", { query: route.query.shrine })
-            : t("shrines.pageTitle")
+            : t("shrines.heading")
         }}
       </h1>
     </div>
@@ -121,8 +120,8 @@ onMounted(async () => {
         class="cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-4"
         tabindex="0"
         :aria-label="t('shrines.ariaLabel.shrineCard', { name: shrine.name })"
-        @click="router.push(`${ROUTE_CONFIGS.SEARCH}/${shrine.id}`)"
-        @keydown.enter="router.push(`${ROUTE_CONFIGS.SEARCH}/${shrine.id}`)"
+        @click="router.push(`${ROUTE_CONFIGS.SHRINES}/${shrine.id}`)"
+        @keydown.enter="router.push(`${ROUTE_CONFIGS.SHRINES}/${shrine.id}`)"
         v-cursor-hover
       >
         <ShrineCard :shrine="shrine" />
